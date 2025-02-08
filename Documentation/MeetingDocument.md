@@ -12,7 +12,8 @@
 
 ## Samuel  
 
-**What have you done since we met?**  
+**What have you done since we met?**
+Open Trello Workspace, finalize the idea, teaching git hub practing
 **What are you planning to do by the next time we meet?**  
 **What are you stuck on?**  
 
