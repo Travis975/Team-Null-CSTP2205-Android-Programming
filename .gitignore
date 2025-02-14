@@ -1,0 +1,24 @@
+# Ignore Android-specific build files
+.gradle/
+.idea/
+build/
+out/
+captures/
+
+# Ignore dependency caches
+*.iml
+*.log
+*.lock
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled files
+*.class
+*.dex
+*.apk
+*.aab
+
+# Ignore local configuration files
+local.properties
