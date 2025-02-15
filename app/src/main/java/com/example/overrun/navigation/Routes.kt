@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.overrun.enitities.Route
+import com.example.overrun.enitities.Route.*
 import com.example.overrun.ui.screens.DetailsScreen
 import com.example.overrun.ui.screens.HomeScreen
 import com.example.overrun.ui.screens.MainMenuScreen
@@ -12,9 +14,9 @@ import com.example.overrun.ui.screens.MainMenuScreen
 fun AppRoutes() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController) }
-        composable("details") { DetailsScreen(navController) }
-        composable("mainMenu") { MainMenuScreen(navController) }
+    NavHost(navController = navController, startDestination = HOME.path) {
+        composable(HOME.path) { HomeScreen(navController) }
+        composable(DETAILS.path) { DetailsScreen(navController) }
+        composable(MAIN_MENU.path) { MainMenuScreen(navController) }
     }
 }
