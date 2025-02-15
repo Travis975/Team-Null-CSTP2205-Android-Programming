@@ -8,21 +8,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun DetailsScreen(navController: NavController) {
+fun MainMenuScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Sign in Screen")
-        Button(onClick = { navController.navigate("home") }) {
-            Text("Back to Home")
-        }
-        Button(onClick = { navController.navigate("mainMenu") }) {
-            Text("Go to main menu")
+        Text(text = "Main Menu")
+        Button(onClick = { navController.navigate("level1") }) {
+            Text("Start Level 1")
         }
     }
+}
+
+
+// Preview without NavController
+@Preview(showBackground = true)
+@Composable
+fun MainMenuPreview() {
+    MainMenuScreen(navController = rememberNavController())
 }
