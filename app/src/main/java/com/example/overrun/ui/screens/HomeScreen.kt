@@ -24,6 +24,11 @@ fun HomeScreen(navController: NavController) {
         Button(onClick = { navController.navigate(DETAILS.path) }) {
             Text("Go to Details")
         }
+
+        // Temporary Added to test character
+        Button(onClick = { navController.navigate(TEST_CHARACTER.path) }) {
+            Text("Go to Test Character")
+        }
     }
 }
 
