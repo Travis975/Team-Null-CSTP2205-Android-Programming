@@ -5,7 +5,6 @@ import com.example.gohero.enitities.eCharactertype
 import com.example.gohero.enitities.eDirection
 
 abstract class CharacterBase(etype: eCharactertype,
-                             pairStartPos : Pair<UInt, UInt>,
                              lives : UInt, speed : UInt)
 
     // Important, use viewModel parent to presist the character state across the composable screen
@@ -21,8 +20,8 @@ abstract class CharacterBase(etype: eCharactertype,
     private var _lives : UInt = lives
 
     // Character Position, need to be animated for smooth transition
-    private var _xPos = pairStartPos.first
-    private var _yPos = pairStartPos.second
+    private var _xPos = 0U
+    private var _yPos = 0U
 
     // TO DO:
     // private var spriteObj : CharacterSprite

@@ -12,17 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gohero.enitities.character.HeroCharacter
 import com.example.gohero.enitities.character.HeroCompose
+import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.HOME
 import com.example.overrun.enitities.Route.MAIN_MENU
 
 @Composable
 fun TestCharacterGameScreen(navController: NavController)
 {
-    val hero = HeroCharacter(Pair(0U, 0U))
+    // This GameViewModel is the same data instance across the same navigation hosting tree
+    val gameViewModel: GameViewModel = viewModel()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -39,8 +42,8 @@ fun TestCharacterGameScreen(navController: NavController)
             .background(Color.Black)
             , contentAlignment = Alignment.Center)
         {
-            hero.updatePosition((maxWidth / 2).value.toUInt(), (maxHeight / 2).value.toUInt())
-            HeroCompose(hero)
+            gameViewModel.hero.updatePosition((maxWidth / 2).value.toUInt(), (maxHeight / 2).value.toUInt())
+            HeroCompose(gameViewModel.hero)
         }
     }
 
