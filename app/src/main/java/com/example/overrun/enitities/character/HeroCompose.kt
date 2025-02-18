@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,11 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -36,9 +42,13 @@ import com.example.gohero.control.DragController
 import com.example.gohero.control.DrawDragDirectionArrow
 import com.example.gohero.control.DrawTapCircle
 import com.example.gohero.control.GuestureControllerEx
+import com.example.gohero.enitities.GameConstant.HERO_PIXEL_SIZE
 import com.example.gohero.enitities.eDirection
+import com.example.overrun.R
+import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.concurrent.fixedRateTimer
 import kotlin.math.PI
@@ -53,12 +63,24 @@ fun HeroCompose(hero : CharacterBase){
     // Pass in hero object current stored X and Y Pos
     // Then assign to the xPos and yPos for composable movement animation
     val xPos = remember { Animatable(hero.getXPos().toFloat()) }
-    var yPos = remember { Animatable(hero.getYPos().toFloat()) }
+    val yPos = remember { Animatable(hero.getYPos().toFloat()) }
 
     // An Async handler
     val corontine = rememberCoroutineScope()
     //var isJobFinished = remember{mutableStateOf(true)}
     var currentMoveJob by remember { mutableStateOf<Job?>(null) }
+
+    val context = LocalContext.current
+
+    // Load Sprite Once
+    val spriteMove = remember{
+        loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
+            HERO_PIXEL_SIZE, HERO_PIXEL_SIZE // 96 x 96 pixels ^ 2, a multiple of 16
+        )
+    }
+
+    // Default Down
+    var currentMoveSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
 
     fun Move(eDir : eDirection){
 
@@ -72,6 +94,8 @@ fun HeroCompose(hero : CharacterBase){
         }
 
         currentMoveJob = corontine.launch{
+
+            hero.setDirection(eDir)
 
             when(eDir) {
                 // move up is to decrease the y position
@@ -112,16 +136,21 @@ fun HeroCompose(hero : CharacterBase){
 
         Log.i("Move", "xDelta: ${xDelta}    yDelta: ${yDelta}")
 
+        // Normalize angle to the range [0, 2PI)
+        val normalizedAngle = ((angleRad + 2 * PI) % (2 * PI)) * (180 / PI)
+
+        Log.i("Angle","${normalizedAngle}")
+
         // Update the direction back to the data class
         when{
             // Left Up to (not include) Right Up -> assign as UP Dir
-            angleRad in (-3 * PI /4)..<(-PI / 4) -> hero.setDirection(eDirection.eUP)
+            normalizedAngle in 225.0..<315.0 -> hero.setDirection(eDirection.eUP)
             // Right Up to (not include) Right Down -> assign as Right Dir
-            angleRad in (-PI / 4) ..<(PI / 4) -> hero.setDirection(eDirection.eRIGHT)
+            normalizedAngle in 315.0 ..<360.0 || normalizedAngle in 0.0..< 45.0 -> hero.setDirection(eDirection.eRIGHT)
             // Right Down to (not include) Left Down -> assign as Down Dir
-            angleRad in (PI / 4)..<(3 * PI / 4) -> hero.setDirection(eDirection.eDOWN)
+            normalizedAngle in 45.0..<135.0 -> hero.setDirection(eDirection.eDOWN)
             // Left Down to (not include) Left Up -> assign as Left Dir
-            (angleRad > (-3 * PI / 4) && angleRad <= (3 * PI / 4)) -> hero.setDirection(eDirection.eLEFT)
+            normalizedAngle in 135.0..<225.0 -> hero.setDirection(eDirection.eLEFT)
         }
 
         // Cancel the previous job
@@ -150,10 +179,34 @@ fun HeroCompose(hero : CharacterBase){
     // Control and Render
     var pointerAlpha = remember {Animatable(0f)}
     var pointerAngle = remember {mutableStateOf(0f)}
+    var startMove = remember{mutableStateOf(false)}
 
     // Offset include x and y
     val touchStartPt = remember {mutableStateOf(Offset.Zero)}
     var touchAlpha = remember{Animatable(0f)}
+
+
+
+    // when start moving
+    LaunchedEffect(startMove.value) {
+
+        if (startMove.value){
+
+            var frameIndex = 0
+            while(true)
+            {
+                if (frameIndex >= spriteMove[hero.getDirection().value].count())
+                {
+                    frameIndex = 0
+                }
+
+                currentMoveSprite.value = spriteMove[hero.getDirection().value][frameIndex]
+                frameIndex++;
+                delay(100)
+            }
+        }
+
+    }
 
     // The whole screen can be detect and render the pointer
     Box(Modifier.fillMaxSize()){
@@ -191,6 +244,7 @@ fun HeroCompose(hero : CharacterBase){
 
             // When Drag started
             onDragStart = { dragStartPt ->
+                startMove.value = true
                 corontine.launch{
                     // Set the Alpha value to 1f, for pointer arrow rendering
                     pointerAlpha.snapTo(0.4f)
@@ -199,6 +253,7 @@ fun HeroCompose(hero : CharacterBase){
 
             // When Drag End
             onDragEnd = {
+                startMove.value = false
                 corontine.launch{
                     pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
                 }
@@ -216,12 +271,18 @@ fun HeroCompose(hero : CharacterBase){
         Box(
             modifier = Modifier
                 .size(100.dp)
-                .offset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) }
-                .background(Color.Green, shape = CircleShape),
+                .offset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) },
+                //.background(Color.Green, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text("Hero(${xPos.value}, ${yPos.value})", color = Color.White, fontSize = 16.sp,
-                textAlign = TextAlign.Center)
+//            Text("Hero(${xPos.value}, ${yPos.value})", color = Color.White, fontSize = 16.sp,
+//                textAlign = TextAlign.Center)
+
+            Image(
+                painter = BitmapPainter(currentMoveSprite.value),
+                contentDescription = "hero",
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 
