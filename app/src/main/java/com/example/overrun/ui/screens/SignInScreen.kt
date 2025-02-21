@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 import com.example.overrun.enitities.Route.*
 
 @Composable
-fun DetailsScreen(navController: NavController) {
+fun SignInScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

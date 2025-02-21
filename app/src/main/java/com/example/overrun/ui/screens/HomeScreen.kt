@@ -21,8 +21,8 @@ fun HomeScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Home Screen")
-        Button(onClick = { navController.navigate(DETAILS.path) }) {
-            Text("Go to Details")
+        Button(onClick = { navController.navigate(SIGNIN.path) }) {
+            Text("Go to Sign In")
         }
 
         // Temporary Added to test character
