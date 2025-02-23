@@ -1,30 +1,27 @@
 package com.example.gohero.enitities.character
 
-import androidx.lifecycle.ViewModel
-import com.example.gohero.enitities.eCharactertype
+import com.example.gohero.enitities.GameConstant.DEFAULT_CHARACTER_SIZE
+import com.example.gohero.enitities.eCharacterType
 import com.example.gohero.enitities.eDirection
+import com.example.gohero.enitities.eObjectType
+import com.example.overrun.enitities.gameobject.GameObject
 
-abstract class CharacterBase(etype: eCharactertype,
-                             lives : UInt, speed : UInt)
-
-    // Important, use viewModel parent to presist the character state across the composable screen
-    // and having the game life-cycle
-    // : ViewModel()
+// Character is a kind of GameObject
+abstract class CharacterBase(id : String,
+                             etype: eCharacterType,
+                             lives : UInt, speed : UInt) :
+    GameObject(id, eObjectType.eCHARACTER,
+                width = DEFAULT_CHARACTER_SIZE, height = DEFAULT_CHARACTER_SIZE)
 {
 
     // Character attributes
     private var _name : String = ""
     private var _speed : UInt = speed
     private var _eDir : eDirection = eDirection.eDOWN
-    private var _etype : eCharactertype = etype
+    private var _etype : eCharacterType = etype
     private var _lives : UInt = lives
 
-    // Character Position, need to be animated for smooth transition
-    private var _xPos = 0U
-    private var _yPos = 0U
-
-    // TO DO:
-    // private var spriteObj : CharacterSprite
+    // GameObject Base owns collider
 
     public fun setName(name : String) {
         _name = name
@@ -42,13 +39,6 @@ abstract class CharacterBase(etype: eCharactertype,
     }
     public fun getLives() = _lives
     public fun isDie() : Boolean = _lives <= 0U
-
-    public fun getXPos() = _xPos
-    public fun getYPos() = _yPos
-    public fun updatePosition(xPos : UInt, yPos : UInt) {
-        _xPos = xPos
-        _yPos = yPos
-    }
 
     public fun setDirection(eDir: eDirection){
         _eDir = eDir
