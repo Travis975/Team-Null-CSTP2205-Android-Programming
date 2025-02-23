@@ -13,6 +13,8 @@ class Collider(var id : String,
     public fun getID() = _objectID
     public fun getXPos() = _xPos
     public fun getYPos() = _yPos
+    public fun getSizeWidth() = _width
+    public fun getSizeHeight() = _height
     public fun getXEndPos() = _xPos + _width
     public fun getYEndPos() = _yPos + _height
     public fun updatePosition(xPos : UInt, yPos : UInt) {

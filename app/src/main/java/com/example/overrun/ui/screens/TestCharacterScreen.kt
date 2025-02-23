@@ -5,30 +5,45 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.gohero.enitities.character.HeroCharacter
 import com.example.gohero.enitities.character.HeroCompose
+import com.example.gohero.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.HOME
-import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.gameStage.GameStageManager
+import com.example.overrun.enitities.gameobject.ObjectCompose
 
 @Composable
 fun TestCharacterGameScreen(navController: NavController)
 {
     // This GameViewModel is the same data instance across the same navigation hosting tree
     val gameViewModel: GameViewModel = viewModel()
+    // Use Remember to ensure only one instance for this Game Stage Screen
+    val gameStageManager : GameStageManager = remember{ GameStageManager(eGameStage.eStage1) }
+
+    val density = LocalDensity.current
+
+    val isGameStageInitialized = remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     )
@@ -42,8 +57,30 @@ fun TestCharacterGameScreen(navController: NavController)
             .background(Color.Black)
             , contentAlignment = Alignment.Center)
         {
-            gameViewModel.hero.updatePosition((maxWidth / 2).value.toUInt(), (maxHeight / 2).value.toUInt())
-            HeroCompose(gameViewModel.hero)
+            // Only Run Once when start
+            LaunchedEffect(Unit) {
+
+                val screenWidthPx = with(density){maxWidth.toPx()}
+                val screenHeightPx = with(density){maxHeight.toPx()}
+
+                gameStageManager.InitGameStage(gameVM = gameViewModel,
+                                                screenWidth= screenWidthPx.toUInt(),
+                                                screenHeight = screenHeightPx.toUInt())
+
+                isGameStageInitialized.value = true
+            }
+
+            if (isGameStageInitialized.value)
+            {
+                gameViewModel.gameObjects.forEach{ gameObj ->
+                    ObjectCompose(gameObj, gameViewModel.colliderManager)
+                }
+
+                // And Enemy here shall overlap the hero
+
+                // Remember, hero always overlap the game object
+                HeroCompose(gameViewModel.hero, gameViewModel.colliderManager)
+            }
         }
     }
 
