@@ -15,10 +15,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
-private fun createFrame(frameWidth: Int, frameHeight: Int, x: Int, y: Int, imageBitmap: ImageBitmap): ImageBitmap
+private fun createFrame(frameWidth: UInt, frameHeight: UInt, x: Int, y: Int, imageBitmap: ImageBitmap): ImageBitmap
 {
     // Create an ImageBitmap to hold the frame
-    val frame = ImageBitmap(frameWidth, frameHeight)
+    val frame = ImageBitmap(frameWidth.toInt(), frameHeight.toInt())
 
     // Create a Canvas to draw the image onto the frame
     val canvas = Canvas(frame)
@@ -26,10 +26,10 @@ private fun createFrame(frameWidth: Int, frameHeight: Int, x: Int, y: Int, image
     // Draw the image on the canvas
     canvas.drawImageRect(
         image = imageBitmap,
-        srcOffset = IntOffset(x * frameWidth, y * frameHeight),
-        srcSize = IntSize(frameWidth, frameHeight),
+        srcOffset = IntOffset(x * frameWidth.toInt(), y * frameHeight.toInt()),
+        srcSize = IntSize(frameWidth.toInt(), frameHeight.toInt()),
         dstOffset = IntOffset.Zero,
-        dstSize = IntSize(frameWidth, frameHeight),
+        dstSize = IntSize(frameWidth.toInt(), frameHeight.toInt()),
         paint = Paint() // pass in a default paint obj
     )
 
@@ -39,7 +39,7 @@ private fun createFrame(frameWidth: Int, frameHeight: Int, x: Int, y: Int, image
 // Each Row is one kind of animation, the column of each row is the frame alternation
 // Return a 2D List of ImageBitmap
 fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
-                    frameWidth: Int, frameHeight: Int): MutableList<MutableList<ImageBitmap>> {
+                    frameWidth: UInt, frameHeight: UInt): MutableList<MutableList<ImageBitmap>> {
 
     val options = BitmapFactory.Options().apply {
         inScaled = false  // Disable scaling based on density
@@ -50,8 +50,8 @@ fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
     //Log.i("image","Image : ${imageBitmap.width} ${imageBitmap.height}")
 
     val allAnimateFrames = mutableListOf<MutableList<ImageBitmap>>()
-    val columns = imageBitmap.width / frameWidth
-    val rows = imageBitmap.height / frameHeight
+    val columns = imageBitmap.width / frameWidth.toInt()
+    val rows = imageBitmap.height / frameHeight.toInt()
 
     for (y in 0..<rows) {
 
