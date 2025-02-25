@@ -5,57 +5,140 @@ import com.example.gohero.enitities.eGameStage
 import com.example.gohero.enitities.eObjectType
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.gameobject.GameObject
+import kotlin.math.ceil
 
-class GameStageManager(eStage: eGameStage) {
+class GameStageManager(private val eStage: eGameStage) {
 
-    // Stages configuration
-    val curGameStage : eGameStage = eStage
+    val curGameStage: eGameStage = eStage
 
-    // Init and Setup Game Stage
-    public fun InitGameStage(gameVM: GameViewModel,
-                             screenWidth : UInt, screenHeight : UInt)
-    {
-        // 0 - Init the game View Model Objects
+    fun InitGameStage(
+        gameVM: GameViewModel,
+        screenWidth: UInt,
+        screenHeight: UInt
+    ) {
         val colliderManager = gameVM.colliderManager
         val hero = gameVM.hero
         val gameObjects = gameVM.gameObjects
-        //val enemies = gameVM.enemies
 
-        // update hero starting position
+        // Convert UInt -> Int for arithmetic
+        val screenWidthInt = screenWidth.toInt()
+        val screenHeightInt = screenHeight.toInt()
+        val tileSizeInt = DEFAULT_OBJECT_SIZE.toInt()
+
+        // Use ceil(...) so we don’t leave gaps at the edges for grass
+        val numTilesX = ceil(screenWidthInt.toDouble() / tileSizeInt.toDouble()).toInt()
+        val numTilesY = ceil(screenHeightInt.toDouble() / tileSizeInt.toDouble()).toInt()
+
+        // Center hero on screen
         val xStartPos = (screenWidth / 2u) - hero.getCollider().getSizeWidth()
         val yStartPos = (screenHeight / 2u) - hero.getCollider().getSizeHeight()
         hero.updatePosition(xStartPos, yStartPos)
+
         gameObjects.clear()
 
-        // 1 - Create Game Stage Object related to the Stage
-        // Load the Map to create object
-        // Some rules applied to the stage etc.
-        when (curGameStage)
-        {
-            eGameStage.eStage1->{
+        when (curGameStage) {
+            eGameStage.eStage1 -> {
+                // --------------------------------------------------
+                // 1) Fill background with grass
+                // --------------------------------------------------
+                for (tileY in 0 until numTilesY) {
+                    for (tileX in 0 until numTilesX) {
+                        val posX = tileX * tileSizeInt
+                        val posY = tileY * tileSizeInt
 
-                // Temporary hard code creation for testing
-                // Should be created through ObjectFactory after through the game level map
-                // Position in Pixel
-                gameVM.gameObjects.add(
-                    GameObject(eObjectType.eROCK.toString() + "1", eObjectType.eROCK,
-                                    width = DEFAULT_OBJECT_SIZE, height = DEFAULT_OBJECT_SIZE,
-                                    300U, 300U)
-                )
+                        gameObjects.add(
+                            GameObject(
+                                id = "Grass_${tileX}_${tileY}",
+                                objType = eObjectType.eGRASS,
+                                width = DEFAULT_OBJECT_SIZE,
+                                height = DEFAULT_OBJECT_SIZE,
+                                x = posX.toUInt(),
+                                y = posY.toUInt()
+                            )
+                        )
+                    }
+                }
 
+                // --------------------------------------------------
+                // 2) Add a ring of rocks exactly on screen edges
+                //    (left, right, top, bottom) for a symmetrical wall
+                // --------------------------------------------------
+
+                // We define the absolute edges
+                val tileSize = tileSizeInt
+                val leftX = 0
+                val rightX = (screenWidthInt - tileSize).coerceAtLeast(0)
+                val topY = 0
+                val bottomY = (screenHeightInt - tileSize).coerceAtLeast(0)
+
+                // Top & bottom rows: loop across the full screen width
+                for (curX in 0..screenWidthInt step tileSize) {
+                    // Top row
+                    gameObjects.add(
+                        GameObject(
+                            id = "Rock_top_$curX",
+                            objType = eObjectType.eROCK,
+                            width = DEFAULT_OBJECT_SIZE,
+                            height = DEFAULT_OBJECT_SIZE,
+                            x = curX.toUInt(),
+                            y = topY.toUInt()
+                        )
+                    )
+                    // Bottom row
+                    gameObjects.add(
+                        GameObject(
+                            id = "Rock_bottom_$curX",
+                            objType = eObjectType.eROCK,
+                            width = DEFAULT_OBJECT_SIZE,
+                            height = DEFAULT_OBJECT_SIZE,
+                            x = curX.toUInt(),
+                            y = bottomY.toUInt()
+                        )
+                    )
+                }
+
+                // Left & right columns: loop across the full screen height
+                for (curY in 0..screenHeightInt step tileSize) {
+                    // Left column
+                    gameObjects.add(
+                        GameObject(
+                            id = "Rock_left_$curY",
+                            objType = eObjectType.eROCK,
+                            width = DEFAULT_OBJECT_SIZE,
+                            height = DEFAULT_OBJECT_SIZE,
+                            x = leftX.toUInt(),
+                            y = curY.toUInt()
+                        )
+                    )
+                    // Right column
+                    gameObjects.add(
+                        GameObject(
+                            id = "Rock_right_$curY",
+                            objType = eObjectType.eROCK,
+                            width = DEFAULT_OBJECT_SIZE,
+                            height = DEFAULT_OBJECT_SIZE,
+                            x = rightX.toUInt(),
+                            y = curY.toUInt()
+                        )
+                    )
+                }
             }
-            eGameStage.eStage2->{
 
-            }
-            eGameStage.eStage3-> {
-
-            }
-            else->{}
+            // Other stages...
+            else -> {}
         }
 
-        // 2 -  Setup Collider
+        // --------------------------------------------------
+        // 3) Setup colliders
+        // --------------------------------------------------
         colliderManager.resetAllCollider()
-        colliderManager.setHeroCollider(gameVM.hero)
-        colliderManager.setObjectColliders(gameVM.gameObjects)
+        colliderManager.setHeroCollider(hero)
+
+        // Skip grass for collisions so hero can move over it
+        colliderManager.setObjectColliders(
+            gameObjects
+                .filter { it.getObjType() != eObjectType.eGRASS }
+                .toMutableList() // convert to MutableList
+        )
     }
 }
