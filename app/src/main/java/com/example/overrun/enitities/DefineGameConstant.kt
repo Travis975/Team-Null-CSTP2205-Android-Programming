@@ -8,8 +8,20 @@ object GameConstant{
     const val DEFAULT_LIVES = 5U
     const val DEFAULT_HERO_SPEED = 25U
 
-    const val DEFAULT_OBJECT_SIZE = 144U
-    const val DEFAULT_CHARACTER_SIZE = DEFAULT_OBJECT_SIZE
+    // for scaling
+    const val GAME_SCREEN_COL = 7.5f
+    const val GAME_SCREEN_ROW = 15.3f
+    const val DEFAULT_SCREEN_WIDTH_PIXEL = 1080U        // a Medium Phone API 35 width pixel
+    const val DEFAULT_SCREEN_HEIGHT_PIXEL = 2211U       // a Medium Phone API 35 height pixel
+
+    const val HERO_CHARACTER_SPRITE_WIDTH_PIXEL = 144U
+    const val HERO_CHARACTER_SPRITE_HEIGHT_PIXEL = 144U
+
+    const val DEFAULT_INTERACT_SIZE_EXTEND_RATIO = 1.4375f
+
+    // For record, keep here
+    //const val DEFAULT_OBJECT_SIZE = 144U // 96U // 144U    // x 9 from 16 pixels = 144U (Medium Phone),  x 6 from 16 pixels = 96U (nokia 2.4)
+    //const val DEFAULT_CHARACTER_INTERACT_SIZE = 207U // 138U // 207U // x 9 from 23 pixels, ,  x 6 from 23 pixels (nokia 2.4)
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box

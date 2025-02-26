@@ -1,5 +1,6 @@
 package com.example.overrun.enitities.sprites
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -10,6 +11,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
@@ -36,10 +38,22 @@ private fun createFrame(frameWidth: UInt, frameHeight: UInt, x: Int, y: Int, ima
     return frame
 }
 
+fun scaleImageBitmap(image: ImageBitmap, scaleFactor: Float): ImageBitmap {
+    val width = (image.width * scaleFactor).toInt()
+    val height = (image.height * scaleFactor).toInt()
+
+    val resizedBitmap = Bitmap.createScaledBitmap(
+        image.asAndroidBitmap(), width, height, true
+    )
+
+    return resizedBitmap.asImageBitmap()
+}
+
 // Each Row is one kind of animation, the column of each row is the frame alternation
 // Return a 2D List of ImageBitmap
 fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
-                    frameWidth: UInt, frameHeight: UInt): MutableList<MutableList<ImageBitmap>> {
+                    frameWidth: UInt, frameHeight: UInt,
+                    scaleFactor: Float = 1f): MutableList<MutableList<ImageBitmap>> {
 
     val options = BitmapFactory.Options().apply {
         inScaled = false  // Disable scaling based on density
@@ -58,11 +72,27 @@ fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
         val animateFrames = mutableListOf<ImageBitmap>()
 
         for (x in 0..<columns) {
-            val frame = createFrame(frameWidth, frameHeight, x, y, imageBitmap)
+            var frame = createFrame(frameWidth, frameHeight, x, y, imageBitmap)
+
+            // Scale the frame
+            if (scaleFactor != 1f)
+            {
+                frame = scaleImageBitmap(frame, scaleFactor)
+            }
 
             animateFrames.add(frame)
         }
         allAnimateFrames.add(animateFrames)
     }
     return allAnimateFrames
+}
+
+// Overload function for single frame
+fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int): ImageBitmap {
+
+    val options = BitmapFactory.Options().apply {
+        inScaled = false  // Disable scaling based on density
+    }
+
+    return BitmapFactory.decodeResource(res, resId, options).asImageBitmap()
 }

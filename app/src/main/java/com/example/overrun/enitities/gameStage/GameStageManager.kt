@@ -1,6 +1,5 @@
 package com.example.overrun.enitities.gameStage
 
-import com.example.gohero.enitities.GameConstant.DEFAULT_OBJECT_SIZE
 import com.example.gohero.enitities.eGameStage
 import com.example.gohero.enitities.eObjectType
 import com.example.overrun.enitities.GameViewModel
@@ -19,7 +18,13 @@ class GameStageManager(private val eStage: eGameStage) {
         val colliderManager = gameVM.colliderManager
         val hero = gameVM.hero
         val gameObjects = gameVM.gameObjects
+        val gameObjSizeManager = gameVM.objectSizeManager
 
+        // Important, Update the screen width and height pixel for the game
+        // such that it can automatically scale down or up for different device
+        gameObjSizeManager.updateScreenSize(screenWidth, screenHeight)
+
+        val tileSize = gameObjSizeManager.GET_OBJECT_SIZE()
 
         // Use ceil(...) so we don’t leave gaps at the edges for grass
         val numTilesX = ceil(screenWidth.toFloat() / tileSize.toFloat()).toUInt()
@@ -46,8 +51,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             GameObject(
                                 id = "Grass_${tileX}_${tileY}",
                                 objType = eObjectType.eGRASS,
-                                width = DEFAULT_OBJECT_SIZE,
-                                height = DEFAULT_OBJECT_SIZE,
+                                objectSizeManager = gameObjSizeManager,
                                 x = posX,
                                 y = posY
                             )
@@ -71,8 +75,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "Rock_top_$curX",
                             objType = eObjectType.eTREE,
-                            width = DEFAULT_OBJECT_SIZE,
-                            height = DEFAULT_OBJECT_SIZE,
+                            objectSizeManager = gameObjSizeManager,
                             x = curX,
                             y = 0U
                         )
@@ -82,8 +85,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "Rock_bottom_$curX",
                             objType = eObjectType.eTREE,
-                            width = DEFAULT_OBJECT_SIZE,
-                            height = DEFAULT_OBJECT_SIZE,
+                            objectSizeManager = gameObjSizeManager,
                             x = curX,
                             y = bottomY
                         )
@@ -97,8 +99,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "Rock_left_$curY",
                             objType = eObjectType.eTREE,
-                            width = DEFAULT_OBJECT_SIZE,
-                            height = DEFAULT_OBJECT_SIZE,
+                            objectSizeManager = gameObjSizeManager,
                             x = 0U,
                             y = curY
                         )
@@ -108,8 +109,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "Rock_right_$curY",
                             objType = eObjectType.eTREE,
-                            width = DEFAULT_OBJECT_SIZE,
-                            height = DEFAULT_OBJECT_SIZE,
+                            objectSizeManager = gameObjSizeManager,
                             x = rightX,
                             y = curY
                         )

@@ -20,14 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import com.example.gohero.control.DrawDragDirectionArrow
 import com.example.gohero.control.DrawTapCircle
 import com.example.gohero.control.GuestureControllerEx
-import com.example.gohero.enitities.GameConstant.DEFAULT_CHARACTER_SIZE
+import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
+import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.gohero.enitities.eDirection
+import com.example.overrun.enitities.GameObjectSizeManager
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.Job
@@ -39,7 +42,8 @@ import kotlin.math.sin
 
 @Composable
 fun HeroCompose(hero : CharacterBase,
-                colliderManager: ColliderManager) {
+                colliderManager: ColliderManager,
+                objectSizeManager : GameObjectSizeManager) {
 
     // Pass in hero object current stored X and Y Pos
     // Then assign to the xPos and yPos for composable movement animation
@@ -54,12 +58,18 @@ fun HeroCompose(hero : CharacterBase,
     val context = LocalContext.current
     val density = LocalDensity.current
 
+    val CHARACTER_SIZE = objectSizeManager.GET_CHARACTER_SIZE()
+    val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeManager.GET_CHARACTER_INTERACT_SIZE()
     //Log.i("Density","$density")
 
     // Load Sprite Once
     val spriteMove = remember{
         loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
-            DEFAULT_CHARACTER_SIZE, DEFAULT_CHARACTER_SIZE // 96 x 96 pixels ^ 2, a multiple of 16
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
+            // would do a auto sprite scale up or down from the screen size
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeManager.GET_CHARACTER_SIZE().toFloat()
+        )
+    }
         )
     }
 
@@ -239,6 +249,8 @@ fun HeroCompose(hero : CharacterBase,
             Image(
                 painter = BitmapPainter(currentMoveSprite.value),
                 contentDescription = "hero",
+                //contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize()
             )
         }

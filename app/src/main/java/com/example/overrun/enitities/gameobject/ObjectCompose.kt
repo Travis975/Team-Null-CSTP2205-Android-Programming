@@ -11,15 +11,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
-import com.example.gohero.enitities.GameConstant.DEFAULT_OBJECT_SIZE
 import com.example.gohero.enitities.eObjectType
 import com.example.overrun.R
+import com.example.overrun.enitities.GameObjectSizeManager
 import com.example.overrun.enitities.collider.ColliderManager
 
 @Composable
 fun ObjectCompose(
     gameObject: GameObject,
-    colliderManager: ColliderManager
+    colliderManager: ColliderManager,
+    objectSizeManager : GameObjectSizeManager
 ) {
     // Use xPos and yPos for rendering
     val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
@@ -34,7 +35,7 @@ fun ObjectCompose(
         }
     }
 
-    val boxSize = with(density) { DEFAULT_OBJECT_SIZE.toFloat().toDp() }
+    val boxSize = with(density) { objectSizeManager.GET_OBJECT_SIZE().toFloat().toDp() }
 
     Box(Modifier.fillMaxSize()) {
         Box(
@@ -52,7 +53,8 @@ fun ObjectCompose(
                         painter = painterResource(id = R.drawable.grass_tile),
                         contentDescription = "Grass tile",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
+                        //contentScale = ContentScale.FillBounds
+                        contentScale = ContentScale.Fit
                     )
                 }
 
@@ -67,18 +69,12 @@ fun ObjectCompose(
                 }
 
                 eObjectType.eTREE -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black)
+                    Image(
+                        painter = painterResource(id = R.drawable.tree_w_grass_1),
+                        contentDescription = "tree tile",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
-                    {
-                        Image(
-                            painter = painterResource(id = R.drawable.tree_w_grass_1),
-                            contentDescription = "tree tile",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
                 }
 
                 else -> {
