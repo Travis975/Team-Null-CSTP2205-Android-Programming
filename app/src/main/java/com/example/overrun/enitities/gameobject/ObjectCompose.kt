@@ -66,6 +66,21 @@ fun ObjectCompose(
                     )
                 }
 
+                eObjectType.eTREE -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black)
+                    )
+                    {
+                        Image(
+                            painter = painterResource(id = R.drawable.tree_w_grass_1),
+                            contentDescription = "tree tile",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+
                 else -> {
                     // Default magenta box for other object types
                     Box(

@@ -77,7 +77,7 @@ class GameStageManager(private val eStage: eGameStage) {
                     gameObjects.add(
                         GameObject(
                             id = "Rock_top_$curX",
-                            objType = eObjectType.eROCK,
+                            objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
                             x = curX.toUInt(),
@@ -88,7 +88,7 @@ class GameStageManager(private val eStage: eGameStage) {
                     gameObjects.add(
                         GameObject(
                             id = "Rock_bottom_$curX",
-                            objType = eObjectType.eROCK,
+                            objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
                             x = curX.toUInt(),
@@ -103,7 +103,7 @@ class GameStageManager(private val eStage: eGameStage) {
                     gameObjects.add(
                         GameObject(
                             id = "Rock_left_$curY",
-                            objType = eObjectType.eROCK,
+                            objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
                             x = leftX.toUInt(),
@@ -114,7 +114,7 @@ class GameStageManager(private val eStage: eGameStage) {
                     gameObjects.add(
                         GameObject(
                             id = "Rock_right_$curY",
-                            objType = eObjectType.eROCK,
+                            objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
                             x = rightX.toUInt(),

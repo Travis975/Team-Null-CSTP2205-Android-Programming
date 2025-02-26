@@ -157,8 +157,8 @@ fun DrawTapCircle(touchStartPt: Offset, tapAlpha : Float){
             // When Tap Started
             if (tapAlpha > 0f){
                 val gradientBrush = Brush.radialGradient(
-                    colors = listOf(Color.White, Color.Gray,
-                                Color.DarkGray, Color.Transparent), // From Gray to transparent
+                    colors = listOf(Color.White, Color.Gray.copy(alpha=0.5f),
+                                Color.DarkGray.copy(alpha=0.3f), Color.Transparent), // From Gray to transparent
                     center = center,
                     radius = radius
                 )
