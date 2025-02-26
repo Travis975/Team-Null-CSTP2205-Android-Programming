@@ -30,6 +30,11 @@ import com.example.gohero.control.GuestureControllerEx
 import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.gohero.enitities.eDirection
+import com.example.gohero.enitities.eDirection.eDOWN
+import com.example.gohero.enitities.eDirection.eLEFT
+import com.example.gohero.enitities.eDirection.eRIGHT
+import com.example.gohero.enitities.eDirection.eUP
+import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeManager
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.sprites.loadSpriteSheet
@@ -60,6 +65,7 @@ fun HeroCompose(hero : CharacterBase,
 
     val CHARACTER_SIZE = objectSizeManager.GET_CHARACTER_SIZE()
     val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeManager.GET_CHARACTER_INTERACT_SIZE()
+
     //Log.i("Density","$density")
 
     // Load Sprite Once
@@ -70,11 +76,20 @@ fun HeroCompose(hero : CharacterBase,
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
+    val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
+
+    val spriteAttack = remember{
+        hashMapOf(
+            eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit),    // 144 x 207 pixels
+            eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit),        // 144 x 207 pixels
+            eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit),    // 207 x 144 pixels
+            eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)   // 207 x 144 pixels
         )
     }
+//
 
     // Default Down
-    val currentMoveSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
+    val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
 
     //
     //    Drag Direction	Example Offset (x, y)	atan2(y, x) in Radians	                Angle in Degrees
@@ -149,11 +164,17 @@ fun HeroCompose(hero : CharacterBase,
     val pointerAngle = remember {mutableFloatStateOf(0f)}
     val startMove = remember{mutableStateOf(false)}
 
+    val startAttack = remember{mutableStateOf(false)}
+    val isAttacking = remember{mutableStateOf(false)}
+
     // Offset include x and y
     val touchStartPt = remember {mutableStateOf(Offset.Zero)}
     val touchAlpha = remember{Animatable(0f)}
 
-
+    fun setCurSpriteWithLastFrameIndex()
+    {
+        currentSprite.value = spriteMove[hero.getDirection().value][lastMoveSpriteFrameIndex.value]
+    }
 
     // Moving sprite switching
     LaunchedEffect(startMove.value) {
@@ -161,14 +182,43 @@ fun HeroCompose(hero : CharacterBase,
         var frameIndex = 0
         while(startMove.value)
         {
-            if (frameIndex >= spriteMove[hero.getDirection().value].count())
+            setCurSpriteWithLastFrameIndex()
+
+            if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
             {
-                frameIndex = 0
+                lastMoveSpriteFrameIndex.value = 0
             }
 
-            currentMoveSprite.value = spriteMove[hero.getDirection().value][frameIndex]
-            frameIndex++
             delay(100)
+        }
+    }
+
+    // Attack sprite
+    LaunchedEffect(startAttack.value){
+
+        // If it is not the attacking
+        if (startAttack.value &&
+            !isAttacking.value)
+        {
+            startAttack.value = false
+            isAttacking.value = true
+
+            currentSprite.value = spriteAttack[hero.getDirection()]!!
+        }
+    }
+
+    // When isAttacking changed then trigger
+    LaunchedEffect(isAttacking.value)
+    {
+        // when it is attacking, wait for 50ms as the attack valid time then pull down the flag
+        if (isAttacking.value)
+        {
+            delay(50)
+            isAttacking.value = false
+        }
+        else
+        {
+            setCurSpriteWithLastFrameIndex()
         }
     }
 
@@ -181,6 +231,8 @@ fun HeroCompose(hero : CharacterBase,
             onTap = { touchPt ->
                 touchStartPt.value = touchPt // Store the Touch Pos
 
+                startAttack.value = true
+
                 corontine.launch{
                     touchAlpha.snapTo(0.4f)
                 }
@@ -191,6 +243,8 @@ fun HeroCompose(hero : CharacterBase,
                     if (!isDragStarted)
                     {
                         touchAlpha.snapTo(0f)
+                        isAttacking.value = false
+                        setCurSpriteWithLastFrameIndex()
                     }
                     else
                     {
@@ -201,6 +255,8 @@ fun HeroCompose(hero : CharacterBase,
 
             onDrag = { angle ->
                 pointerAngle.floatValue = angle
+
+                isAttacking.value = false // cancel the attack if is moving
 
                 // Call the Move to change xPos and yPos under the angle
                 Move(angle)
@@ -231,23 +287,68 @@ fun HeroCompose(hero : CharacterBase,
         DrawDragDirectionArrow(touchStartPt.value,
                                 pointerAlpha.value, pointerAngle.floatValue)
 
-        val boxSize = with(density){DEFAULT_CHARACTER_SIZE.toFloat().toDp()}
+
+        // Need to change the box size when attacking, since the attack sprite is in rectangle shape
+        val boxSize = with(density)
+        {
+            if (isAttacking.value) {
+
+                when (hero.getDirection()) {
+                    eDOWN, eUP -> {
+                        CHARACTER_SIZE.toFloat()
+                            .toDp() to CHARACTER_INTERACT_EXTEND_SIZE.toFloat().toDp()
+                    }
+
+                    eLEFT, eRIGHT -> {
+                        CHARACTER_INTERACT_EXTEND_SIZE.toFloat()
+                            .toDp() to CHARACTER_SIZE.toFloat().toDp()
+                    }
+                }
+            } else {
+                CHARACTER_SIZE.toFloat().toDp() to CHARACTER_SIZE.toFloat().toDp()  // Use default size
+            }
+        }
+
+        // Offset Adjustment for Attacking Up and Left directions
+        val offsetAdjustment = with(density) {
+
+            if (isAttacking.value)
+            {
+                when(hero.getDirection()){
+                    eUP->{
+                        IntOffset(0, -(CHARACTER_INTERACT_EXTEND_SIZE - CHARACTER_SIZE).toInt())  // Move Up
+                    }
+                    eLEFT->{
+                        IntOffset(-(CHARACTER_INTERACT_EXTEND_SIZE - CHARACTER_SIZE).toInt(), 0)  // Move Left
+                    }
+                    else->{
+                        IntOffset(0, 0)  // No adjustment
+                    }
+                }
+            }
+            else
+            {
+                IntOffset(0, 0)  // No adjustment
+            }
+        }
 
         // Character Box (Moves)
         Box(
             modifier = Modifier
                 // Assign the Size of Pixel corresponding dp to create the box
-                .size(boxSize)
+                .size(boxSize.first, boxSize.second)
+                //.size(boxSize)
                 .align(Alignment.TopStart)
                 // Offset is in Pixel
-                .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) },
+                .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) + offsetAdjustment },
+                //.background(Color.Red),
             contentAlignment = Alignment.Center
         ) {
 //            Text("Hero(${xPos.value}, ${yPos.value})", color = Color.White, fontSize = 16.sp,
 //                textAlign = TextAlign.Center)
 
             Image(
-                painter = BitmapPainter(currentMoveSprite.value),
+                painter = BitmapPainter(currentSprite.value),
                 contentDescription = "hero",
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
