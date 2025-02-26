@@ -20,14 +20,10 @@ class GameStageManager(private val eStage: eGameStage) {
         val hero = gameVM.hero
         val gameObjects = gameVM.gameObjects
 
-        // Convert UInt -> Int for arithmetic
-        val screenWidthInt = screenWidth.toInt()
-        val screenHeightInt = screenHeight.toInt()
-        val tileSizeInt = DEFAULT_OBJECT_SIZE.toInt()
 
         // Use ceil(...) so we don’t leave gaps at the edges for grass
-        val numTilesX = ceil(screenWidthInt.toDouble() / tileSizeInt.toDouble()).toInt()
-        val numTilesY = ceil(screenHeightInt.toDouble() / tileSizeInt.toDouble()).toInt()
+        val numTilesX = ceil(screenWidth.toFloat() / tileSize.toFloat()).toUInt()
+        val numTilesY = ceil(screenHeight.toFloat() / tileSize.toFloat()).toUInt()
 
         // Center hero on screen
         val xStartPos = (screenWidth / 2u) - hero.getCollider().getSizeWidth()
@@ -41,10 +37,10 @@ class GameStageManager(private val eStage: eGameStage) {
                 // --------------------------------------------------
                 // 1) Fill background with grass
                 // --------------------------------------------------
-                for (tileY in 0 until numTilesY) {
-                    for (tileX in 0 until numTilesX) {
-                        val posX = tileX * tileSizeInt
-                        val posY = tileY * tileSizeInt
+                for (tileY in 0U until numTilesY) {
+                    for (tileX in 0U until numTilesX) {
+                        val posX = tileX * tileSize
+                        val posY = tileY * tileSize
 
                         gameObjects.add(
                             GameObject(
@@ -52,8 +48,8 @@ class GameStageManager(private val eStage: eGameStage) {
                                 objType = eObjectType.eGRASS,
                                 width = DEFAULT_OBJECT_SIZE,
                                 height = DEFAULT_OBJECT_SIZE,
-                                x = posX.toUInt(),
-                                y = posY.toUInt()
+                                x = posX,
+                                y = posY
                             )
                         )
                     }
@@ -65,14 +61,11 @@ class GameStageManager(private val eStage: eGameStage) {
                 // --------------------------------------------------
 
                 // We define the absolute edges
-                val tileSize = tileSizeInt
-                val leftX = 0
-                val rightX = (screenWidthInt - tileSize).coerceAtLeast(0)
-                val topY = 0
-                val bottomY = (screenHeightInt - tileSize).coerceAtLeast(0)
+                val rightX = (screenWidth - tileSize).coerceAtLeast(0U)
+                val bottomY = (screenHeight - tileSize).coerceAtLeast(0U)
 
                 // Top & bottom rows: loop across the full screen width
-                for (curX in 0..screenWidthInt step tileSize) {
+                for (curX in 0U..screenWidth step tileSize.toInt()) {
                     // Top row
                     gameObjects.add(
                         GameObject(
@@ -80,8 +73,8 @@ class GameStageManager(private val eStage: eGameStage) {
                             objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
-                            x = curX.toUInt(),
-                            y = topY.toUInt()
+                            x = curX,
+                            y = 0U
                         )
                     )
                     // Bottom row
@@ -91,14 +84,14 @@ class GameStageManager(private val eStage: eGameStage) {
                             objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
-                            x = curX.toUInt(),
-                            y = bottomY.toUInt()
+                            x = curX,
+                            y = bottomY
                         )
                     )
                 }
 
                 // Left & right columns: loop across the full screen height
-                for (curY in 0..screenHeightInt step tileSize) {
+                for (curY in 0U..screenHeight step tileSize.toInt()) {
                     // Left column
                     gameObjects.add(
                         GameObject(
@@ -106,8 +99,8 @@ class GameStageManager(private val eStage: eGameStage) {
                             objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
-                            x = leftX.toUInt(),
-                            y = curY.toUInt()
+                            x = 0U,
+                            y = curY
                         )
                     )
                     // Right column
@@ -117,8 +110,8 @@ class GameStageManager(private val eStage: eGameStage) {
                             objType = eObjectType.eTREE,
                             width = DEFAULT_OBJECT_SIZE,
                             height = DEFAULT_OBJECT_SIZE,
-                            x = rightX.toUInt(),
-                            y = curY.toUInt()
+                            x = rightX,
+                            y = curY
                         )
                     )
                 }
