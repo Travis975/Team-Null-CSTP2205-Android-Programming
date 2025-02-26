@@ -1,6 +1,7 @@
 package com.example.overrun.ui.screens
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -64,6 +65,8 @@ fun TestCharacterGameScreen(navController: NavController)
                 val screenWidthPx = with(density){maxWidth.toPx()}
                 val screenHeightPx = with(density){maxHeight.toPx()}
 
+                Log.i("screen", "widthPx : $screenWidthPx, heightPx : $screenHeightPx")
+
                 gameStageManager.InitGameStage(gameVM = gameViewModel,
                                                 screenWidth= screenWidthPx.toUInt(),
                                                 screenHeight = screenHeightPx.toUInt())
@@ -74,13 +77,17 @@ fun TestCharacterGameScreen(navController: NavController)
             if (isGameStageInitialized.value)
             {
                 gameViewModel.gameObjects.forEach{ gameObj ->
-                    ObjectCompose(gameObj, gameViewModel.colliderManager)
+                    ObjectCompose(gameObj,
+                                  gameViewModel.colliderManager,
+                                  gameViewModel.objectSizeManager)
                 }
 
                 // And Enemy here shall overlap the hero
 
                 // Remember, hero always overlap the game object
-                HeroCompose(gameViewModel.hero, gameViewModel.colliderManager)
+                HeroCompose(gameViewModel.hero,
+                            gameViewModel.colliderManager,
+                            gameViewModel.objectSizeManager)
             }
         }
     }

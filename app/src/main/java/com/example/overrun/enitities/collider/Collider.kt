@@ -1,22 +1,23 @@
 package com.example.overrun.enitities.collider
 
+import com.example.overrun.enitities.GameObjectSizeManager
+
 class Collider(var id : String,
                var x : UInt, var y : UInt,
-               var width : UInt, var height : UInt) {
+               var objectSizeManager : GameObjectSizeManager) {
 
     private val _objectID = id
     private var _xPos = x
     private var _yPos = y
-    private var _width = width
-    private var _height = height
+    private var _objSizeManager = objectSizeManager
 
     public fun getID() = _objectID
     public fun getXPos() = _xPos
     public fun getYPos() = _yPos
-    public fun getSizeWidth() = _width
-    public fun getSizeHeight() = _height
-    public fun getXEndPos() = _xPos + _width
-    public fun getYEndPos() = _yPos + _height
+    public fun getSizeWidth() = _objSizeManager.GET_OBJECT_SIZE()
+    public fun getSizeHeight() = _objSizeManager.GET_OBJECT_SIZE()
+    public fun getXEndPos() = _xPos + getSizeWidth()
+    public fun getYEndPos() = _yPos + getSizeHeight()
     public fun updatePosition(xPos : UInt, yPos : UInt) {
         _xPos = xPos
         _yPos = yPos
@@ -38,10 +39,9 @@ class Collider(var id : String,
     fun copyInstance(): Collider {
         return Collider(
             id = this._objectID,
-            width = this._width,
-            height = this._height,
             x = this._xPos,
-            y = this._yPos
+            y = this._yPos,
+            objectSizeManager = this._objSizeManager
         )
     }
 }

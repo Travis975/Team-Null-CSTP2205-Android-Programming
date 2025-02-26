@@ -4,10 +4,12 @@ import com.example.gohero.enitities.GameConstant.DEFAULT_HERO_SPEED
 import com.example.gohero.enitities.GameConstant.DEFAULT_LIVES
 import com.example.gohero.enitities.eCharacterType
 import com.example.gohero.enitities.eHeroType
+import com.example.overrun.enitities.GameObjectSizeManager
 
-class HeroCharacter() :
+class HeroCharacter(objectSizeManager : GameObjectSizeManager) :
     CharacterBase(eCharacterType.eHERO.toString(),
-                    eCharacterType.eHERO, DEFAULT_LIVES, DEFAULT_HERO_SPEED)
+                    eCharacterType.eHERO, DEFAULT_LIVES, DEFAULT_HERO_SPEED,
+                    objectSizeManager)
 {
     private var eType : eHeroType = eHeroType.eHERO_TOKAGE
 
