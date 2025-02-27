@@ -86,17 +86,14 @@ fun HomeScreen(navController: NavController) {
                     contentScale = ContentScale.Fit
                 )
             }
-
-
-            // Pushes Sign In Button to Bottom
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Sign In Button at Bottom
             Button(
                 onClick = { navController.navigate(MAIN_MENU.path) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 64.dp)
             ) {
                 Text("Play Game")
             }
