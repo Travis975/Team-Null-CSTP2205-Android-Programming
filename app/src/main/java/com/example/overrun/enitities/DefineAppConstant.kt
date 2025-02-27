@@ -5,6 +5,7 @@ enum class Route(val path : String){
     SIGNIN("signIn"),
     MAIN_MENU("mainMenu"),
     START_GAME("startGame"),
+    CONTROLS("controls"),
     LEVEL_1("level1"),
     TEST_CHARACTER("TestCharacter")
 

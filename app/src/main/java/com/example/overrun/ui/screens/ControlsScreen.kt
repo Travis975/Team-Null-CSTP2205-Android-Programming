@@ -24,13 +24,13 @@ import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
 
 @Composable
-fun MainMenuScreen(navController: NavController) {
+fun ControlsScreen(navController: NavController) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         // Background Image
         Image(
-            painter = painterResource(id = R.drawable.forest_frawing),
+            painter = painterResource(id = R.drawable.forest_cartoon),
             contentDescription = "Background",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -42,47 +42,19 @@ fun MainMenuScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
 
-        ) {
-
-            Image(
-                painter = painterResource(id = R.drawable.main_menu_text),
-                contentDescription = "Main Menu Text",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                contentScale = ContentScale.FillWidth
-            )
+            ) {
+            Text("stuff here")
 
             Spacer(modifier = Modifier.height(96.dp))
 
+
             Button(
-                onClick = { navController.navigate(START_GAME.path) },
+                onClick = { navController.navigate(MAIN_MENU.path) },
                 modifier = Modifier
                     .padding(bottom = 32.dp)
             ) {
-                Text("Start Game")
-            }
-
-            Spacer(modifier = Modifier.height(36.dp))
-
-            Button(
-                onClick = { navController.navigate(CONTROLS.path) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
-            ) {
-                Text("Controls")
-            }
-
-            Spacer(modifier = Modifier.height(36.dp))
-
-            Button(
-                onClick = { navController.navigate(HOME.path) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
-            ) {
-                Text("Quit")
+                Text("Back")
             }
         }
     }
@@ -92,6 +64,6 @@ fun MainMenuScreen(navController: NavController) {
 // Preview without NavController
 @Preview(showBackground = true)
 @Composable
-fun MainMenuPreview() {
-    MainMenuScreen(navController = rememberNavController())
+fun ControlsPreview() {
+    ControlsScreen(navController = rememberNavController())
 }

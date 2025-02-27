@@ -27,6 +27,7 @@ import com.example.gohero.enitities.character.HeroCompose
 import com.example.gohero.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.HOME
+import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 
@@ -50,8 +51,12 @@ fun TestCharacterGameScreen(navController: NavController)
         verticalArrangement = Arrangement.Center
     )
     {
-        Button(onClick = { navController.navigate(HOME.path) }) {
-            Text("Back to Home")
+        Button(
+            onClick = { navController.navigate(MAIN_MENU.path) },
+            modifier = Modifier
+                .padding(bottom = 12.dp)
+        ) {
+            Text("Quit")
         }
 
         BoxWithConstraints(modifier = Modifier
