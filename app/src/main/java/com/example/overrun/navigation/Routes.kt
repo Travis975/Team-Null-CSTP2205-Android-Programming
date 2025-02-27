@@ -8,6 +8,7 @@ import com.example.overrun.enitities.Route.*
 import com.example.overrun.ui.screens.SignInScreen
 import com.example.overrun.ui.screens.HomeScreen
 import com.example.overrun.ui.screens.MainMenuScreen
+import com.example.overrun.ui.screens.StartGameScreen
 import com.example.overrun.ui.screens.TestCharacterGameScreen
 
 @Composable
@@ -19,5 +20,6 @@ fun AppRoutes() {
         composable(SIGNIN.path) { SignInScreen(navController) }
         composable(MAIN_MENU.path) { MainMenuScreen(navController) }
         composable(TEST_CHARACTER.path) { TestCharacterGameScreen(navController) }
+        composable(START_GAME.path) { StartGameScreen(navController) }
     }
 }
