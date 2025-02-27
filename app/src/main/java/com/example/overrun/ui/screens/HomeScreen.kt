@@ -45,8 +45,7 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -58,13 +57,26 @@ fun HomeScreen(navController: NavController) {
                     .padding(horizontal = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Image(
                 painter = painterResource(id = R.drawable.slogan1),
                 contentDescription = "slogan1",
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.padding(94.dp))
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // Sign In Button at Bottom
+            Button(
+                onClick = { navController.navigate(MAIN_MENU.path) },
+            ) {
+                Text("Play Game")
+            }
+
+            Spacer(modifier = Modifier.height(64.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally, // Centers images horizontally
@@ -85,17 +97,6 @@ fun HomeScreen(navController: NavController) {
                         .fillMaxWidth(),
                     contentScale = ContentScale.Fit
                 )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Sign In Button at Bottom
-            Button(
-                onClick = { navController.navigate(MAIN_MENU.path) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 64.dp)
-            ) {
-                Text("Play Game")
             }
         }
     }
