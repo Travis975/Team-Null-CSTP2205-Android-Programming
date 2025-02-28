@@ -15,6 +15,7 @@ import com.example.overrun.navigation.AppRoutes
 
 class MainActivity : ComponentActivity() {
     // Kept throwing error that AppRoutes was in a non composable function
+    
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
