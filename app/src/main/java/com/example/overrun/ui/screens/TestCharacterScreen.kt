@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +43,22 @@ fun TestCharacterGameScreen(navController: NavController)
     val density = LocalDensity.current
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
+
+    // Call Once when the Screen first Compose
+    DisposableEffect(Unit) {
+        println("Screen has entered the composition")
+
+        // Cleanup when the screen is navigated away from
+        onDispose {
+
+            // To Do
+            // Clean up memory or stop the coroutine that created for gaming
+            // Important !! //
+            gameViewModel.colliderManager.cancelHeroActionCollisionCheck()
+
+            println("Game Screen is leaving the composition")
+        }
+    }
 
     Column(
         modifier = Modifier

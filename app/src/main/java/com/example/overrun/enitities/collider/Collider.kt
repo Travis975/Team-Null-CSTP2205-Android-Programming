@@ -4,12 +4,16 @@ import com.example.overrun.enitities.GameObjectSizeManager
 
 class Collider(var id : String,
                var x : UInt, var y : UInt,
+               var interactable : Boolean,
                var objectSizeManager : GameObjectSizeManager) {
 
     private val _objectID = id
     private var _xPos = x
     private var _yPos = y
     private var _objSizeManager = objectSizeManager
+    // Object Collider default is true
+    private var _isActive = true
+    private val _isInteractable = interactable
 
     public fun getID() = _objectID
     public fun getXPos() = _xPos
@@ -22,6 +26,11 @@ class Collider(var id : String,
         _xPos = xPos
         _yPos = yPos
     }
+    public fun setActive(flag : Boolean){
+        _isActive = flag
+    }
+    public fun isActive() = _isActive
+    public fun isInteractable() = _isInteractable
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
@@ -41,6 +50,7 @@ class Collider(var id : String,
             id = this._objectID,
             x = this._xPos,
             y = this._yPos,
+            interactable = this._isInteractable,
             objectSizeManager = this._objSizeManager
         )
     }

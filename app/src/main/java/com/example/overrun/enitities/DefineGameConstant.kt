@@ -4,9 +4,11 @@ import androidx.annotation.DrawableRes
 import com.example.overrun.R
 
 object GameConstant{
+    // Hero Attribute
     // All value are in Pixels
     const val DEFAULT_LIVES = 5U
     const val DEFAULT_HERO_SPEED = 25U
+    const val INTERACT_FILER_INTERVAL_MS = 100U
 
     // for scaling
     const val GAME_SCREEN_COL = 7.5f

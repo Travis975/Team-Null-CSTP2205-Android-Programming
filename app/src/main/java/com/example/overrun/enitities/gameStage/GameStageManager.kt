@@ -52,6 +52,7 @@ class GameStageManager(private val eStage: eGameStage) {
                                 id = "Grass_${tileX}_${tileY}",
                                 objType = eObjectType.eGRASS,
                                 objectSizeManager = gameObjSizeManager,
+                                interactable = false,
                                 x = posX,
                                 y = posY
                             )
@@ -76,6 +77,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             id = "Rock_top_$curX",
                             objType = eObjectType.eTREE,
                             objectSizeManager = gameObjSizeManager,
+                            interactable = false,
                             x = curX,
                             y = 0U
                         )
@@ -86,6 +88,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             id = "Rock_bottom_$curX",
                             objType = eObjectType.eTREE,
                             objectSizeManager = gameObjSizeManager,
+                            interactable = false,
                             x = curX,
                             y = bottomY
                         )
@@ -100,6 +103,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             id = "Rock_left_$curY",
                             objType = eObjectType.eTREE,
                             objectSizeManager = gameObjSizeManager,
+                            interactable = false,
                             x = 0U,
                             y = curY
                         )
@@ -110,6 +114,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             id = "Rock_right_$curY",
                             objType = eObjectType.eTREE,
                             objectSizeManager = gameObjSizeManager,
+                            interactable = false,
                             x = rightX,
                             y = curY
                         )
@@ -133,5 +138,8 @@ class GameStageManager(private val eStage: eGameStage) {
                 .filter { it.getObjType() != eObjectType.eGRASS }
                 .toMutableList() // convert to MutableList
         )
+
+        // Start Coroutine Check Action Collider
+        colliderManager.startHeroActionCollisionCheck()
     }
 }

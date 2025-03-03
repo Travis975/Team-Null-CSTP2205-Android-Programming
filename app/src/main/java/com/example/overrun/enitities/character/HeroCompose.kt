@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +51,10 @@ import kotlin.math.sin
 fun HeroCompose(hero : CharacterBase,
                 colliderManager: ColliderManager,
                 objectSizeManager : GameObjectSizeManager) {
+
+    // For Debugging
+    val bFlagDisplayActionCollider = false
+
 
     // Pass in hero object current stored X and Y Pos
     // Then assign to the xPos and yPos for composable movement animation
@@ -166,6 +172,7 @@ fun HeroCompose(hero : CharacterBase,
 
     val startAttack = remember{mutableStateOf(false)}
     val isAttacking = remember{mutableStateOf(false)}
+    val lastAttackDir = remember{ mutableStateOf(hero.getDirection()) }
 
     // Offset include x and y
     val touchStartPt = remember {mutableStateOf(Offset.Zero)}
@@ -174,6 +181,17 @@ fun HeroCompose(hero : CharacterBase,
     fun setCurSpriteWithLastFrameIndex()
     {
         currentSprite.value = spriteMove[hero.getDirection().value][lastMoveSpriteFrameIndex.value]
+    }
+
+    fun AttackingActive(attacking : Boolean)
+    {
+        isAttacking.value = attacking
+
+        if (attacking)
+        {
+            lastAttackDir.value = hero.getDirection()
+        }
+        hero.getActionCollider()[lastAttackDir.value]?.setActive(attacking)
     }
 
     // Moving sprite switching
@@ -201,7 +219,7 @@ fun HeroCompose(hero : CharacterBase,
             !isAttacking.value)
         {
             startAttack.value = false
-            isAttacking.value = true
+            AttackingActive(true)
 
             currentSprite.value = spriteAttack[hero.getDirection()]!!
         }
@@ -214,7 +232,7 @@ fun HeroCompose(hero : CharacterBase,
         if (isAttacking.value)
         {
             delay(50)
-            isAttacking.value = false
+            AttackingActive(false)
         }
         else
         {
@@ -243,7 +261,6 @@ fun HeroCompose(hero : CharacterBase,
                     if (!isDragStarted)
                     {
                         touchAlpha.snapTo(0f)
-                        isAttacking.value = false
                         setCurSpriteWithLastFrameIndex()
                     }
                     else
@@ -256,7 +273,7 @@ fun HeroCompose(hero : CharacterBase,
             onDrag = { angle ->
                 pointerAngle.floatValue = angle
 
-                isAttacking.value = false // cancel the attack if is moving
+                AttackingActive(false) // cancel the attack if is moving
 
                 // Call the Move to change xPos and yPos under the angle
                 Move(angle)
@@ -332,6 +349,29 @@ fun HeroCompose(hero : CharacterBase,
             }
         }
 
+        if (bFlagDisplayActionCollider)
+        {
+            // Draw the action collider for checking
+            hero.getActionCollider().forEach{ (eDir, collider)->
+
+                val boxSizeCollider = with(density) {
+                    collider.getSizeWidth().toFloat().toDp() to collider.getSizeHeight().toFloat().toDp()
+                }
+
+                Box(modifier = Modifier
+                    .size(boxSizeCollider.first, boxSizeCollider.second)
+                    .align(Alignment.TopStart)
+                    // Offset is in Pixel
+                    .absoluteOffset {
+                        IntOffset(
+                            collider.getXPos().toInt(),
+                            collider.getYPos().toInt()
+                        )
+                    }
+                    .background(Color.Red)){}
+            }
+        }
+
         // Character Box (Moves)
         Box(
             modifier = Modifier
@@ -340,7 +380,12 @@ fun HeroCompose(hero : CharacterBase,
                 //.size(boxSize)
                 .align(Alignment.TopStart)
                 // Offset is in Pixel
-                .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) + offsetAdjustment },
+                .absoluteOffset {
+                    IntOffset(
+                        xPos.value.toInt(),
+                        yPos.value.toInt()
+                    ) + offsetAdjustment
+                },
                 //.background(Color.Red),
             contentAlignment = Alignment.Center
         ) {
@@ -356,5 +401,4 @@ fun HeroCompose(hero : CharacterBase,
             )
         }
     }
-
 }
