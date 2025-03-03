@@ -12,7 +12,7 @@ abstract class CharacterBase(id : String,
                              lives : UInt, speed : UInt,
                              objectSizeManager : GameObjectSizeManager) :
     GameObject(id, eObjectType.eCHARACTER,
-                objectSizeManager)
+                objectSizeManager, true)
 {
 
     // Character attributes

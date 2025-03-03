@@ -1,12 +1,16 @@
 package com.example.overrun.enitities.gameobject
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -15,6 +19,7 @@ import com.example.gohero.enitities.eObjectType
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeManager
 import com.example.overrun.enitities.collider.ColliderManager
+import kotlinx.coroutines.delay
 
 @Composable
 fun ObjectCompose(
@@ -28,14 +33,48 @@ fun ObjectCompose(
 
     val density = LocalDensity.current
 
-    // Normal collision check, but grass won't be included anyway
-    val isColliding = remember {
+    val boxSize = with(density) { objectSizeManager.GET_OBJECT_SIZE().toFloat().toDp() }
+
+    var lastColor by remember{ mutableStateOf(Color.DarkGray)}
+
+    var filterOpacity by remember{mutableStateOf(0f)}
+
+    // snapShotMap stored the interaction timestamp in ms
+    val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
-            colliderManager.getHeroCollider()?.IsCollided(gameObject.getCollider()) ?: false
+            colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L     // if no id registered, response as 0L
         }
     }
 
-    val boxSize = with(density) { objectSizeManager.GET_OBJECT_SIZE().toFloat().toDp() }
+    // Launch a effect to process the interaction object reaction
+    LaunchedEffect(isBeingInteracted.value) {
+        // only process when triggered with timestamp recorded
+        if (isBeingInteracted.value > 0L) {
+
+            // Can apply for Object to debug for interaction
+            lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
+
+            // under different object configuration to set the object data
+            // TO DO
+            // Set Destroy, Active or InActive
+            if (gameObject.getCollider().isInteractable()) // if the object is interactable
+            {
+                filterOpacity = 0.8f
+            }
+        }
+    }
+
+    LaunchedEffect(filterOpacity){
+        if (filterOpacity > 0f)
+        {
+            delay(50)
+            filterOpacity -= 0.3f
+        }
+        else
+        {
+            filterOpacity = 0f
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         Box(
@@ -43,6 +82,7 @@ fun ObjectCompose(
                 .size(boxSize)
                 .align(Alignment.TopStart)
                 .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) }
+                .background(Color.Transparent)
         ) {
             when (gameObject.getObjType()) {
 
@@ -59,20 +99,27 @@ fun ObjectCompose(
                 }
 
                 eObjectType.eROCK -> {
-                    // If you have a rock image, replace with an Image(...) here.
-                    // For now, let's just draw a gray box:
-                    Box(
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .background(lastColor)
+//                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.rock1_1),
+                        contentDescription = "rock1_1",
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.DarkGray)
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
                     )
                 }
 
                 eObjectType.eTREE -> {
                     Image(
-                        painter = painterResource(id = R.drawable.tree_w_grass_1),
+                        painter = painterResource(id = R.drawable.tree_1),
                         contentDescription = "tree tile",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 }
