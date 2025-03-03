@@ -2,9 +2,12 @@ package com.example.overrun.enitities.gameStage
 
 import com.example.gohero.enitities.eGameStage
 import com.example.gohero.enitities.eObjectType
+import com.example.gohero.enitities.eObjectType.*
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlin.math.ceil
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 class GameStageManager(private val eStage: eGameStage) {
 
@@ -49,8 +52,8 @@ class GameStageManager(private val eStage: eGameStage) {
 
                         gameObjects.add(
                             GameObject(
-                                id = "Grass_${tileX}_${tileY}",
-                                objType = eObjectType.eGRASS,
+                                id = "${eGRASS}_${tileX}_${tileY}",
+                                objType = eGRASS,
                                 objectSizeManager = gameObjSizeManager,
                                 interactable = false,
                                 x = posX,
@@ -74,8 +77,8 @@ class GameStageManager(private val eStage: eGameStage) {
                     // Top row
                     gameObjects.add(
                         GameObject(
-                            id = "Rock_top_$curX",
-                            objType = eObjectType.eTREE,
+                            id = "${eTREE}_top_$curX",
+                            objType = eTREE,
                             objectSizeManager = gameObjSizeManager,
                             interactable = false,
                             x = curX,
@@ -85,8 +88,8 @@ class GameStageManager(private val eStage: eGameStage) {
                     // Bottom row
                     gameObjects.add(
                         GameObject(
-                            id = "Rock_bottom_$curX",
-                            objType = eObjectType.eTREE,
+                            id = "${eTREE}_bottom_$curX",
+                            objType = eTREE,
                             objectSizeManager = gameObjSizeManager,
                             interactable = false,
                             x = curX,
@@ -100,8 +103,8 @@ class GameStageManager(private val eStage: eGameStage) {
                     // Left column
                     gameObjects.add(
                         GameObject(
-                            id = "Rock_left_$curY",
-                            objType = eObjectType.eTREE,
+                            id = "${eTREE}_left_$curY",
+                            objType = eTREE,
                             objectSizeManager = gameObjSizeManager,
                             interactable = false,
                             x = 0U,
@@ -111,8 +114,8 @@ class GameStageManager(private val eStage: eGameStage) {
                     // Right column
                     gameObjects.add(
                         GameObject(
-                            id = "Rock_right_$curY",
-                            objType = eObjectType.eTREE,
+                            id = "${eTREE}_right_$curY",
+                            objType = eTREE,
                             objectSizeManager = gameObjSizeManager,
                             interactable = false,
                             x = rightX,
@@ -120,6 +123,26 @@ class GameStageManager(private val eStage: eGameStage) {
                         )
                     )
                 }
+
+                // --------------------------------------------------
+                // 3) Add Object
+                //
+                // --------------------------------------------------
+                //var xRan = Random.nextUInt(1U, numTilesX)
+                //var yRan = Random.nextUInt(1U, numTilesY)
+
+                var xRan = 3U
+                var yRan = 8U
+                gameObjects.add(
+                    GameObject(
+                        id = "${eROCK}_${xRan}_${yRan}",
+                        objType = eROCK,
+                        objectSizeManager = gameObjSizeManager,
+                        interactable = true,
+                        x = xRan * tileSize,
+                        y = yRan * tileSize
+                    )
+                )
             }
 
             // Other stages...

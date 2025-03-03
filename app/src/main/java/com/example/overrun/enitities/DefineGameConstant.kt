@@ -11,8 +11,8 @@ object GameConstant{
     const val INTERACT_FILER_INTERVAL_MS = 100U
 
     // for scaling
-    const val GAME_SCREEN_COL = 7.5f
-    const val GAME_SCREEN_ROW = 15.3f
+    const val GAME_SCREEN_COL = 7f //7.5f
+    const val GAME_SCREEN_ROW = 14f //15.3f
     const val DEFAULT_SCREEN_WIDTH_PIXEL = 1080U        // a Medium Phone API 35 width pixel
     const val DEFAULT_SCREEN_HEIGHT_PIXEL = 2211U       // a Medium Phone API 35 height pixel
 
