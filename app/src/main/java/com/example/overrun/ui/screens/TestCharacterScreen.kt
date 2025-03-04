@@ -33,10 +33,9 @@ import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 
 @Composable
-fun TestCharacterGameScreen(navController: NavController)
+fun TestCharacterGameScreen(navController: NavController,
+                            gameViewModel: GameViewModel)
 {
-    // This GameViewModel is the same data instance across the same navigation hosting tree
-    val gameViewModel: GameViewModel = viewModel()
     // Use Remember to ensure only one instance for this Game Stage Screen
     val gameStageManager : GameStageManager = remember{ GameStageManager(eGameStage.eStage1) }
 
@@ -119,5 +118,7 @@ fun TestCharacterGameScreen(navController: NavController)
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    TestCharacterGameScreen(navController = rememberNavController())
+    val gameViewModel: GameViewModel = viewModel()
+    TestCharacterGameScreen(navController = rememberNavController(),
+                            gameViewModel)
 }
