@@ -3,18 +3,18 @@ package com.example.overrun.enitities.collider
 import com.example.gohero.enitities.eDirection
 import com.example.gohero.enitities.eDirection.*
 import com.example.gohero.enitities.eObjectType
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 
 // ActionCollider is reference from the object collider x, y position
 class ActionCollider(objectCollider: Collider, eDir: eDirection,
                       objType : eObjectType,
-                      objectSizeManager : GameObjectSizeManager) {
+                      objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
     private var _objectCollider = objectCollider
     private var _eDir = eDir
     // eCHARACTER, eTREE, eWALL, eROCK, ePATH, eGRASS
     private var _objType = objType
-    private var _objSizeManager = objectSizeManager
+    private var _objSizeAndViewManager = objectSizeAndViewManager
     // Action Collider default is false
     private var _isActive = false
 
@@ -31,14 +31,14 @@ class ActionCollider(objectCollider: Collider, eDir: eDirection,
                 return _objectCollider.getSizeWidth()
             }
             eLEFT, eRIGHT->{
-                return _objSizeManager.GET_ACTION_INTERACT_SIZE(_objType)
+                return _objSizeAndViewManager.GET_ACTION_INTERACT_SIZE(_objType)
             }
         }
     }
     public fun getSizeHeight() : UInt{
         when(_eDir){
             eUP, eDOWN->{
-                return _objSizeManager.GET_ACTION_INTERACT_SIZE(_objType)
+                return _objSizeAndViewManager.GET_ACTION_INTERACT_SIZE(_objType)
             }
             eLEFT, eRIGHT->{
                 return _objectCollider.getSizeHeight()

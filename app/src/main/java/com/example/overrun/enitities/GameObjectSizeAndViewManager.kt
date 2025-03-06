@@ -1,5 +1,8 @@
 package com.example.overrun.enitities
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import com.example.gohero.enitities.GameConstant.DEFAULT_INTERACT_SIZE_EXTEND_RATIO
 import com.example.gohero.enitities.GameConstant.DEFAULT_SCREEN_HEIGHT_PIXEL
 import com.example.gohero.enitities.GameConstant.DEFAULT_SCREEN_WIDTH_PIXEL
@@ -8,20 +11,25 @@ import com.example.gohero.enitities.GameConstant.GAME_SCREEN_ROW
 import com.example.gohero.enitities.eObjectType
 import com.example.gohero.enitities.eObjectType.*
 
-class GameObjectSizeManager {
+class GameObjectSizeAndViewManager {
 
-    var screenWidthPixel : UInt = DEFAULT_SCREEN_WIDTH_PIXEL
-    var screenHeightPixel : UInt = DEFAULT_SCREEN_HEIGHT_PIXEL
+    private var _screenWidthPixel : UInt = DEFAULT_SCREEN_WIDTH_PIXEL
+    private var _screenHeightPixel : UInt = DEFAULT_SCREEN_HEIGHT_PIXEL
+
+    var screenWorldX by mutableStateOf(0f)
+    var screenWorldY by mutableStateOf(0f)
 
     fun updateScreenSize(width : UInt, height : UInt){
-        screenWidthPixel = width
-        screenHeightPixel = height
+        _screenWidthPixel = width
+        _screenHeightPixel = height
     }
+    fun getScreenWidth() = _screenWidthPixel
+    fun getScreenHeight() = _screenHeightPixel
 
     fun GET_OBJECT_SIZE() : UInt
     {
-        return minOf((screenWidthPixel.toFloat() / GAME_SCREEN_COL).toUInt(),
-                    (screenHeightPixel.toFloat() / GAME_SCREEN_ROW).toUInt())
+        return minOf((_screenWidthPixel.toFloat() / GAME_SCREEN_COL).toUInt(),
+                    (_screenHeightPixel.toFloat() / GAME_SCREEN_ROW).toUInt())
     }
 
     fun GET_CHARACTER_SIZE() : UInt

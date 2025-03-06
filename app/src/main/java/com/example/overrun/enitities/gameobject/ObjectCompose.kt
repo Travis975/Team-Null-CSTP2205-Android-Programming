@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import com.example.gohero.enitities.eObjectType
 import com.example.overrun.R
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
 import kotlinx.coroutines.delay
 
@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
 fun ObjectCompose(
     gameObject: GameObject,
     colliderManager: ColliderManager,
-    objectSizeManager : GameObjectSizeManager
+    objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
     // Use xPos and yPos for rendering
     val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
@@ -33,7 +33,7 @@ fun ObjectCompose(
 
     val density = LocalDensity.current
 
-    val boxSize = with(density) { objectSizeManager.GET_OBJECT_SIZE().toFloat().toDp() }
+    val boxSize = with(density) { objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp() }
 
     var lastColor by remember{ mutableStateOf(Color.DarkGray)}
 

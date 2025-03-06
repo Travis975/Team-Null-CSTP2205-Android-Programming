@@ -21,13 +21,13 @@ class GameStageManager(private val eStage: eGameStage) {
         val colliderManager = gameVM.colliderManager
         val hero = gameVM.hero
         val gameObjects = gameVM.gameObjects
-        val gameObjSizeManager = gameVM.objectSizeManager
+        val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
         // Important, Update the screen width and height pixel for the game
         // such that it can automatically scale down or up for different device
-        gameObjSizeManager.updateScreenSize(screenWidth, screenHeight)
+        gameObjSizeAndViewManager.updateScreenSize(screenWidth, screenHeight)
 
-        val tileSize = gameObjSizeManager.GET_OBJECT_SIZE()
+        val tileSize = gameObjSizeAndViewManager.GET_OBJECT_SIZE()
 
         // Use ceil(...) so we don’t leave gaps at the edges for grass
         val numTilesX = ceil(screenWidth.toFloat() / tileSize.toFloat()).toUInt()
@@ -54,7 +54,7 @@ class GameStageManager(private val eStage: eGameStage) {
                             GameObject(
                                 id = "${eGRASS}_${tileX}_${tileY}",
                                 objType = eGRASS,
-                                objectSizeManager = gameObjSizeManager,
+                                objectSizeAndViewManager = gameObjSizeAndViewManager,
                                 interactable = false,
                                 x = posX,
                                 y = posY
@@ -79,7 +79,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "${eTREE}_top_$curX",
                             objType = eTREE,
-                            objectSizeManager = gameObjSizeManager,
+                            objectSizeAndViewManager = gameObjSizeAndViewManager,
                             interactable = false,
                             x = curX,
                             y = 0U
@@ -90,7 +90,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "${eTREE}_bottom_$curX",
                             objType = eTREE,
-                            objectSizeManager = gameObjSizeManager,
+                            objectSizeAndViewManager = gameObjSizeAndViewManager,
                             interactable = false,
                             x = curX,
                             y = bottomY
@@ -105,7 +105,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "${eTREE}_left_$curY",
                             objType = eTREE,
-                            objectSizeManager = gameObjSizeManager,
+                            objectSizeAndViewManager = gameObjSizeAndViewManager,
                             interactable = false,
                             x = 0U,
                             y = curY
@@ -116,7 +116,7 @@ class GameStageManager(private val eStage: eGameStage) {
                         GameObject(
                             id = "${eTREE}_right_$curY",
                             objType = eTREE,
-                            objectSizeManager = gameObjSizeManager,
+                            objectSizeAndViewManager = gameObjSizeAndViewManager,
                             interactable = false,
                             x = rightX,
                             y = curY
@@ -137,7 +137,7 @@ class GameStageManager(private val eStage: eGameStage) {
                     GameObject(
                         id = "${eROCK}_${xRan}_${yRan}",
                         objType = eROCK,
-                        objectSizeManager = gameObjSizeManager,
+                        objectSizeAndViewManager = gameObjSizeAndViewManager,
                         interactable = true,
                         x = xRan * tileSize,
                         y = yRan * tileSize

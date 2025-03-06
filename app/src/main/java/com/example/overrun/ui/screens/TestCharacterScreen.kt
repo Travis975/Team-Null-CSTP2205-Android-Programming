@@ -100,7 +100,7 @@ fun TestCharacterGameScreen(navController: NavController,
                 gameViewModel.gameObjects.forEach{ gameObj ->
                     ObjectCompose(gameObj,
                                   gameViewModel.colliderManager,
-                                  gameViewModel.objectSizeManager)
+                                  gameViewModel.objectSizeAndViewManager)
                 }
 
                 // And Enemy here shall overlap the hero
@@ -108,7 +108,7 @@ fun TestCharacterGameScreen(navController: NavController,
                 // Remember, hero always overlap the game object
                 HeroCompose(gameViewModel.hero,
                             gameViewModel.colliderManager,
-                            gameViewModel.objectSizeManager)
+                            gameViewModel.objectSizeAndViewManager)
             }
         }
     }
