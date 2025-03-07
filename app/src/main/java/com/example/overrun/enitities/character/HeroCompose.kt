@@ -37,7 +37,7 @@ import com.example.gohero.enitities.eDirection.eLEFT
 import com.example.gohero.enitities.eDirection.eRIGHT
 import com.example.gohero.enitities.eDirection.eUP
 import com.example.overrun.R
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.Job
@@ -50,7 +50,7 @@ import kotlin.math.sin
 @Composable
 fun HeroCompose(hero : CharacterBase,
                 colliderManager: ColliderManager,
-                objectSizeManager : GameObjectSizeManager) {
+                objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
     // For Debugging
     val bFlagDisplayActionCollider = false
@@ -69,8 +69,8 @@ fun HeroCompose(hero : CharacterBase,
     val context = LocalContext.current
     val density = LocalDensity.current
 
-    val CHARACTER_SIZE = objectSizeManager.GET_CHARACTER_SIZE()
-    val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeManager.GET_CHARACTER_INTERACT_SIZE()
+    val CHARACTER_SIZE = objectSizeAndViewManager.GET_CHARACTER_SIZE()
+    val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeAndViewManager.GET_CHARACTER_INTERACT_SIZE()
 
     //Log.i("Density","$density")
 
@@ -79,7 +79,7 @@ fun HeroCompose(hero : CharacterBase,
         loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
             // would do a auto sprite scale up or down from the screen size
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeManager.GET_CHARACTER_SIZE().toFloat()
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }

@@ -3,14 +3,14 @@ package com.example.gohero.enitities.character
 import com.example.gohero.enitities.eCharacterType
 import com.example.gohero.enitities.eDirection
 import com.example.gohero.enitities.eObjectType
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.gameobject.GameObject
 
 // Character is a kind of GameObject
 abstract class CharacterBase(id : String,
                              etype: eCharacterType,
                              lives : UInt, speed : UInt,
-                             objectSizeManager : GameObjectSizeManager) :
+                             objectSizeManager : GameObjectSizeAndViewManager) :
     GameObject(id, eObjectType.eCHARACTER,
                 objectSizeManager, true)
 {

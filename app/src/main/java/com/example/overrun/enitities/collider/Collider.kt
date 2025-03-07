@@ -1,16 +1,16 @@
 package com.example.overrun.enitities.collider
 
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 
 class Collider(var id : String,
                var x : UInt, var y : UInt,
                var interactable : Boolean,
-               var objectSizeManager : GameObjectSizeManager) {
+               var objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
     private val _objectID = id
     private var _xPos = x
     private var _yPos = y
-    private var _objSizeManager = objectSizeManager
+    private var _objSizeAndViewManager = objectSizeAndViewManager
     // Object Collider default is true
     private var _isActive = true
     private val _isInteractable = interactable
@@ -18,8 +18,8 @@ class Collider(var id : String,
     public fun getID() = _objectID
     public fun getXPos() = _xPos
     public fun getYPos() = _yPos
-    public fun getSizeWidth() = _objSizeManager.GET_OBJECT_SIZE()
-    public fun getSizeHeight() = _objSizeManager.GET_OBJECT_SIZE()
+    public fun getSizeWidth() = _objSizeAndViewManager.GET_OBJECT_SIZE()
+    public fun getSizeHeight() = _objSizeAndViewManager.GET_OBJECT_SIZE()
     public fun getXEndPos() = _xPos + getSizeWidth()
     public fun getYEndPos() = _yPos + getSizeHeight()
     public fun updatePosition(xPos : UInt, yPos : UInt) {
@@ -51,7 +51,7 @@ class Collider(var id : String,
             x = this._xPos,
             y = this._yPos,
             interactable = this._isInteractable,
-            objectSizeManager = this._objSizeManager
+            objectSizeAndViewManager = this._objSizeAndViewManager
         )
     }
 }

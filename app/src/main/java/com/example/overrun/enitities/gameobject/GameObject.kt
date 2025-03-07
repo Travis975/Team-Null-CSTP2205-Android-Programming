@@ -3,27 +3,27 @@ package com.example.overrun.enitities.gameobject
 import com.example.gohero.enitities.eDirection
 import com.example.gohero.enitities.eDirection.*
 import com.example.gohero.enitities.eObjectType
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ActionCollider
 import com.example.overrun.enitities.collider.Collider
 
 open class GameObject(id : String, objType : eObjectType,
-                      objectSizeManager : GameObjectSizeManager,
+                      objectSizeAndViewManager : GameObjectSizeAndViewManager,
                       interactable : Boolean,
                       x : UInt = 0U, y : UInt = 0U) {
 
     private val _objectType = objType
     private var _isDestroy = false
 
-    // Object Collider, default pos (0, 0)
+    // Object Collider, default world pos (0, 0)
     private var _collider = Collider(id, x, y, interactable,
-                                     objectSizeManager)
+                                        objectSizeAndViewManager)
 
     private var _actionCollider = mapOf(
-        eDOWN to ActionCollider(_collider, eDOWN, _objectType, objectSizeManager),
-        eUP to ActionCollider(_collider, eUP, _objectType, objectSizeManager),
-        eLEFT to ActionCollider(_collider, eLEFT, _objectType, objectSizeManager),
-        eRIGHT to ActionCollider(_collider, eRIGHT, _objectType, objectSizeManager)
+        eDOWN to ActionCollider(_collider, eDOWN, _objectType, objectSizeAndViewManager),
+        eUP to ActionCollider(_collider, eUP, _objectType, objectSizeAndViewManager),
+        eLEFT to ActionCollider(_collider, eLEFT, _objectType, objectSizeAndViewManager),
+        eRIGHT to ActionCollider(_collider, eRIGHT, _objectType, objectSizeAndViewManager)
     )
 
     public fun getID() = _collider.getID()
