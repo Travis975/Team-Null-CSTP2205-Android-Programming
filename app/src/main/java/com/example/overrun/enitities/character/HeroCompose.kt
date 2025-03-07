@@ -2,6 +2,7 @@ package com.example.gohero.enitities.character
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,11 +56,17 @@ fun HeroCompose(hero : CharacterBase,
     // For Debugging
     val bFlagDisplayActionCollider = false
 
-
     // Pass in hero object current stored X and Y Pos
     // Then assign to the xPos and yPos for composable movement animation
-    val xPos = remember { Animatable(hero.getXPos().toFloat()) }
-    val yPos = remember { Animatable(hero.getYPos().toFloat()) }
+    //val xPos = remember { Animatable(hero.getXPos().toFloat()) }
+    //val yPos = remember { Animatable(hero.getYPos().toFloat()) }
+
+    // Change to use World Coord for Screen X Y Pos system for trigger rendering
+    // User animateFLoat for smooth transition of value
+    val xScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldX, label="ScreenXPos")
+    val yScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldY, label="ScreenYPos")
+
+    //Log.i("Screen Pos", "x: ${xScreenPos}    yPos: ${yScreenPos}")
 
     // An Async handler
     val corontine = rememberCoroutineScope()
@@ -75,6 +82,7 @@ fun HeroCompose(hero : CharacterBase,
     //Log.i("Density","$density")
 
     // Load Sprite Once
+    // Also store the bitmap resource to prevent recreation during rendering
     val spriteMove = remember{
         loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
@@ -92,7 +100,6 @@ fun HeroCompose(hero : CharacterBase,
             eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)   // 207 x 144 pixels
         )
     }
-//
 
     // Default Down
     val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
@@ -117,7 +124,8 @@ fun HeroCompose(hero : CharacterBase,
 
         val collidedObjID = colliderManager.detectMoveCollision(xDeltaPx.toInt(), yDeltaPx.toInt())
 
-        Log.i("Move", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
+        //Log.i("Move", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
+        //Log.i("Check If Allow Move", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
 
         // Not allow move when hit object
         if (collidedObjID != null)
@@ -145,23 +153,34 @@ fun HeroCompose(hero : CharacterBase,
         // Cancel the previous job
         //currentMoveJob?.cancel()
 
-        Log.i("Pos", "xPos: ${xPos.value}    yPos: ${yPos.value}")
+        //Log.i("Before Move Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
 
         currentMoveJob = corontine.launch {
 
             // X and Y run simultaneously in two individual threads
             val moveXJob = launch{
-                xPos.animateTo(xPos.value + xDeltaPx.toFloat())
+                //xPos.animateTo(xPos.value + xDeltaPx.toFloat())
+
+                // Update Hero position at once
+                hero.updateXPosByDelta(xDeltaPx.toFloat())
+                // Also move the screen X when hero move
+                objectSizeAndViewManager.screenWorldX += xDeltaPx.toFloat()
             }
             val moveYJob = launch{
-                yPos.animateTo(yPos.value + yDeltaPx.toFloat())
+                //yPos.animateTo(yPos.value + yDeltaPx.toFloat())
+
+                // Update Hero position at once
+                hero.updateYPosByDelta(yDeltaPx.toFloat())
+                // Also move the screen Y when hero move
+                objectSizeAndViewManager.screenWorldY += yDeltaPx.toFloat()
             }
             moveXJob.join()
             moveYJob.join()
         }
         currentMoveJob?.invokeOnCompletion {
-            hero.updatePosition(xPos.value.toUInt(), yPos.value.toUInt())
-            Log.i("Final Pos", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+            //hero.updatePosition(xPos.value.toUInt(), yPos.value.toUInt())
+            //Log.i("Final Pos", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+            Log.i("Final Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
         }
     }
 
@@ -364,8 +383,8 @@ fun HeroCompose(hero : CharacterBase,
                     // Offset is in Pixel
                     .absoluteOffset {
                         IntOffset(
-                            collider.getXPos().toInt(),
-                            collider.getYPos().toInt()
+                            collider.getXPos().toInt() - xScreenPos.toInt(),
+                            collider.getYPos().toInt() - yScreenPos.toInt()
                         )
                     }
                     .background(Color.Red)){}
@@ -382,8 +401,8 @@ fun HeroCompose(hero : CharacterBase,
                 // Offset is in Pixel
                 .absoluteOffset {
                     IntOffset(
-                        xPos.value.toInt(),
-                        yPos.value.toInt()
+                        hero.getXPos().toInt() - xScreenPos.toInt(),
+                        hero.getYPos().toInt() - yScreenPos.toInt()
                     ) + offsetAdjustment
                 },
                 //.background(Color.Red),
