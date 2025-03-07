@@ -1,5 +1,6 @@
 package com.example.overrun.enitities.gameobject
 
+import androidx.compose.runtime.Immutable
 import com.example.gohero.enitities.eDirection
 import com.example.gohero.enitities.eDirection.*
 import com.example.gohero.enitities.eObjectType
@@ -7,6 +8,8 @@ import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ActionCollider
 import com.example.overrun.enitities.collider.Collider
 
+// notate as Immutable (stable type) for avoid unncessary recomposition
+@Immutable
 open class GameObject(id : String, objType : eObjectType,
                       objectSizeAndViewManager : GameObjectSizeAndViewManager,
                       interactable : Boolean,
@@ -36,6 +39,12 @@ open class GameObject(id : String, objType : eObjectType,
     public fun getYPos() = _collider.getYPos()
     public fun updatePosition(xPos : UInt, yPos : UInt) {
         _collider.updatePosition(xPos, yPos)
+    }
+    public fun updateXPosByDelta(xDelta : Float) {
+        _collider.updateXPosByDelta(xDelta)
+    }
+    public fun updateYPosByDelta(yDelta : Float) {
+        _collider.updateYPosByDelta(yDelta)
     }
     public fun setDestroy(){
         // When destroy deactivate collider

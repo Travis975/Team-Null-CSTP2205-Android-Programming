@@ -26,6 +26,12 @@ class Collider(var id : String,
         _xPos = xPos
         _yPos = yPos
     }
+    public fun updateXPosByDelta(xDelta : Float) {
+        _xPos = (_xPos.toFloat() + xDelta).toUInt()
+    }
+    public fun updateYPosByDelta(yDelta : Float) {
+        _yPos = (_yPos.toFloat() + yDelta).toUInt()
+    }
     public fun setActive(flag : Boolean){
         _isActive = flag
     }

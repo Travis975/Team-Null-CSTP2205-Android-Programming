@@ -1,7 +1,6 @@
 package com.example.overrun.enitities.gameobject
 
 import android.util.Log
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,14 +10,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
-import com.example.gohero.enitities.eObjectType
+import com.example.gohero.enitities.eObjectType.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.delay
 
 @Composable
@@ -27,9 +28,36 @@ fun ObjectCompose(
     colliderManager: ColliderManager,
     objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
+    val context = LocalContext.current
+
+    // Create remember BitmapResource to store cache to prevent recreation from every rendering
+    // !!!! It is important to improve the render efficiency
+    val objectbitmapPainter = remember(gameObject.getObjType()){
+        when(gameObject.getObjType())
+        {
+            eGRASS->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
+            eTREE->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.tree_1))
+            eROCK, eROCK_1->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.rock1_1))
+            else->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
+        }
+    }
+
+    // For not within the Screen, not to render
+    if (!objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider()))
+    {
+        return
+    }
+
     // Use xPos and yPos for rendering
-    val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
-    val yPos = remember { Animatable(gameObject.getYPos().toFloat()) }
+    //val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
+    //val yPos = remember { Animatable(gameObject.getYPos().toFloat()) }
+
+    // Change to use World Coord for Screen X Y Pos system for trigger rendering
+    val xScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldX)
+    val yScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldY)
+
+
+
 
     val density = LocalDensity.current
 
@@ -76,36 +104,40 @@ fun ObjectCompose(
         }
     }
 
+    //Log.i("Object", "Type ${gameObject.getObjType()}  id : ${gameObject.getID()} x : ${gameObject.getXPos()}  y : ${gameObject.getYPos()}")
+
     Box(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .size(boxSize)
                 .align(Alignment.TopStart)
-                .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) }
+                // don't use graphicLayer since its transformation would auto scaling and translate
+                // may cause edge residue issue for the rendering
+//                .graphicsLayer {
+//                    translationX = (gameObject.getXPos().toFloat() - xScreenPos)
+//                    translationY = (gameObject.getYPos().toFloat() - yScreenPos)
+//                }
+                .absoluteOffset {
+                    IntOffset(
+                        gameObject.getXPos().toInt() - xScreenPos.toInt(),
+                        gameObject.getYPos().toInt() - yScreenPos.toInt())
+                }
                 .background(Color.Transparent)
         ) {
             when (gameObject.getObjType()) {
 
-                eObjectType.eGRASS -> {
-                    // Grass tile
-                    // ContentScale.FillBounds ensures no extra borders or seams
+                eGRASS -> {
                     Image(
-                        painter = painterResource(id = R.drawable.grass_tile),
+                        painter = objectbitmapPainter,
                         contentDescription = "Grass tile",
                         modifier = Modifier.fillMaxSize(),
-                        //contentScale = ContentScale.FillBounds
                         contentScale = ContentScale.Fit
                     )
                 }
 
-                eObjectType.eROCK -> {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .background(lastColor)
-//                    )
+                eROCK, eROCK_1 -> {
                     Image(
-                        painter = painterResource(id = R.drawable.rock1_1),
+                        painter = objectbitmapPainter,
                         contentDescription = "rock1_1",
                         modifier = Modifier
                             .fillMaxSize(),
@@ -114,9 +146,9 @@ fun ObjectCompose(
                     )
                 }
 
-                eObjectType.eTREE -> {
+                eTREE -> {
                     Image(
-                        painter = painterResource(id = R.drawable.tree_1),
+                        painter = objectbitmapPainter,
                         contentDescription = "tree tile",
                         modifier = Modifier
                             .fillMaxSize(),

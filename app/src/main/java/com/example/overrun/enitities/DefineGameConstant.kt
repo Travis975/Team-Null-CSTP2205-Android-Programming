@@ -7,7 +7,7 @@ object GameConstant{
     // Hero Attribute
     // All value are in Pixels
     const val DEFAULT_LIVES = 5U
-    const val DEFAULT_HERO_SPEED = 25U
+    const val DEFAULT_HERO_SPEED = 50U
     const val INTERACT_FILER_INTERVAL_MS = 100U
 
     // for scaling
@@ -43,9 +43,39 @@ object GameConstant{
 //       |_ ePATH
 //       |_ eGRASS
 
-enum class eObjectType{
+enum class eObjectType(val value: Int){
 
-    eNA, eCHARACTER, eTREE, eWALL, eROCK, ePATH, eGRASS;
+    eNA(-1),
+    eGRASS(0),
+    eTREE(1),
+    eROCK(2),
+    eROCK_1(21),
+    eWALL(3),
+    ePATH(4),
+    eCHARACTER(99);
+
+    public fun isInteractable() : Boolean
+    {
+        return when(this){
+            eROCK_1->true
+            else->false
+        }
+    }
+
+    companion object{
+        public fun fromValue(value : Int) : eObjectType{
+            return when(value){
+                0-> eGRASS
+                1-> eTREE
+                2-> eROCK
+                21->eROCK_1
+                3-> eWALL
+                4-> ePATH
+                99->eCHARACTER
+                else->throw IllegalArgumentException("Invalid argument ${value}")
+            }
+        }
+    }
 
     override fun toString(): String {
         return when(this){
