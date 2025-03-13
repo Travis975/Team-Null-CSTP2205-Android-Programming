@@ -12,13 +12,13 @@ import androidx.navigation.NavController
 import com.example.overrun.enitities.Route.*
 
 @Composable
-fun SignInScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Sign in Screen")
+        Text(text = "Sign up Screen")
         Button(onClick = { navController.navigate(HOME.path) }) {
             Text("Back to Home")
         }

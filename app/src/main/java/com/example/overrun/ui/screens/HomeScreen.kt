@@ -25,10 +25,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
+// import firebasse Oauth
+import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun HomeScreen(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -71,7 +76,13 @@ fun HomeScreen(navController: NavController) {
 
             // Sign In Button at Bottom
             Button(
-                onClick = { navController.navigate(MAIN_MENU.path) },
+                onClick = {
+                    if (currentUser != null) {
+                        navController.navigate(MAIN_MENU.path) // Go to game
+                    } else {
+                        navController.navigate(SIGNUP.path) // Go to signup screen
+                    }
+                }
             ) {
                 Text("Play Game")
             }
