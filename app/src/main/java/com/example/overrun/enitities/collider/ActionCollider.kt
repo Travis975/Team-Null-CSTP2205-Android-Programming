@@ -1,8 +1,8 @@
 package com.example.overrun.enitities.collider
 
-import com.example.gohero.enitities.eDirection
-import com.example.gohero.enitities.eDirection.*
-import com.example.gohero.enitities.eObjectType
+import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eDirection.*
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 
 // ActionCollider is reference from the object collider x, y position

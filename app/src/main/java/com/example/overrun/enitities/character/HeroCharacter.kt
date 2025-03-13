@@ -1,9 +1,10 @@
-package com.example.gohero.enitities.character
+package com.example.overrun.enitities.character
 
-import com.example.gohero.enitities.GameConstant.DEFAULT_HERO_SPEED
-import com.example.gohero.enitities.GameConstant.DEFAULT_LIVES
-import com.example.gohero.enitities.eCharacterType
-import com.example.gohero.enitities.eHeroType
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
+import com.example.overrun.enitities.GameConstant.DEFAULT_LIVES
+import com.example.overrun.enitities.character.CharacterBase
+import com.example.overrun.enitities.eCharacterType
+import com.example.overrun.enitities.eHeroType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 
 class HeroCharacter(objectSizeManager : GameObjectSizeAndViewManager) :

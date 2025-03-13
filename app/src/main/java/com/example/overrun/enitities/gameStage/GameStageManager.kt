@@ -1,9 +1,9 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.gohero.enitities.eGameStage
-import com.example.gohero.enitities.eObjectType
-import com.example.gohero.enitities.eObjectType.*
+import com.example.overrun.enitities.eGameStage
+import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlin.math.ceil
