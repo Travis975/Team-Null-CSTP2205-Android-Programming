@@ -1,9 +1,9 @@
 package com.example.overrun.enitities.collider
 
-import com.example.gohero.enitities.GameConstant.MOVE_COLLIDE_OFFSET_X
-import com.example.gohero.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
-import com.example.gohero.enitities.character.HeroCharacter
-import com.example.gohero.enitities.eDirection
+import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_X
+import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
+import com.example.overrun.enitities.character.HeroCharacter
+import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.example.gohero.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
+import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
 
 class ColliderManager {
 

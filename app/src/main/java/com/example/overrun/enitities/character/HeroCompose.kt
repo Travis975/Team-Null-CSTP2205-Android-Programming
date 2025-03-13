@@ -1,4 +1,4 @@
-package com.example.gohero.enitities.character
+package com.example.overrun.enitities.character
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
@@ -27,16 +27,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import com.example.gohero.control.DrawDragDirectionArrow
-import com.example.gohero.control.DrawTapCircle
-import com.example.gohero.control.GuestureControllerEx
-import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
-import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
-import com.example.gohero.enitities.eDirection
-import com.example.gohero.enitities.eDirection.eDOWN
-import com.example.gohero.enitities.eDirection.eLEFT
-import com.example.gohero.enitities.eDirection.eRIGHT
-import com.example.gohero.enitities.eDirection.eUP
+import com.example.overrun.control.DrawDragDirectionArrow
+import com.example.overrun.control.DrawTapCircle
+import com.example.overrun.control.GuestureControllerEx
+import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
+import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
+import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eDirection.eDOWN
+import com.example.overrun.enitities.eDirection.eLEFT
+import com.example.overrun.enitities.eDirection.eRIGHT
+import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager

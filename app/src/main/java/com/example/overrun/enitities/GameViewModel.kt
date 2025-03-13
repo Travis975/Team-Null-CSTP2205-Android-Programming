@@ -2,7 +2,7 @@ package com.example.overrun.enitities
 
 import androidx.lifecycle.ViewModel
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
-import com.example.gohero.enitities.character.HeroCharacter
+import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.gameobject.GameObject
 

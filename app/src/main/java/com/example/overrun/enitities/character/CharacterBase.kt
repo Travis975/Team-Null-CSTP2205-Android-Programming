@@ -1,8 +1,8 @@
-package com.example.gohero.enitities.character
+package com.example.overrun.enitities.character
 
-import com.example.gohero.enitities.eCharacterType
-import com.example.gohero.enitities.eDirection
-import com.example.gohero.enitities.eObjectType
+import com.example.overrun.enitities.eCharacterType
+import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.gameobject.GameObject
 

@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.gohero.enitities.character.HeroCompose
-import com.example.gohero.enitities.eGameStage
+import com.example.overrun.enitities.character.HeroCompose
+import com.example.overrun.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.HOME
 import com.example.overrun.enitities.Route.MAIN_MENU

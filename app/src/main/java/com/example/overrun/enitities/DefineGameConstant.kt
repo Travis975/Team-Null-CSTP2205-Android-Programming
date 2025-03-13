@@ -1,4 +1,4 @@
-package com.example.gohero.enitities
+package com.example.overrun.enitities
 
 import androidx.annotation.DrawableRes
 import com.example.overrun.R
