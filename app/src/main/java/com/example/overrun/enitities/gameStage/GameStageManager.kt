@@ -1,16 +1,21 @@
 package com.example.overrun.enitities.gameStage
 
-import com.example.gohero.enitities.eGameStage
-import com.example.gohero.enitities.eObjectType
+import android.content.Context
+import com.example.overrun.enitities.eGameStage
+import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlin.math.ceil
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 class GameStageManager(private val eStage: eGameStage) {
 
     val curGameStage: eGameStage = eStage
 
     fun InitGameStage(
+        context: Context,
         gameVM: GameViewModel,
         screenWidth: UInt,
         screenHeight: UInt
@@ -18,102 +23,82 @@ class GameStageManager(private val eStage: eGameStage) {
         val colliderManager = gameVM.colliderManager
         val hero = gameVM.hero
         val gameObjects = gameVM.gameObjects
-        val gameObjSizeManager = gameVM.objectSizeManager
+        val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
         // Important, Update the screen width and height pixel for the game
         // such that it can automatically scale down or up for different device
-        gameObjSizeManager.updateScreenSize(screenWidth, screenHeight)
+        gameObjSizeAndViewManager.updateScreenSize(screenWidth, screenHeight)
 
-        val tileSize = gameObjSizeManager.GET_OBJECT_SIZE()
+        val tileSize = gameObjSizeAndViewManager.GET_OBJECT_SIZE()
 
-        // Use ceil(...) so we don’t leave gaps at the edges for grass
-        val numTilesX = ceil(screenWidth.toFloat() / tileSize.toFloat()).toUInt()
-        val numTilesY = ceil(screenHeight.toFloat() / tileSize.toFloat()).toUInt()
-
-        // Center hero on screen
-        val xStartPos = (screenWidth / 2u) - hero.getCollider().getSizeWidth()
-        val yStartPos = (screenHeight / 2u) - hero.getCollider().getSizeHeight()
-        hero.updatePosition(xStartPos, yStartPos)
 
         gameObjects.clear()
 
         when (curGameStage) {
             eGameStage.eStage1 -> {
-                // --------------------------------------------------
-                // 1) Fill background with grass
-                // --------------------------------------------------
-                for (tileY in 0U until numTilesY) {
-                    for (tileX in 0U until numTilesX) {
-                        val posX = tileX * tileSize
-                        val posY = tileY * tileSize
+
+                // 1 - Load Stage Map
+                val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
+
+                // 2 - Under the map design create and store the GameObject
+                val mapRows = map2DInt.size
+                val mapCols = map2DInt[0].size
+
+                // 3 - Update Map Size to Manager
+                gameObjSizeAndViewManager.updateCurrentMapRowColSize(mapRows.toUInt(), mapCols.toUInt())
+
+                // 4 - Update hero starting World X Y pos
+                val worldWidth = mapCols.toUInt() * tileSize
+                val worldHeight = mapRows.toUInt() * tileSize
+                val heroHalfWidth = (hero.getCollider().getSizeWidth() / 2U)
+                val heroHalfHeight = (hero.getCollider().getSizeHeight() / 2U)
+                val xStartWorldPos = (worldWidth / 2u) - heroHalfWidth
+                val yStartWorldPos = (worldHeight / 2u) - heroHalfHeight
+
+                gameObjSizeAndViewManager.InitScreenWorldXYPos(xStartWorldPos, yStartWorldPos, hero)
+                hero.updatePosition(xStartWorldPos, yStartWorldPos)
+
+                // 5 - Create Default ground object
+                val stageGroundObjectType = eGRASS
+
+                map2DInt.withIndex().forEach{ (rowIdx, row)->
+
+                    row.withIndex().forEach{ (colIdx, objectTypeNum)->
 
                         gameObjects.add(
                             GameObject(
-                                id = "Grass_${tileX}_${tileY}",
-                                objType = eObjectType.eGRASS,
-                                objectSizeManager = gameObjSizeManager,
-                                x = posX,
-                                y = posY
+                                id = "${stageGroundObjectType.value}_${colIdx}_${rowIdx}",
+                                objType = stageGroundObjectType,
+                                objectSizeAndViewManager = gameObjSizeAndViewManager,
+                                interactable = stageGroundObjectType.isInteractable(),
+                                x = colIdx.toUInt() * tileSize,
+                                y = rowIdx.toUInt() * tileSize
                             )
                         )
                     }
                 }
 
-                // --------------------------------------------------
-                // 2) Add a ring of rocks exactly on screen edges
-                //    (left, right, top, bottom) for a symmetrical wall
-                // --------------------------------------------------
+                // Loop 2D Map to create Object, and by pass the ground object type
+                map2DInt.withIndex().forEach{ (rowIdx, row)->
 
-                // We define the absolute edges
-                val rightX = (screenWidth - tileSize).coerceAtLeast(0U)
-                val bottomY = (screenHeight - tileSize).coerceAtLeast(0U)
+                    row.withIndex().forEach{ (colIdx, objectTypeNum)->
 
-                // Top & bottom rows: loop across the full screen width
-                for (curX in 0U..screenWidth step tileSize.toInt()) {
-                    // Top row
-                    gameObjects.add(
-                        GameObject(
-                            id = "Rock_top_$curX",
-                            objType = eObjectType.eTREE,
-                            objectSizeManager = gameObjSizeManager,
-                            x = curX,
-                            y = 0U
-                        )
-                    )
-                    // Bottom row
-                    gameObjects.add(
-                        GameObject(
-                            id = "Rock_bottom_$curX",
-                            objType = eObjectType.eTREE,
-                            objectSizeManager = gameObjSizeManager,
-                            x = curX,
-                            y = bottomY
-                        )
-                    )
-                }
+                        val objectType = eObjectType.fromValue(objectTypeNum)
 
-                // Left & right columns: loop across the full screen height
-                for (curY in 0U..screenHeight step tileSize.toInt()) {
-                    // Left column
-                    gameObjects.add(
-                        GameObject(
-                            id = "Rock_left_$curY",
-                            objType = eObjectType.eTREE,
-                            objectSizeManager = gameObjSizeManager,
-                            x = 0U,
-                            y = curY
-                        )
-                    )
-                    // Right column
-                    gameObjects.add(
-                        GameObject(
-                            id = "Rock_right_$curY",
-                            objType = eObjectType.eTREE,
-                            objectSizeManager = gameObjSizeManager,
-                            x = rightX,
-                            y = curY
-                        )
-                    )
+                        if (objectType != stageGroundObjectType)
+                        {
+                            gameObjects.add(
+                                GameObject(
+                                    id = "${objectTypeNum}_${colIdx}_${rowIdx}",
+                                    objType = objectType,
+                                    objectSizeAndViewManager = gameObjSizeAndViewManager,
+                                    interactable = objectType.isInteractable(),
+                                    x = colIdx.toUInt() * tileSize,
+                                    y = rowIdx.toUInt() * tileSize
+                                )
+                            )
+                        }
+                    }
                 }
             }
 
@@ -133,5 +118,8 @@ class GameStageManager(private val eStage: eGameStage) {
                 .filter { it.getObjType() != eObjectType.eGRASS }
                 .toMutableList() // convert to MutableList
         )
+
+        // Start Coroutine Check Action Collider
+        colliderManager.startHeroActionCollisionCheck()
     }
 }
