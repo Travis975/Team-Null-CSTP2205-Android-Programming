@@ -59,7 +59,7 @@ class GameStageManager(private val eStage: eGameStage) {
                 hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
                 // 5 - Create Default ground object
-                val stageGroundObjectType = eGRASS
+                val stageGroundObjectType = eGRASS_NORMAL
 
                 map2DInt.withIndex().forEach{ (rowIdx, row)->
 
@@ -112,13 +112,12 @@ class GameStageManager(private val eStage: eGameStage) {
         colliderManager.resetAllCollider()
         colliderManager.setHeroCollider(hero)
 
-        // Skip grass for collisions so hero can move over it
+        // Skip grass and normal grass for collisions so hero can move over them
         colliderManager.setObjectColliders(
             gameObjects
-                .filter { it.getObjType() != eObjectType.eGRASS }
+                .filter { it.getObjType() != eObjectType.eGRASS && it.getObjType() != eObjectType.eGRASS_NORMAL }
                 .toMutableList() // convert to MutableList
         )
-
         // Start Coroutine Check Action Collider
         colliderManager.startHeroActionCollisionCheck()
     }
