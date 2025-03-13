@@ -1,14 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
