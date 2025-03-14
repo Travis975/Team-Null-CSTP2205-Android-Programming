@@ -74,7 +74,7 @@ fun HomeScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            // Sign In Button at Bottom
+            // Play game Button
             Button(
                 onClick = {
                     if (currentUser != null) {
@@ -86,8 +86,24 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text("Play Game")
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Button(
+                onClick = { navController.navigate(SIGNIN.path) },
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
+                Text("Sign in with other account")
+            }
+
+            // for making sign up UI
+            Button(
+                onClick = { navController.navigate(SIGNUP.path) },
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Text("Sign up")
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally, // Centers images horizontally
