@@ -33,9 +33,7 @@ class GameStageManager(private val eStage: eGameStage) {
 
         when (curGameStage) {
             eGameStage.eStage1 -> {
-               Stage1Configuration(context,
-                                    hero, gameObjects,
-                                    colliderManager, gameObjSizeAndViewManager)
+               Stage1Configuration(context, gameVM)
             }
             eGameStage.eStage2 -> {
 

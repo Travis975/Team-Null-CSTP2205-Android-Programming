@@ -2,6 +2,7 @@ package com.example.overrun.enitities.gameStage
 
 import android.content.Context
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
@@ -9,11 +10,13 @@ import com.example.overrun.enitities.eObjectType.eGRASS
 import com.example.overrun.enitities.gameobject.GameObject
 
 fun Stage1Configuration(context: Context,
-                        hero : HeroCharacter,
-                        gameObjects : MutableList<GameObject>,
-                        colliderManager : ColliderManager,
-                        gameObjSizeAndViewManager : GameObjectSizeAndViewManager)
+                        gameVM: GameViewModel)
 {
+    val colliderManager = gameVM.colliderManager
+    val hero = gameVM.hero
+    val gameObjects = gameVM.gameObjects
+    val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
+
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
 
@@ -62,7 +65,7 @@ fun Stage1Configuration(context: Context,
 
         row.withIndex().forEach{ (colIdx, objectTypeNum)->
 
-            val objectType = eObjectType.fromValue(objectTypeNum)
+            val objectType = eObjectType.fromValue(objectTypeNum)!!
 
             if (objectType != stageGroundObjectType)
             {
@@ -87,7 +90,7 @@ fun Stage1Configuration(context: Context,
     // Skip grass for collisions so hero can move over it
     colliderManager.setObjectColliders(
         gameObjects
-            .filter { it.getObjType() != eObjectType.eGRASS }
+            .filter { !it.getObjType().isStatic() }
             .toMutableList() // convert to MutableList
     )
 
