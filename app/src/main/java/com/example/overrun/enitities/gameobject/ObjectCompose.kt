@@ -37,7 +37,7 @@ fun ObjectCompose(
         {
             eGRASS->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
             eTREE, eTREE_BACKGROUND->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.tree_1))
-            eROCK, eROCK_1->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.rock1_1))
+            eROCK, eROCK_1, eROCK_TOXIC->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.rock1_1))
             else->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
         }
     }
@@ -135,7 +135,7 @@ fun ObjectCompose(
                     )
                 }
 
-                eROCK, eROCK_1 -> {
+                eROCK, eROCK_1, eROCK_TOXIC -> {
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "rock1_1",

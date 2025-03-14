@@ -27,8 +27,11 @@ object GameConstant{
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
-    const val MOVE_COLLIDE_OFFSET_X = -10
-    const val MOVE_COLLIDE_OFFSET_Y = -10
+    const val MOVE_COLLIDE_OFFSET_X = -30
+    const val MOVE_COLLIDE_OFFSET_Y = -30
+
+    const val BE_INTERACT_COLLIDE_OFFSET_X = 30
+    const val BE_INTERACT_COLLIDE_OFFSET_Y = 30
 }
 
 // ObjectType
@@ -50,6 +53,7 @@ enum class eObjectType(val value: Int){
     eTREE_BACKGROUND(1), eTREE(11),
     eROCK(2),
     eROCK_1(21),
+    eROCK_TOXIC(22),
     eWALL(3),
     ePATH(4),
     eCHARACTER(99);
@@ -62,18 +66,33 @@ enum class eObjectType(val value: Int){
         }
     }
 
+    // Able to be interact or able to interact hero
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1->true
+            eROCK_1, eROCK_TOXIC->true
+            else->false
+        }
+    }
+
+    // Once interact to hero happen, use the objectType to
+    // check whether it is harmful to hero on reducing the life
+    public fun isHarmful(): Boolean
+    {
+        return when(this){
+            eROCK_TOXIC->true
             else->false
         }
     }
 
     companion object{
 
-        fun fromValue(value: Int): eObjectType? {
+        fun fromValue(value: Int?): eObjectType? {
             return eObjectType.entries.find { it.value == value }
+        }
+
+        fun fromIDStringToObjType(id : String) : eObjectType? {
+            return id.split("_")[0].toIntOrNull()?.let{fromValue(it)}
         }
     }
 

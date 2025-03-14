@@ -60,7 +60,7 @@ fun TestCharacterGameScreen(navController: NavController,
             // To Do
             // Clean up memory or stop the coroutine that created for gaming
             // Important !! //
-            gameViewModel.colliderManager.cancelHeroActionCollisionCheck()
+            gameViewModel.colliderManager.cancelCollisionCheck()
 
             println("Game Screen is leaving the composition")
         }

@@ -11,7 +11,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_X
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_Y
 import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
 
 class ColliderManager {
@@ -27,8 +30,12 @@ class ColliderManager {
     private var _actionCollisionJob : Job? = null
     private var _runningActionCollisionChk = true
     private val _coroutineScope = CoroutineScope(Dispatchers.Default)
+
     private var _heroInteractedToOther = mutableStateMapOf<String, Long>() // [objectID, timeStamp]
     public val heroInteractedToOther : SnapshotStateMap<String, Long> = _heroInteractedToOther
+
+    private var _otherInteractedToHero = mutableStateOf(Pair(" ", 0L)) // Pair[objectID, timeStamp]
+    public val otherInteractedToHero : Pair<String, Long> get() = _otherInteractedToHero.value
 
     public fun resetAllCollider()
     {
@@ -57,6 +64,10 @@ class ColliderManager {
     {
         _objectColliders.clear()
         _objectColliders = gameObjects.map{ it.getCollider() }.toMutableList()
+    }
+    public fun addObjectCollider(gameObject : GameObject)
+    {
+        _objectColliders.add(gameObject.getCollider())
     }
 
     // Return Object ID String for the first blocked
@@ -120,55 +131,78 @@ class ColliderManager {
         return null
     }
 
-    private fun checkHeroActionToOtherColliders()
+    private fun checkIfHeroAndOtherCollidersCollides()
     {
-        if (_heroActionCollider.isNotEmpty())
+
+        // Check To Enemy
+        if (_enemyColliders.isNotEmpty())
         {
-            // Check To Enemy
 
-            // Check To Object
-            if (_objectColliders.isNotEmpty())
-            {
-                _objectColliders.forEach{ objectCollider->
+        }
 
-                    val objID = objectCollider.getID()
+        // Check To Object
+        if (_objectColliders.isNotEmpty())
+        {
+            _objectColliders.forEach{ objectCollider->
 
-                    // if object is still active, not yet destroyed
-                    if (objectCollider.isActive() &&
-                        objectCollider.isInteractable())
+                val objID = objectCollider.getID()
+
+                // if object is still active, not yet destroyed
+                if (objectCollider.isActive() &&
+                    objectCollider.isInteractable())
+                {
+                    val lastHeroInteractTime = _heroInteractedToOther[objID]                // For Hero Interact Other, (hero attack other)
+                    val lastOtherInteractTime = _otherInteractedToHero.value.second         // For Other Interact Hero, like hero step on object (suffer attack)
+
+                    val curTime = System.currentTimeMillis()
+
+                    // either the first time Or the interval larger than define value
+                    val allowHeroInteract = lastHeroInteractTime == null ||
+                                        ((curTime - lastHeroInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                    val allowOtherInteract = lastOtherInteractTime == 0L ||
+                                            ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                    if (allowHeroInteract &&
+                        detectHeroActionCollision(objectCollider) != null)
                     {
-                        val lastInteractTime = _heroInteractedToOther[objID]
-                        val curTime = System.currentTimeMillis()
-                        // either the first time Or the interval larger than define value
-                        val allowInteract = lastInteractTime == null ||
-                                            ((curTime - lastInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
-                        if (allowInteract &&
-                            detectHeroActionCollision(objectCollider) != null)
-                        {
-                            _heroInteractedToOther[objID] = curTime
-                        }
+                        _heroInteractedToOther[objID] = curTime
+                    }
+
+                    val heroCollider = _heroCollider
+
+                    if (allowOtherInteract &&
+                        heroCollider != null &&
+                        heroCollider.isActive() && // not at interacting
+                        heroCollider.IsCollided(objectCollider, BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+                    {
+                        _otherInteractedToHero.value = Pair(objID, curTime)
                     }
                 }
             }
         }
     }
-    public fun startHeroActionCollisionCheck()
+    public fun startCollisionCheck()
     {
         // Cancel if had previous coroutine
-        cancelHeroActionCollisionCheck()
+        cancelCollisionCheck()
         _runningActionCollisionChk = true
 
         // Then Launch a new coroutine
         _actionCollisionJob = _coroutineScope.launch{
             while(_runningActionCollisionChk)
             {
-                checkHeroActionToOtherColliders()
+                val start = System.currentTimeMillis()
+                checkIfHeroAndOtherCollidersCollides()
+                val timeUsed = System.currentTimeMillis() - start
+
                 // 60 FPS
-                delay(16L)
+                val delayFor60FPS = (16.67 - timeUsed.toDouble()).coerceAtLeast(0.0) // bounded at 0
+                delay(delayFor60FPS.toLong())
             }
         }
     }
-    public fun cancelHeroActionCollisionCheck()
+    public fun cancelCollisionCheck()
     {
         _heroInteractedToOther.clear()
         _runningActionCollisionChk = false
