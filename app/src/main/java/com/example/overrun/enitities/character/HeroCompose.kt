@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -38,8 +41,10 @@ import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.R
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -101,6 +106,39 @@ fun HeroCompose(hero : CharacterBase,
         )
     }
 
+    var filterOpacity by remember{mutableStateOf(0f)}
+    var invincibleCycle by remember{mutableStateOf(3)}
+
+    // snapShot stored the ObjID and interaction timestamp in ms
+    val isBeingInteracted = remember {
+        derivedStateOf {
+            colliderManager.otherInteractedToHero     // default is pair(" ", 0L)
+        }
+    }
+
+    LaunchedEffect(filterOpacity){
+
+        if (invincibleCycle > 0)
+        {
+            if (filterOpacity > 0f)
+            {
+                delay(50)
+                filterOpacity -= 0.3f
+            }
+            else if (filterOpacity < 0f)
+            {
+                filterOpacity = 0.8f
+                invincibleCycle--
+            }
+        }
+        else
+        {
+            filterOpacity = 0.0f
+            invincibleCycle = 3
+            hero.getCollider().setActive(true)
+        }
+    }
+
     // Default Down
     val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
 
@@ -116,11 +154,12 @@ fun HeroCompose(hero : CharacterBase,
     //    Right-Down (↘)	(10, 10)	            atan2(10, 10) ≈ 0.785 (PI / 4)	        45°
 
     // Move function with angle radian Input
-    fun Move(angleRad : Float)
+    fun Move(angleRad : Float, specificSpeed : Int = -1)
     {
         // In pixel
-        val xDeltaPx = hero.getSpeed().toDouble() * cos(angleRad)
-        val yDeltaPx = hero.getSpeed().toDouble() * sin(angleRad)
+        val speed = if (specificSpeed > 0) specificSpeed.toUInt() else hero.getSpeed()
+        val xDeltaPx = speed.toDouble() * cos(angleRad)
+        val yDeltaPx = speed.toDouble() * sin(angleRad)
 
         val collidedObjID = colliderManager.detectMoveCollision(xDeltaPx.toInt(), yDeltaPx.toInt())
 
@@ -190,6 +229,37 @@ fun HeroCompose(hero : CharacterBase,
             //hero.updatePosition(xPos.value.toUInt(), yPos.value.toUInt())
             //Log.i("Final Pos", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
             Log.i("Final Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+        }
+    }
+
+    LaunchedEffect(isBeingInteracted.value)
+    {
+        // only process when triggered with timestamp recorded
+        if (isBeingInteracted.value.second > 0L) {
+
+            // Can apply for Object to debug for interaction
+            val objectID = isBeingInteracted.value.first
+            val interactObj = eObjectType.fromIDStringToObjType(objectID)
+
+            // under different object configuration to set the object data
+            // TO DO
+            // Set Destroy, Active or InActive
+            if (interactObj != null &&
+                interactObj.isHarmful()) // if the object is harmful
+            {
+                hero.getCollider().setActive(false) // deactive first
+                filterOpacity = 0.8f
+
+                val pushBackAngle = when(hero.getDirection())
+                {
+                    eUP -> PI / 2
+                    eDOWN -> -PI / 2
+                    eLEFT -> 0.0
+                    eRIGHT -> PI
+                    else -> 0.0
+                }
+                Move(pushBackAngle.toFloat(), DEFAULT_HERO_SPEED.toInt() * 2)
+            }
         }
     }
 
@@ -425,7 +495,8 @@ fun HeroCompose(hero : CharacterBase,
                 contentDescription = "hero",
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
             )
         }
     }

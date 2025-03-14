@@ -26,7 +26,7 @@ import kotlinx.coroutines.delay
 fun ObjectCompose(
     gameObject: GameObject,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager: GameObjectSizeAndViewManager
+    objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
     val context = LocalContext.current
 
@@ -36,8 +36,8 @@ fun ObjectCompose(
         // Map each eObjectType to its corresponding drawable resource
         val resourceId = when (gameObject.getObjType()) {
             eGRASS -> R.drawable.grass_tile
-            eTREE -> R.drawable.tree_1
-            eROCK, eROCK_1 -> R.drawable.rock1_1
+            eTREE, eTREE_BACKGROUND -> R.drawable.tree_1
+            eROCK, eROCK_1, eROCK_TOXIC -> R.drawable.rock1_1
 
             // The newly added object types and their drawables:
             ePATH_BLANK_MUD -> R.drawable.path_blank_mud
@@ -79,8 +79,8 @@ fun ObjectCompose(
     }
 
     // Use xPos and yPos for rendering
-    // val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
-    // val yPos = remember { Animatable(gameObject.getYPos().toFloat()) }
+    //val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
+    //val yPos = remember { Animatable(gameObject.getYPos().toFloat()) }
 
     // Change to use World Coord for Screen X Y Pos system for trigger rendering
     val xScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldX)
@@ -96,13 +96,13 @@ fun ObjectCompose(
     // If no ID is registered, response is 0L
     val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
-            colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L
+            colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L     // if no id registered, response as 0L
         }
     }
 
-    // Launch a side effect to process the interaction object reaction
+    // Launch a effect to process the interaction object reaction
     LaunchedEffect(isBeingInteracted.value) {
-        // Only process when triggered with a valid timestamp
+        // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
             // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
@@ -115,12 +115,14 @@ fun ObjectCompose(
         }
     }
 
-    // Fade out the color filter if used
-    LaunchedEffect(filterOpacity) {
-        if (filterOpacity > 0f) {
+    LaunchedEffect(filterOpacity){
+        if (filterOpacity > 0f)
+        {
             delay(50)
             filterOpacity -= 0.3f
-        } else {
+        }
+        else
+        {
             filterOpacity = 0f
         }
     }
@@ -133,17 +135,19 @@ fun ObjectCompose(
             modifier = Modifier
                 .size(boxSize)
                 .align(Alignment.TopStart)
-                // don't use graphicLayer since its transformation would auto scale & translate
-                // and may cause edge residue for the rendering
+                // don't use graphicLayer since its transformation would auto scaling and translate
+                // may cause edge residue issue for the rendering
+//                .graphicsLayer {
+//                    translationX = (gameObject.getXPos().toFloat() - xScreenPos)
+//                    translationY = (gameObject.getYPos().toFloat() - yScreenPos)
+//                }
                 .absoluteOffset {
                     IntOffset(
                         gameObject.getXPos().toInt() - xScreenPos.toInt(),
-                        gameObject.getYPos().toInt() - yScreenPos.toInt()
-                    )
+                        gameObject.getYPos().toInt() - yScreenPos.toInt())
                 }
                 .background(Color.Transparent)
         ) {
-            // Draw the object, applying a color filter for certain interactable objects
             when (gameObject.getObjType()) {
                 // Grass
                 eGRASS -> {
@@ -155,26 +159,24 @@ fun ObjectCompose(
                     )
                 }
 
-                // Rock (two variants)
-                eROCK, eROCK_1 -> {
+                // Rock
+                eROCK, eROCK_1, eROCK_TOXIC -> {
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "rock1_1",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize(),
                         contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(
-                            Color.White.copy(alpha = filterOpacity),
-                            BlendMode.SrcAtop
-                        )
+                        colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
                     )
                 }
 
-                // Tree
-                eTREE -> {
+                eTREE, eTREE_BACKGROUND -> {
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "tree tile",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -182,11 +184,11 @@ fun ObjectCompose(
                 // For all other enumerated types, we can display as-is (if no special logic needed)
                 // We'll default to the same loaded bitmap, without special filter.
                 else -> {
-                    Image(
-                        painter = objectbitmapPainter,
-                        contentDescription = "Default or other tile",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                    // Default magenta box for other object types
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Magenta)
                     )
                 }
             }

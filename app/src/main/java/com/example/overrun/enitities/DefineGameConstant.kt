@@ -29,33 +29,34 @@ object GameConstant{
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
-    const val MOVE_COLLIDE_OFFSET_X = -10
-    const val MOVE_COLLIDE_OFFSET_Y = -10
+    const val MOVE_COLLIDE_OFFSET_X = -30
+    const val MOVE_COLLIDE_OFFSET_Y = -30
+
+    const val BE_INTERACT_COLLIDE_OFFSET_X = 30
+    const val BE_INTERACT_COLLIDE_OFFSET_Y = 30
 }
 
-// Defines the various object types in the game world.
-//
-// - eCHARACTER (CharacterType)
-//     - eHero (HeroType)
-//         - eHero_Tokage
-//     - eSLIME
-//     - ePARROT
-// - eTREE
-// - eWALL
-// - eROCK
-// - ePATH
-// - eGRASS
-//
-// Additional path/terrain/foliage objects and water-related tiles are also included below.
+// ObjectType
+//      |_ eCHARACTER (CharacterType)
+//                    |_  eHero (HeroType)
+//                          |_ eHero_Tokage
+//                    |_  Slime
+//                    |_  Parrot
+//       |_ eTREE_BACKGROUND, eTREE
+//       |_ eWALL
+//       |_ eROCK
+//       |_ ePATH
+//       |_ eGRASS
+
 enum class eObjectType(val value: Int){
 
     // Original new-script entries:
     eNA(-1),
     eGRASS(0),
-    eTREE_BACKGROUND(1),
-    eTREE(11),
+    eTREE_BACKGROUND(1), eTREE(11),
     eROCK(2),
     eROCK_1(21),
+    eROCK_TOXIC(22),
     eWALL(3),
     ePATH(4),
 
@@ -100,51 +101,33 @@ enum class eObjectType(val value: Int){
         }
     }
 
+    // Able to be interact or able to interact hero
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1->true
+            eROCK_1, eROCK_TOXIC->true
+            else->false
+        }
+    }
+
+    // Once interact to hero happen, use the objectType to
+    // check whether it is harmful to hero on reducing the life
+    public fun isHarmful(): Boolean
+    {
+        return when(this){
+            eROCK_TOXIC->true
             else->false
         }
     }
 
     companion object{
-        // Retrieves an eObjectType instance by its integer value.
-        fun fromValue(value: Int): eObjectType {
-            return when (value) {
-                -1 -> eNA
-                0 -> eGRASS
-                1 -> eTREE_BACKGROUND
-                11 -> eTREE
-                2 -> eROCK
-                21 -> eROCK_1
-                3 -> eWALL
-                4 -> ePATH
-                41 -> ePATH_RANDOM_3
-                42 -> ePATH_BLANK_MUD
-                43 -> ePATH_LEFT_BOUNDARY
-                44 -> ePATH_RIGHT_BOUNDARY
-                45 -> ePATH_RANDOM
-                46 -> ePATH_RANDOM_2
-                12 -> eTREE_28
-                34 -> eMUSHROOMS
-                30 -> eROCKY_PATCH
-                31 -> eGRASS_BLANK
-                32 -> eGRASS_NORMAL
-                33 -> eGRASS_FLOWERS
-                13 -> eTREE_YELLOW
-                50 -> eWATER_TOP_CENTER
-                51 -> eWATER_TOP_LEFT
-                52 -> eWATER_TOP_RIGHT
-                53 -> eWATER_BOTTOM_CENTER
-                54 -> eWATER_BOTTOM_LEFT
-                55 -> eWATER_CENTER
-                56 -> eWATER_CENTER_LEFT
-                57 -> eWATER_CENTER_RIGHT
-                58 -> eWATER_LOW_RIGHT
-                99 -> eCHARACTER
-                else -> throw IllegalArgumentException("Invalid argument $value")
-            }
+
+        fun fromValue(value: Int?): eObjectType? {
+            return eObjectType.entries.find { it.value == value }
+        }
+
+        fun fromIDStringToObjType(id : String) : eObjectType? {
+            return id.split("_")[0].toIntOrNull()?.let{fromValue(it)}
         }
     }
 
@@ -182,12 +165,14 @@ enum class eObjectType(val value: Int){
             eWATER_CENTER_RIGHT -> "Water Center Right"
             eWATER_LOW_RIGHT -> "Water Low Right"
             eCHARACTER->"Character"
+            else->"Invalid Object"
         }
     }
 }
 
 // Character types under the main umbrella of eCHARACTER object type.
 enum class eCharacterType{
+
     eNA, eHERO, eSLIME, ePARROT;
 
     override fun toString(): String {
@@ -218,7 +203,7 @@ enum class eDirection(val value: Int){
                 1->eUP
                 2->eLEFT
                 3->eRIGHT
-                else->throw IllegalArgumentException("Invalid argument $value")
+                else->throw IllegalArgumentException("Invalid argument ${value}")
             }
         }
     }
