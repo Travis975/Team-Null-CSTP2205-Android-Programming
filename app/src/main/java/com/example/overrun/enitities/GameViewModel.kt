@@ -24,6 +24,6 @@ class GameViewModel : ViewModel(){
     // when gameViewModel destruct
     override fun onCleared() {
         gameObjects.clear()
-        colliderManager.cancelHeroActionCollisionCheck()
+        colliderManager.cancelCollisionCheck()
     }
 }
