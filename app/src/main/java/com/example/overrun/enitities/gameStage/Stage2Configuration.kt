@@ -90,7 +90,7 @@ fun Stage2Configuration(context: Context,
     // Skip grass for collisions so hero can move over it
     colliderManager.setObjectColliders(
         gameObjects
-            .filter { !it.getObjType().isStatic() && it.getObjType() == eObjectType.ePATH && it.getObjType() == eObjectType.ePATH_LEFT_BOUNDARY && it.getObjType() == eObjectType.ePATH_RIGHT_BOUNDARY && it.getObjType() == eObjectType.ePATH_RANDOM_2 && it.getObjType() == eObjectType.ePATH_RANDOM && it.getObjType() == eObjectType.ePATH_RANDOM_3 && it.getObjType() == eObjectType.ePATH_BLANK_MUD && it.getObjType() == eObjectType.eROCKY_PATCH }
+            .filter { !it.getObjType().isStatic()}
             .toMutableList() // convert to MutableList
     )
 
