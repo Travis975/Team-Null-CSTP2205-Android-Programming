@@ -116,26 +116,26 @@ fun SignInScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    if (email.isBlank() || password.isBlank()) {
+                    val trimmedEmail = email.trim()
+                    val trimmedPassword = password.trim()
+
+                    if (trimmedEmail.isBlank() || trimmedPassword.isBlank()) {
                         Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
                     isLoading = true
-                    auth.signInWithEmailAndPassword(email, password)
+                    auth.signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
                         .addOnCompleteListener { task ->
+                            isLoading = false
                             if (task.isSuccessful) {
-                                // Navigate to the main menu after successful sign-in
                                 Toast.makeText(context, "Sign-in successful!", Toast.LENGTH_SHORT).show()
                                 navController.navigate(MAIN_MENU.path)
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Sign-in failed: ${task.exception?.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                val errorMessage = task.exception?.localizedMessage ?: "Sign-in failed"
+                                Log.e("AuthError", errorMessage)
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                             }
-                            isLoading = false
                         }
                 },
                 enabled = !isLoading
