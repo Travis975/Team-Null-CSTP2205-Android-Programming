@@ -95,7 +95,7 @@ enum class eObjectType(val value: Int){
     public fun isStatic() : Boolean
     {
         return when(this){
-            eGRASS, eTREE_BACKGROUND->true
+            eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL->true
             else->false
         }
     }
