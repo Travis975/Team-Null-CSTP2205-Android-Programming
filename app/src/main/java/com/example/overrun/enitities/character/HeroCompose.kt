@@ -161,18 +161,27 @@ fun HeroCompose(hero : CharacterBase,
             val moveXJob = launch{
                 //xPos.animateTo(xPos.value + xDeltaPx.toFloat())
 
-                // Update Hero position at once
-                hero.updateXPosByDelta(xDeltaPx.toFloat())
                 // Also move the screen X when hero move
                 objectSizeAndViewManager.screenWorldX += xDeltaPx.toFloat()
+
+                // Update Hero X Pos at the screen center
+                val newXPos = objectSizeAndViewManager.screenWorldX +
+                              (objectSizeAndViewManager.getScreenWidth().toFloat() / 2.0f) -
+                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                hero.updateXPos(newXPos.toUInt())
+
             }
             val moveYJob = launch{
                 //yPos.animateTo(yPos.value + yDeltaPx.toFloat())
 
-                // Update Hero position at once
-                hero.updateYPosByDelta(yDeltaPx.toFloat())
                 // Also move the screen Y when hero move
                 objectSizeAndViewManager.screenWorldY += yDeltaPx.toFloat()
+
+                // Update Hero Y Pos at the screen center
+                val newYPos = objectSizeAndViewManager.screenWorldY +
+                              (objectSizeAndViewManager.getScreenHeight().toFloat() / 2.0f) -
+                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                hero.updateYPos(newYPos.toUInt())
             }
             moveXJob.join()
             moveYJob.join()
