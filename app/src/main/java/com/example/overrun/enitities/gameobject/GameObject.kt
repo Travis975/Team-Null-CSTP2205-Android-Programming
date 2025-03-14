@@ -46,6 +46,12 @@ open class GameObject(id : String, objType : eObjectType,
     public fun updateYPosByDelta(yDelta : Float) {
         _collider.updateYPosByDelta(yDelta)
     }
+    public fun updateXPos(xPos : UInt) {
+        _collider.updateXPos(xPos)
+    }
+    public fun updateYPos(yPos : UInt) {
+        _collider.updateYPos(yPos)
+    }
     public fun setDestroy(){
         // When destroy deactivate collider
         _collider.setActive(false)
