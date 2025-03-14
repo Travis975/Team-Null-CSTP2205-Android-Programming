@@ -4,6 +4,8 @@ enum class Route(val path : String){
     HOME("home"),
     SIGNUP("signup"),
     SIGNIN("signin"),
+    PRIVACY("privacy"),
+    TERMS("terms"),
     MAIN_MENU("mainMenu"),
     START_GAME("startGame"),
     CONTROLS("controls"),

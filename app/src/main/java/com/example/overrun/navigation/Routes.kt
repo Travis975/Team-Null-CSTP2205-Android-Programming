@@ -1,5 +1,6 @@
 package com.example.overrun.navigation
 
+import SignInScreen
 import SignUpScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -14,8 +15,9 @@ import com.example.overrun.ui.screens.ControlsScreen
 import com.example.overrun.ui.screens.HomeScreen
 //import com.example.overrun.ui.screens.*
 import com.example.overrun.ui.screens.MainMenuScreen
-import com.example.overrun.ui.screens.SignInScreen
+import com.example.overrun.ui.screens.PrivacyScreen
 import com.example.overrun.ui.screens.StartGameScreen
+import com.example.overrun.ui.screens.TermsScreen
 import com.example.overrun.ui.screens.TestCharacterGameScreen
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -31,6 +33,8 @@ fun AppRoutes() {
         composable(SIGNUP.path) { SignUpScreen(navController) }
         composable(SIGNIN.path) { SignInScreen(navController) }
         composable(MAIN_MENU.path) { MainMenuScreen(navController) }
+        composable(PRIVACY.path) { PrivacyScreen(navController) }
+        composable(TERMS.path) { TermsScreen(navController) }
         composable(TEST_CHARACTER.path) { TestCharacterGameScreen(navController, gameViewModel) }
         composable(START_GAME.path) { StartGameScreen(navController) }
         composable(CONTROLS.path) { ControlsScreen(navController)  }
