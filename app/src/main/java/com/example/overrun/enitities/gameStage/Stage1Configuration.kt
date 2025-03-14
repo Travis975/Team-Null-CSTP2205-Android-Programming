@@ -41,7 +41,7 @@ fun Stage1Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eGRASS
+    val stageGroundObjectType = eObjectType.eGRASS_NORMAL
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
@@ -90,7 +90,7 @@ fun Stage1Configuration(context: Context,
     // Skip grass for collisions so hero can move over it
     colliderManager.setObjectColliders(
         gameObjects
-            .filter { !it.getObjType().isStatic() }
+            .filter { !it.getObjType().isStatic()}
             .toMutableList() // convert to MutableList
     )
 
