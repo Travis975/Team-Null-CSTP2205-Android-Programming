@@ -36,7 +36,7 @@ fun ObjectCompose(
         when(gameObject.getObjType())
         {
             eGRASS->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
-            eTREE->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.tree_1))
+            eTREE, eTREE_BACKGROUND->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.tree_1))
             eROCK, eROCK_1->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.rock1_1))
             else->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
         }
@@ -146,7 +146,7 @@ fun ObjectCompose(
                     )
                 }
 
-                eTREE -> {
+                eTREE, eTREE_BACKGROUND -> {
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "tree tile",

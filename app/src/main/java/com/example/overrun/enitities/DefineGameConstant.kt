@@ -37,7 +37,7 @@ object GameConstant{
 //                          |_ eHero_Tokage
 //                    |_  Slime
 //                    |_  Parrot
-//       |_ eTREE
+//       |_ eTREE_BACKGROUND, eTREE
 //       |_ eWALL
 //       |_ eROCK
 //       |_ ePATH
@@ -47,12 +47,20 @@ enum class eObjectType(val value: Int){
 
     eNA(-1),
     eGRASS(0),
-    eTREE(1),
+    eTREE_BACKGROUND(1), eTREE(11),
     eROCK(2),
     eROCK_1(21),
     eWALL(3),
     ePATH(4),
     eCHARACTER(99);
+
+    public fun isStatic() : Boolean
+    {
+        return when(this){
+            eGRASS, eTREE_BACKGROUND->true
+            else->false
+        }
+    }
 
     public fun isInteractable() : Boolean
     {
@@ -63,17 +71,9 @@ enum class eObjectType(val value: Int){
     }
 
     companion object{
-        public fun fromValue(value : Int) : eObjectType{
-            return when(value){
-                0-> eGRASS
-                1-> eTREE
-                2-> eROCK
-                21->eROCK_1
-                3-> eWALL
-                4-> ePATH
-                99->eCHARACTER
-                else->throw IllegalArgumentException("Invalid argument ${value}")
-            }
+
+        fun fromValue(value: Int): eObjectType? {
+            return eObjectType.entries.find { it.value == value }
         }
     }
 
@@ -81,6 +81,7 @@ enum class eObjectType(val value: Int){
         return when(this){
             eCHARACTER->"Character"
             eTREE->"Tree"
+            eTREE_BACKGROUND->"Tree_Background"
             eWALL->"Wall"
             eROCK->"Rock"
             ePATH->"Path"
