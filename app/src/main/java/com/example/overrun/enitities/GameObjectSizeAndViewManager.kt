@@ -80,19 +80,54 @@ class GameObjectSizeAndViewManager {
         return (GET_CHARACTER_SIZE().toFloat() * DEFAULT_INTERACT_SIZE_EXTEND_RATIO).toUInt()
     }
 
-    fun GET_ACTION_INTERACT_SIZE(objType : eObjectType) : UInt
-    {
+    fun GET_ACTION_INTERACT_SIZE(objType : eObjectType) : UInt {
         var actionSizePx = 0U
         when(objType){
-                     // Current all are the same
-            eCHARACTER->{
+            // For characters:
+            eObjectType.eCHARACTER -> {
                 actionSizePx = GET_CHARACTER_INTERACT_SIZE() - GET_CHARACTER_SIZE()
             }
-            eTREE, eWALL, eROCK, ePATH, eGRASS->{
-                actionSizePx = ((DEFAULT_INTERACT_SIZE_EXTEND_RATIO - 1f) * GET_OBJECT_SIZE().toFloat()).toUInt()
+
+            // For all other listed objects:
+            eObjectType.eGRASS,
+            eObjectType.eTREE_BACKGROUND,
+            eObjectType.eTREE,
+            eObjectType.eTREE_28,
+            eObjectType.eTREE_YELLOW,
+            eObjectType.eROCK,
+            eObjectType.eROCK_1,
+            eObjectType.eWALL,
+            eObjectType.ePATH,
+            eObjectType.ePATH_RANDOM_3,
+            eObjectType.ePATH_BLANK_MUD,
+            eObjectType.ePATH_LEFT_BOUNDARY,
+            eObjectType.ePATH_RIGHT_BOUNDARY,
+            eObjectType.ePATH_RANDOM,
+            eObjectType.ePATH_RANDOM_2,
+            eObjectType.eMUSHROOMS,
+            eObjectType.eROCKY_PATCH,
+            eObjectType.eGRASS_BLANK,
+            eObjectType.eGRASS_NORMAL,
+            eObjectType.eGRASS_FLOWERS,
+            eObjectType.eWATER_TOP_CENTER,
+            eObjectType.eWATER_TOP_LEFT,
+            eObjectType.eWATER_TOP_RIGHT,
+            eObjectType.eWATER_BOTTOM_CENTER,
+            eObjectType.eWATER_BOTTOM_LEFT,
+            eObjectType.eWATER_CENTER,
+            eObjectType.eWATER_CENTER_LEFT,
+            eObjectType.eWATER_CENTER_RIGHT,
+            eObjectType.eWATER_LOW_RIGHT -> {
+                actionSizePx = (
+                        (DEFAULT_INTERACT_SIZE_EXTEND_RATIO - 1f)
+                                * GET_OBJECT_SIZE().toFloat()
+                        ).toUInt()
             }
-            else->{}
+
+            // If it's not in the list (eNA or any unhandled case):
+            else -> {}
         }
         return actionSizePx
     }
+
 }

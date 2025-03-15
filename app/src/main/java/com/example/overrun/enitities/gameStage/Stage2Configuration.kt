@@ -9,7 +9,7 @@ import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.eGRASS
 import com.example.overrun.enitities.gameobject.GameObject
 
-fun Stage1Configuration(context: Context,
+fun Stage2Configuration(context: Context,
                         gameVM: GameViewModel)
 {
     val colliderManager = gameVM.colliderManager
@@ -18,7 +18,7 @@ fun Stage1Configuration(context: Context,
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
     // 1 - Load Stage Map
-    val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
+    val map2DInt = context.readMapFileInto2DIntArray("map2.txt")
 
     // 2 - Under the map design create and store the GameObject
     val mapRows = map2DInt.size
@@ -41,7 +41,7 @@ fun Stage1Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eObjectType.eGRASS
+    val stageGroundObjectType = eObjectType.eGRASS_NORMAL
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
@@ -95,6 +95,5 @@ fun Stage1Configuration(context: Context,
     )
 
     // Start Coroutine Check Action Collider
-    colliderManager.startCollisionCheck()
+    colliderManager.startHeroActionCollisionCheck()
 }
-

@@ -30,21 +30,51 @@ fun ObjectCompose(
 ) {
     val context = LocalContext.current
 
-    // Create remember BitmapResource to store cache to prevent recreation from every rendering
-    // !!!! It is important to improve the render efficiency
-    val objectbitmapPainter = remember(gameObject.getObjType()){
-        when(gameObject.getObjType())
-        {
-            eGRASS->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
-            eTREE, eTREE_BACKGROUND->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.tree_1))
-            eROCK, eROCK_1, eROCK_TOXIC->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.rock1_1))
-            else->BitmapPainter(loadSpriteSheet(context.resources, R.drawable.grass_tile))
+    // Create a remembered BitmapPainter to store/cache the tile image
+    // so we don't recreate it on every render.
+    val objectbitmapPainter = remember(gameObject.getObjType()) {
+        // Map each eObjectType to its corresponding drawable resource
+        val resourceId = when (gameObject.getObjType()) {
+            eGRASS -> R.drawable.grass_tile
+            eTREE, eTREE_BACKGROUND -> R.drawable.tree_1
+            eROCK, eROCK_1, eROCK_TOXIC -> R.drawable.rock1_1
+
+            // The newly added object types and their drawables:
+            ePATH_BLANK_MUD -> R.drawable.path_blank_mud
+            ePATH_LEFT_BOUNDARY -> R.drawable.path_left_boundary
+            ePATH_RIGHT_BOUNDARY -> R.drawable.path_right_boundary
+            ePATH_RANDOM -> R.drawable.random_path_tile
+            ePATH_RANDOM_2 -> R.drawable.random_path_tile_2
+            ePATH_RANDOM_3 -> R.drawable.random_path_tile_3
+
+            eTREE_28 -> R.drawable.tile_0028_tree
+            eMUSHROOMS -> R.drawable.tile_0029_mushrooms
+            eROCKY_PATCH -> R.drawable.tile_0043_rocky_patch
+            eGRASS_BLANK -> R.drawable.tile_0000_blank_grass
+            eGRASS_NORMAL -> R.drawable.tile_0001_normal_grass
+            eGRASS_FLOWERS -> R.drawable.tile_0002_with_flowers
+            eTREE_YELLOW -> R.drawable.tile_0027_yellow_tree
+
+            eWATER_TOP_CENTER -> R.drawable.water_top_center
+            eWATER_TOP_LEFT -> R.drawable.water_top_left
+            eWATER_TOP_RIGHT -> R.drawable.water_top_right
+            eWATER_BOTTOM_CENTER -> R.drawable.water_bottom_center
+            eWATER_BOTTOM_LEFT -> R.drawable.water_bottom_left
+            eWATER_CENTER -> R.drawable.water_center
+            eWATER_CENTER_LEFT -> R.drawable.water_center_left
+            eWATER_CENTER_RIGHT -> R.drawable.water_center_right
+            eWATER_LOW_RIGHT -> R.drawable.water_low_right
+
+            // Default fallback
+            else -> R.drawable.grass_tile
         }
+
+        // Use our custom loadSpriteSheet to produce a Bitmap and wrap it in a BitmapPainter
+        BitmapPainter(loadSpriteSheet(context.resources, resourceId))
     }
 
-    // For not within the Screen, not to render
-    if (!objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider()))
-    {
+    // For not within the Screen, skip rendering
+    if (!objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider())) {
         return
     }
 
@@ -56,18 +86,14 @@ fun ObjectCompose(
     val xScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldX)
     val yScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldY)
 
-
-
-
     val density = LocalDensity.current
-
     val boxSize = with(density) { objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp() }
 
-    var lastColor by remember{ mutableStateOf(Color.DarkGray)}
-
-    var filterOpacity by remember{mutableStateOf(0f)}
+    var lastColor by remember { mutableStateOf(Color.DarkGray) }
+    var filterOpacity by remember { mutableStateOf(0f) }
 
     // snapShotMap stored the interaction timestamp in ms
+    // If no ID is registered, response is 0L
     val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
             colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L     // if no id registered, response as 0L
@@ -78,15 +104,12 @@ fun ObjectCompose(
     LaunchedEffect(isBeingInteracted.value) {
         // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
-
-            // Can apply for Object to debug for interaction
+            // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
 
             // under different object configuration to set the object data
-            // TO DO
-            // Set Destroy, Active or InActive
-            if (gameObject.getCollider().isInteractable()) // if the object is interactable
-            {
+            // TO DO: Set Destroy, Active or InActive if needed
+            if (gameObject.getCollider().isInteractable()) {
                 filterOpacity = 0.8f
             }
         }
@@ -104,7 +127,8 @@ fun ObjectCompose(
         }
     }
 
-    //Log.i("Object", "Type ${gameObject.getObjType()}  id : ${gameObject.getID()} x : ${gameObject.getXPos()}  y : ${gameObject.getYPos()}")
+    // Debug log (if needed)
+    // Log.i("Object", "Type ${gameObject.getObjType()}  id : ${gameObject.getID()} x : ${gameObject.getXPos()}  y : ${gameObject.getYPos()}")
 
     Box(Modifier.fillMaxSize()) {
         Box(
@@ -125,7 +149,7 @@ fun ObjectCompose(
                 .background(Color.Transparent)
         ) {
             when (gameObject.getObjType()) {
-
+                // Grass
                 eGRASS -> {
                     Image(
                         painter = objectbitmapPainter,
@@ -135,6 +159,7 @@ fun ObjectCompose(
                     )
                 }
 
+                // Rock
                 eROCK, eROCK_1, eROCK_TOXIC -> {
                     Image(
                         painter = objectbitmapPainter,
@@ -156,6 +181,8 @@ fun ObjectCompose(
                     )
                 }
 
+                // For all other enumerated types, we can display as-is (if no special logic needed)
+                // We'll default to the same loaded bitmap, without special filter.
                 else -> {
                     // Default magenta box for other object types
                     Box(

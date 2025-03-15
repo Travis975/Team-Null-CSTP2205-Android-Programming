@@ -37,7 +37,7 @@ class GameStageManager(private val eStage: eGameStage) {
             }
             eGameStage.eStage2 -> {
 
-
+                Stage2Configuration(context, gameVM)
             }
             // Other stages...
             else -> {}
