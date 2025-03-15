@@ -1,33 +1,70 @@
 package com.example.overrun.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun MainMenuScreen(navController: NavController) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
+    val db = FirebaseFirestore.getInstance()
+
+    var username by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(user) {
+        // Redirect to signup if not logged in
+        if (user == null) {
+            navController.navigate(SIGNUP.path)
+        } else {
+            db.collection("users").document(user.uid).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        username = document.getString("username")
+                    }
+                    isLoading = false
+                }
+                .addOnFailureListener {
+                    isLoading = false
+                }
+        }
+    }
+
+    LaunchedEffect(username, isLoading) {
+        if (!isLoading && username == null) {
+            navController.navigate(SIGNUP.path)
+        }
+    }
+
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Loading...")
+        }
+        return
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         // Background Image
         Image(
             painter = painterResource(id = R.drawable.forest_frawing),
@@ -36,22 +73,31 @@ fun MainMenuScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
-        // Foreground Content
-        Column(
+        // Username Display in Top-Left Corner
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
+                .padding(16.dp),
+            contentAlignment = Alignment.TopStart // Position at top-left
+        ) {
+            Text(text = "Hi, ${username ?: "Player"}!",
+                modifier = Modifier.padding(top =  32.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+                )
+        }
+
+        // Foreground Content
+        Column(
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-
         ) {
-
             Image(
                 painter = painterResource(id = R.drawable.main_menu_text),
                 contentDescription = "Main Menu Text",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
 
@@ -59,8 +105,7 @@ fun MainMenuScreen(navController: NavController) {
 
             Button(
                 onClick = { navController.navigate(START_GAME.path) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 32.dp)
             ) {
                 Text("Start Game")
             }
@@ -69,8 +114,7 @@ fun MainMenuScreen(navController: NavController) {
 
             Button(
                 onClick = { navController.navigate(CONTROLS.path) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 32.dp)
             ) {
                 Text("Controls")
             }
@@ -79,19 +123,10 @@ fun MainMenuScreen(navController: NavController) {
 
             Button(
                 onClick = { navController.navigate(HOME.path) },
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 32.dp)
             ) {
                 Text("Quit")
             }
         }
     }
-}
-
-
-// Preview without NavController
-@Preview(showBackground = true)
-@Composable
-fun MainMenuPreview() {
-    MainMenuScreen(navController = rememberNavController())
 }

@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import com.example.overrun.navigation.AppRoutes
 //import com.example.overrun.ui.theme.OverrunTheme
 
+import com.google.firebase.FirebaseApp
+
 class MainActivity : ComponentActivity() {
     // Kept throwing error that AppRoutes was in a non composable function
     
@@ -20,6 +22,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             Scaffold(modifier = Modifier.fillMaxSize()) {

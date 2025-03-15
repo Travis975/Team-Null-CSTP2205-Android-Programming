@@ -25,10 +25,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
+// import firebasse Oauth
+import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun HomeScreen(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -69,14 +74,36 @@ fun HomeScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            // Sign In Button at Bottom
+            // Play game Button
             Button(
-                onClick = { navController.navigate(MAIN_MENU.path) },
+                onClick = {
+                    if (currentUser != null) {
+                        navController.navigate(MAIN_MENU.path) // Go to game
+                    } else {
+                        navController.navigate(SIGNUP.path) // Go to signup screen
+                    }
+                }
             ) {
                 Text("Play Game")
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Button(
+                onClick = { navController.navigate(SIGNIN.path) },
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
+                Text("Sign in with other account")
+            }
+
+            // for making sign up UI
+            Button(
+                onClick = { navController.navigate(SIGNUP.path) },
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Text("Sign up")
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally, // Centers images horizontally
