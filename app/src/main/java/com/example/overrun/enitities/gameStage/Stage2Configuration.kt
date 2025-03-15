@@ -95,5 +95,5 @@ fun Stage2Configuration(context: Context,
     )
 
     // Start Coroutine Check Action Collider
-    colliderManager.startHeroActionCollisionCheck()
+    colliderManager.startCollisionCheck()
 }
