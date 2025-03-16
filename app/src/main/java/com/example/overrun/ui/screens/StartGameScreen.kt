@@ -23,23 +23,16 @@ fun StartGameScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Select level")
-
-        
+//        Button(onClick = { navController.navigate(LEVEL_1.path) }) {
+//            Text("Start Level 1")
+//        }
+        // Temporary Added to test character
         Button(
-            onClick = { navController.navigate(LEVEL_0.path) },
+            onClick = { navController.navigate(TEST_CHARACTER.path) },
             modifier = Modifier.padding(top = 8.dp)
         ) {
-            Text("Start Level 0")
+            Text("Go to Test Character")
         }
-
-        Button(
-            onClick = { navController.navigate(LEVEL_1.path) },
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            Text("Start Level 1")
-        }
-
-
     }
 }
 

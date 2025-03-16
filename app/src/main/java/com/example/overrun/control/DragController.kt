@@ -1,4 +1,4 @@
-package com.example.overrun.control
+package com.example.gohero.control
 
 import android.util.Log
 import androidx.compose.foundation.Canvas

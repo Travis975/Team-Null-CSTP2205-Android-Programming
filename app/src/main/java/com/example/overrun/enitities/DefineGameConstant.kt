@@ -1,20 +1,16 @@
-package com.example.overrun.enitities
+package com.example.gohero.enitities
 
 import androidx.annotation.DrawableRes
 import com.example.overrun.R
 
-// Contains various game-related constants such as default hero attributes, screen sizing,
-// and collision offsets.
 object GameConstant{
-    // Hero Attribute
     // All value are in Pixels
     const val DEFAULT_LIVES = 5U
-    const val DEFAULT_HERO_SPEED = 50U
-    const val INTERACT_FILER_INTERVAL_MS = 100U
+    const val DEFAULT_HERO_SPEED = 25U
 
     // for scaling
-    const val GAME_SCREEN_COL = 7f //7.5f
-    const val GAME_SCREEN_ROW = 14f //15.3f
+    const val GAME_SCREEN_COL = 7.5f
+    const val GAME_SCREEN_ROW = 15.3f
     const val DEFAULT_SCREEN_WIDTH_PIXEL = 1080U        // a Medium Phone API 35 width pixel
     const val DEFAULT_SCREEN_HEIGHT_PIXEL = 2211U       // a Medium Phone API 35 height pixel
 
@@ -29,11 +25,8 @@ object GameConstant{
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
-    const val MOVE_COLLIDE_OFFSET_X = -30
-    const val MOVE_COLLIDE_OFFSET_Y = -30
-
-    const val BE_INTERACT_COLLIDE_OFFSET_X = 30
-    const val BE_INTERACT_COLLIDE_OFFSET_Y = 30
+    const val MOVE_COLLIDE_OFFSET_X = -10
+    const val MOVE_COLLIDE_OFFSET_Y = -10
 }
 
 // ObjectType
@@ -42,140 +35,29 @@ object GameConstant{
 //                          |_ eHero_Tokage
 //                    |_  Slime
 //                    |_  Parrot
-//       |_ eTREE_BACKGROUND, eTREE
+//       |_ eTREE
 //       |_ eWALL
 //       |_ eROCK
 //       |_ ePATH
 //       |_ eGRASS
 
-enum class eObjectType(val value: Int){
+enum class eObjectType{
 
-    // Original new-script entries:
-    eNA(-1),
-    eGRASS(0),
-    eTREE_BACKGROUND(1), eTREE(11),
-    eROCK(2),
-    eROCK_1(21), eROCK_TOXIC(22), eROCK_2(23),
-    eWALL(3),
-    ePATH(4),
-    eSAND(5),
-    eCACTUS(6),
-
-    //Additional trees
-    eTREE_YELLOW(13),
-    eTREE_28(12),
-
-    // Additional paths
-    ePATH_RANDOM_3(41),
-    ePATH_BLANK_MUD(42),
-    ePATH_LEFT_BOUNDARY(43),
-    ePATH_RIGHT_BOUNDARY(44),
-    ePATH_RANDOM(45),
-    ePATH_RANDOM_2(46),
-
-    //Addititonal foilage, grass or plants
-    eMUSHROOMS(34),
-    eROCKY_PATCH(30),
-    eGRASS_BLANK(31),
-    eGRASS_NORMAL(32),
-    eGRASS_FLOWERS(33),
-
-
-    // Water-related tiles (from the old script):
-    eWATER_TOP_CENTER(50),
-    eWATER_TOP_LEFT(51),
-    eWATER_TOP_RIGHT(52),
-    eWATER_BOTTOM_CENTER(53),
-    eWATER_BOTTOM_LEFT(54),
-    eWATER_CENTER(55),
-    eWATER_CENTER_LEFT(56),
-    eWATER_CENTER_RIGHT(57),
-    eWATER_LOW_RIGHT(58),
-
-    eCHARACTER(99);
-
-    public fun isStatic() : Boolean
-    {
-        return when(this){
-            eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL,ePATH, ePATH_RANDOM,
-            ePATH_RANDOM_2, ePATH_RANDOM_3, eGRASS_FLOWERS, eROCKY_PATCH,
-            eSAND->true
-            else->false
-        }
-    }
-
-    // Able to be interact or able to interact hero
-    public fun isInteractable() : Boolean
-    {
-        return when(this){
-            eROCK_1, eROCK_TOXIC, eCACTUS->true
-            else->false
-        }
-    }
-
-    // Once interact to hero happen, use the objectType to
-    // check whether it is harmful to hero on reducing the life
-    public fun isHarmful(): Boolean
-    {
-        return when(this){
-            eROCK_TOXIC, eCACTUS->true
-            else->false
-        }
-    }
-
-    companion object{
-
-        fun fromValue(value: Int?): eObjectType? {
-            return eObjectType.entries.find { it.value == value }
-        }
-
-        fun fromIDStringToObjType(id : String) : eObjectType? {
-            return id.split("_")[0].toIntOrNull()?.let{fromValue(it)}
-        }
-    }
+    eNA, eCHARACTER, eTREE, eWALL, eROCK, ePATH, eGRASS;
 
     override fun toString(): String {
         return when(this){
-            // Retaining both old and new naming for consistency
-            eNA -> "Not Applicable"
-            eGRASS -> "Grass"
-            eTREE_BACKGROUND -> "Tree_Background"
-            eTREE -> "Tree"
-            eROCK -> "Rock"
-            eROCK_1 -> "Rock 1"
-            eROCK_2 -> "Rock 2"
-            eWALL -> "Wall"
-            ePATH -> "Path"
-            eSAND -> "Sand"
-            ePATH_RANDOM_3 -> "Random Path Tile 3"
-            ePATH_BLANK_MUD -> "Blank Mud Path"
-            ePATH_LEFT_BOUNDARY -> "Path Left Boundary"
-            ePATH_RIGHT_BOUNDARY -> "Path Right Boundary"
-            ePATH_RANDOM -> "Random Path Tile"
-            ePATH_RANDOM_2 -> "Random Path Tile 2"
-            eTREE_28 -> "Tree 28"
-            eMUSHROOMS -> "Mushrooms"
-            eROCKY_PATCH -> "Rocky Patch"
-            eGRASS_BLANK -> "Blank Grass"
-            eGRASS_NORMAL -> "Normal Grass"
-            eGRASS_FLOWERS -> "Grass with Flowers"
-            eTREE_YELLOW -> "Yellow Tree"
-            eWATER_TOP_CENTER -> "Water Top Center"
-            eWATER_TOP_LEFT -> "Water Top Left"
-            eWATER_TOP_RIGHT -> "Water Top Right"
-            eWATER_BOTTOM_CENTER -> "Water Bottom Center"
-            eWATER_BOTTOM_LEFT -> "Water Bottom Left"
-            eWATER_CENTER -> "Water Center"
-            eWATER_CENTER_LEFT -> "Water Center Left"
-            eWATER_CENTER_RIGHT -> "Water Center Right"
-            eWATER_LOW_RIGHT -> "Water Low Right"
             eCHARACTER->"Character"
+            eTREE->"Tree"
+            eWALL->"Wall"
+            eROCK->"Rock"
+            ePATH->"Path"
+            eGRASS->"Grass"
             else->"Invalid Object"
         }
     }
 }
 
-// Character types under the main umbrella of eCHARACTER object type.
 enum class eCharacterType{
 
     eNA, eHERO, eSLIME, ePARROT;
@@ -190,19 +72,21 @@ enum class eCharacterType{
     }
 }
 
-// Specific hero skins or hero variants.
 enum class eHeroType(@DrawableRes val resId : Int){
+
     eHERO_TOKAGE(R.drawable.hero_tokage);
-    // You can add more hero types here if needed
+
+//    fun getResId() : Int
+//    {
+//        return resId
+//    }
 }
 
-// Directions for character or object movement (e.g., up, down, left, right).
 enum class eDirection(val value: Int){
     eDOWN(0), eUP(1), eLEFT(2), eRIGHT(3);
 
     companion object{
-        // Retrieves eDirection instance by integer value.
-        fun fromValue(value : Int) : eDirection{
+        public fun fromValue(value : Int) : eDirection{
             return when(value){
                 0->eDOWN
                 1->eUP
@@ -214,7 +98,6 @@ enum class eDirection(val value: Int){
     }
 }
 
-// Defines various stages in the game.
 enum class eGameStage{
     eStage1,
     eStage2,

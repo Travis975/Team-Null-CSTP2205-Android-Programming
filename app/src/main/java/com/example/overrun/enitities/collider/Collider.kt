@@ -1,48 +1,27 @@
 package com.example.overrun.enitities.collider
 
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.GameObjectSizeManager
 
 class Collider(var id : String,
                var x : UInt, var y : UInt,
-               var interactable : Boolean,
-               var objectSizeAndViewManager : GameObjectSizeAndViewManager) {
+               var objectSizeManager : GameObjectSizeManager) {
 
     private val _objectID = id
     private var _xPos = x
     private var _yPos = y
-    private var _objSizeAndViewManager = objectSizeAndViewManager
-    // Object Collider default is true
-    private var _isActive = true
-    private val _isInteractable = interactable
+    private var _objSizeManager = objectSizeManager
 
     public fun getID() = _objectID
     public fun getXPos() = _xPos
     public fun getYPos() = _yPos
-    public fun getSizeWidth() = _objSizeAndViewManager.GET_OBJECT_SIZE()
-    public fun getSizeHeight() = _objSizeAndViewManager.GET_OBJECT_SIZE()
+    public fun getSizeWidth() = _objSizeManager.GET_OBJECT_SIZE()
+    public fun getSizeHeight() = _objSizeManager.GET_OBJECT_SIZE()
     public fun getXEndPos() = _xPos + getSizeWidth()
     public fun getYEndPos() = _yPos + getSizeHeight()
     public fun updatePosition(xPos : UInt, yPos : UInt) {
         _xPos = xPos
         _yPos = yPos
     }
-    public fun updateXPos(xPos : UInt) {
-        _xPos = xPos
-    }
-    public fun updateYPos(yPos : UInt) {
-        _yPos = yPos
-    }
-    public fun updateXPosByDelta(xDelta : Float) {
-        _xPos = (_xPos.toFloat() + xDelta).toUInt()
-    }
-    public fun updateYPosByDelta(yDelta : Float) {
-        _yPos = (_yPos.toFloat() + yDelta).toUInt()
-    }
-    public fun setActive(flag : Boolean){
-        _isActive = flag
-    }
-    public fun isActive() = _isActive
-    public fun isInteractable() = _isInteractable
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
@@ -62,8 +41,7 @@ class Collider(var id : String,
             id = this._objectID,
             x = this._xPos,
             y = this._yPos,
-            interactable = this._isInteractable,
-            objectSizeAndViewManager = this._objSizeAndViewManager
+            objectSizeManager = this._objSizeManager
         )
     }
 }
