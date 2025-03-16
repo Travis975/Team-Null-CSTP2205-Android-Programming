@@ -181,6 +181,41 @@ fun ObjectCompose(
                     )
                 }
 
+                eWATER_TOP_CENTER, eWATER_TOP_LEFT, eWATER_TOP_RIGHT,
+                eWATER_BOTTOM_CENTER, eWATER_BOTTOM_LEFT, eWATER_CENTER,
+                eWATER_CENTER_LEFT, eWATER_CENTER_RIGHT, eWATER_LOW_RIGHT -> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "water tile",
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                eTREE_28, eMUSHROOMS, eGRASS_BLANK,
+                eGRASS_NORMAL, eGRASS_FLOWERS, eTREE_YELLOW -> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "plants tile",
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                ePATH_RANDOM_3, ePATH_BLANK_MUD, ePATH_LEFT_BOUNDARY,
+                ePATH_RIGHT_BOUNDARY, ePATH_RANDOM, ePATH_RANDOM_2,
+                eROCKY_PATCH-> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "path tile",
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+                
                 // For all other enumerated types, we can display as-is (if no special logic needed)
                 // We'll default to the same loaded bitmap, without special filter.
                 else -> {
