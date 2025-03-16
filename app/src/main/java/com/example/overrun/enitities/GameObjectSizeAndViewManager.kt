@@ -84,45 +84,29 @@ class GameObjectSizeAndViewManager {
         var actionSizePx = 0U
         when(objType){
             // For characters:
-            eObjectType.eCHARACTER -> {
+            eCHARACTER -> {
                 actionSizePx = GET_CHARACTER_INTERACT_SIZE() - GET_CHARACTER_SIZE()
             }
 
             // For all other listed objects:
-            eObjectType.eGRASS,
-            eObjectType.eTREE_BACKGROUND,
-            eObjectType.eTREE,
-            eObjectType.eTREE_28,
-            eObjectType.eTREE_YELLOW,
-            eObjectType.eROCK,
-            eObjectType.eROCK_1,
-            eObjectType.eWALL,
-            eObjectType.ePATH,
-            eObjectType.ePATH_RANDOM_3,
-            eObjectType.ePATH_BLANK_MUD,
-            eObjectType.ePATH_LEFT_BOUNDARY,
-            eObjectType.ePATH_RIGHT_BOUNDARY,
-            eObjectType.ePATH_RANDOM,
-            eObjectType.ePATH_RANDOM_2,
-            eObjectType.eMUSHROOMS,
-            eObjectType.eROCKY_PATCH,
-            eObjectType.eGRASS_BLANK,
-            eObjectType.eGRASS_NORMAL,
-            eObjectType.eGRASS_FLOWERS,
-            eObjectType.eWATER_TOP_CENTER,
-            eObjectType.eWATER_TOP_LEFT,
-            eObjectType.eWATER_TOP_RIGHT,
-            eObjectType.eWATER_BOTTOM_CENTER,
-            eObjectType.eWATER_BOTTOM_LEFT,
-            eObjectType.eWATER_CENTER,
-            eObjectType.eWATER_CENTER_LEFT,
-            eObjectType.eWATER_CENTER_RIGHT,
-            eObjectType.eWATER_LOW_RIGHT -> {
-                actionSizePx = (
-                        (DEFAULT_INTERACT_SIZE_EXTEND_RATIO - 1f)
-                                * GET_OBJECT_SIZE().toFloat()
-                        ).toUInt()
-            }
+//            eGRASS, eTREE_BACKGROUND,
+//            eTREE, eTREE_28,
+//            eTREE_YELLOW,
+//            eROCK, eROCK_1,
+//            eWALL, ePATH,
+//            ePATH_RANDOM_3, ePATH_BLANK_MUD, ePATH_LEFT_BOUNDARY, ePATH_RIGHT_BOUNDARY,
+//            ePATH_RANDOM, ePATH_RANDOM_2,
+//            eMUSHROOMS,
+//            eROCKY_PATCH,
+//            eGRASS_BLANK, eGRASS_NORMAL, eGRASS_FLOWERS,
+//            eWATER_TOP_CENTER, eWATER_TOP_LEFT, eWATER_TOP_RIGHT,
+//            eWATER_BOTTOM_CENTER, eWATER_BOTTOM_LEFT, eWATER_CENTER,
+//            eWATER_CENTER_LEFT, eWATER_CENTER_RIGHT, eWATER_LOW_RIGHT -> {
+//                actionSizePx = (
+//                        (DEFAULT_INTERACT_SIZE_EXTEND_RATIO - 1f)
+//                                * GET_OBJECT_SIZE().toFloat()
+//                        ).toUInt()
+//            }
 
             // If it's not in the list (eNA or any unhandled case):
             else -> {}
