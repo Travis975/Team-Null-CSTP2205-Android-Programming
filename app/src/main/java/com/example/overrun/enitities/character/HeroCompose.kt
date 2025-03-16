@@ -1,15 +1,18 @@
-package com.example.gohero.enitities.character
+package com.example.overrun.enitities.character
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,24 +22,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import com.example.gohero.control.DrawDragDirectionArrow
-import com.example.gohero.control.DrawTapCircle
-import com.example.gohero.control.GuestureControllerEx
-import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
-import com.example.gohero.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
-import com.example.gohero.enitities.eDirection
-import com.example.gohero.enitities.eDirection.eDOWN
-import com.example.gohero.enitities.eDirection.eLEFT
-import com.example.gohero.enitities.eDirection.eRIGHT
-import com.example.gohero.enitities.eDirection.eUP
+import com.example.overrun.control.DrawDragDirectionArrow
+import com.example.overrun.control.DrawTapCircle
+import com.example.overrun.control.GuestureControllerEx
+import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
+import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
+import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eDirection.eDOWN
+import com.example.overrun.enitities.eDirection.eLEFT
+import com.example.overrun.enitities.eDirection.eRIGHT
+import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.R
-import com.example.overrun.enitities.GameObjectSizeManager
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -48,12 +56,22 @@ import kotlin.math.sin
 @Composable
 fun HeroCompose(hero : CharacterBase,
                 colliderManager: ColliderManager,
-                objectSizeManager : GameObjectSizeManager) {
+                objectSizeAndViewManager : GameObjectSizeAndViewManager) {
+
+    // For Debugging
+    val bFlagDisplayActionCollider = false
 
     // Pass in hero object current stored X and Y Pos
     // Then assign to the xPos and yPos for composable movement animation
-    val xPos = remember { Animatable(hero.getXPos().toFloat()) }
-    val yPos = remember { Animatable(hero.getYPos().toFloat()) }
+    //val xPos = remember { Animatable(hero.getXPos().toFloat()) }
+    //val yPos = remember { Animatable(hero.getYPos().toFloat()) }
+
+    // Change to use World Coord for Screen X Y Pos system for trigger rendering
+    // User animateFLoat for smooth transition of value
+    val xScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldX, label="ScreenXPos")
+    val yScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldY, label="ScreenYPos")
+
+    //Log.i("Screen Pos", "x: ${xScreenPos}    yPos: ${yScreenPos}")
 
     // An Async handler
     val corontine = rememberCoroutineScope()
@@ -63,17 +81,18 @@ fun HeroCompose(hero : CharacterBase,
     val context = LocalContext.current
     val density = LocalDensity.current
 
-    val CHARACTER_SIZE = objectSizeManager.GET_CHARACTER_SIZE()
-    val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeManager.GET_CHARACTER_INTERACT_SIZE()
+    val CHARACTER_SIZE = objectSizeAndViewManager.GET_CHARACTER_SIZE()
+    val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeAndViewManager.GET_CHARACTER_INTERACT_SIZE()
 
     //Log.i("Density","$density")
 
     // Load Sprite Once
+    // Also store the bitmap resource to prevent recreation during rendering
     val spriteMove = remember{
         loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
             // would do a auto sprite scale up or down from the screen size
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeManager.GET_CHARACTER_SIZE().toFloat()
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
@@ -86,7 +105,39 @@ fun HeroCompose(hero : CharacterBase,
             eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)   // 207 x 144 pixels
         )
     }
-//
+
+    var filterOpacity by remember{mutableStateOf(0f)}
+    var invincibleCycle by remember{mutableStateOf(3)}
+
+    // snapShot stored the ObjID and interaction timestamp in ms
+    val isBeingInteracted = remember {
+        derivedStateOf {
+            colliderManager.otherInteractedToHero     // default is pair(" ", 0L)
+        }
+    }
+
+    LaunchedEffect(filterOpacity){
+
+        if (invincibleCycle > 0)
+        {
+            if (filterOpacity > 0f)
+            {
+                delay(50)
+                filterOpacity -= 0.3f
+            }
+            else if (filterOpacity < 0f)
+            {
+                filterOpacity = 0.8f
+                invincibleCycle--
+            }
+        }
+        else
+        {
+            filterOpacity = 0.0f
+            invincibleCycle = 3
+            hero.getCollider().setActive(true)
+        }
+    }
 
     // Default Down
     val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
@@ -103,15 +154,17 @@ fun HeroCompose(hero : CharacterBase,
     //    Right-Down (↘)	(10, 10)	            atan2(10, 10) ≈ 0.785 (PI / 4)	        45°
 
     // Move function with angle radian Input
-    fun Move(angleRad : Float)
+    fun Move(angleRad : Float, specificSpeed : Int = -1)
     {
         // In pixel
-        val xDeltaPx = hero.getSpeed().toDouble() * cos(angleRad)
-        val yDeltaPx = hero.getSpeed().toDouble() * sin(angleRad)
+        val speed = if (specificSpeed > 0) specificSpeed.toUInt() else hero.getSpeed()
+        val xDeltaPx = speed.toDouble() * cos(angleRad)
+        val yDeltaPx = speed.toDouble() * sin(angleRad)
 
         val collidedObjID = colliderManager.detectMoveCollision(xDeltaPx.toInt(), yDeltaPx.toInt())
 
-        Log.i("Move", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
+        //Log.i("Move", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
+        //Log.i("Check If Allow Move", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}   Hit: ${collidedObjID ?: "no hit"}")
 
         // Not allow move when hit object
         if (collidedObjID != null)
@@ -139,23 +192,74 @@ fun HeroCompose(hero : CharacterBase,
         // Cancel the previous job
         //currentMoveJob?.cancel()
 
-        Log.i("Pos", "xPos: ${xPos.value}    yPos: ${yPos.value}")
+        //Log.i("Before Move Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
 
         currentMoveJob = corontine.launch {
 
             // X and Y run simultaneously in two individual threads
             val moveXJob = launch{
-                xPos.animateTo(xPos.value + xDeltaPx.toFloat())
+                //xPos.animateTo(xPos.value + xDeltaPx.toFloat())
+
+                // Also move the screen X when hero move
+                objectSizeAndViewManager.screenWorldX += xDeltaPx.toFloat()
+
+                // Update Hero X Pos at the screen center
+                val newXPos = objectSizeAndViewManager.screenWorldX +
+                              (objectSizeAndViewManager.getScreenWidth().toFloat() / 2.0f) -
+                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                hero.updateXPos(newXPos.toUInt())
+
             }
             val moveYJob = launch{
-                yPos.animateTo(yPos.value + yDeltaPx.toFloat())
+                //yPos.animateTo(yPos.value + yDeltaPx.toFloat())
+
+                // Also move the screen Y when hero move
+                objectSizeAndViewManager.screenWorldY += yDeltaPx.toFloat()
+
+                // Update Hero Y Pos at the screen center
+                val newYPos = objectSizeAndViewManager.screenWorldY +
+                              (objectSizeAndViewManager.getScreenHeight().toFloat() / 2.0f) -
+                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                hero.updateYPos(newYPos.toUInt())
             }
             moveXJob.join()
             moveYJob.join()
         }
         currentMoveJob?.invokeOnCompletion {
-            hero.updatePosition(xPos.value.toUInt(), yPos.value.toUInt())
-            Log.i("Final Pos", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+            //hero.updatePosition(xPos.value.toUInt(), yPos.value.toUInt())
+            //Log.i("Final Pos", "(${xPos.value}, ${yPos.value}) , xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+            Log.i("Final Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
+        }
+    }
+
+    LaunchedEffect(isBeingInteracted.value)
+    {
+        // only process when triggered with timestamp recorded
+        if (isBeingInteracted.value.second > 0L) {
+
+            // Can apply for Object to debug for interaction
+            val objectID = isBeingInteracted.value.first
+            val interactObj = eObjectType.fromIDStringToObjType(objectID)
+
+            // under different object configuration to set the object data
+            // TO DO
+            // Set Destroy, Active or InActive
+            if (interactObj != null &&
+                interactObj.isHarmful()) // if the object is harmful
+            {
+                hero.getCollider().setActive(false) // deactive first
+                filterOpacity = 0.8f
+
+                val pushBackAngle = when(hero.getDirection())
+                {
+                    eUP -> PI / 2
+                    eDOWN -> -PI / 2
+                    eLEFT -> 0.0
+                    eRIGHT -> PI
+                    else -> 0.0
+                }
+                Move(pushBackAngle.toFloat(), DEFAULT_HERO_SPEED.toInt() * 2)
+            }
         }
     }
 
@@ -166,6 +270,7 @@ fun HeroCompose(hero : CharacterBase,
 
     val startAttack = remember{mutableStateOf(false)}
     val isAttacking = remember{mutableStateOf(false)}
+    val lastAttackDir = remember{ mutableStateOf(hero.getDirection()) }
 
     // Offset include x and y
     val touchStartPt = remember {mutableStateOf(Offset.Zero)}
@@ -174,6 +279,17 @@ fun HeroCompose(hero : CharacterBase,
     fun setCurSpriteWithLastFrameIndex()
     {
         currentSprite.value = spriteMove[hero.getDirection().value][lastMoveSpriteFrameIndex.value]
+    }
+
+    fun AttackingActive(attacking : Boolean)
+    {
+        isAttacking.value = attacking
+
+        if (attacking)
+        {
+            lastAttackDir.value = hero.getDirection()
+        }
+        hero.getActionCollider()[lastAttackDir.value]?.setActive(attacking)
     }
 
     // Moving sprite switching
@@ -201,7 +317,7 @@ fun HeroCompose(hero : CharacterBase,
             !isAttacking.value)
         {
             startAttack.value = false
-            isAttacking.value = true
+            AttackingActive(true)
 
             currentSprite.value = spriteAttack[hero.getDirection()]!!
         }
@@ -214,7 +330,7 @@ fun HeroCompose(hero : CharacterBase,
         if (isAttacking.value)
         {
             delay(50)
-            isAttacking.value = false
+            AttackingActive(false)
         }
         else
         {
@@ -243,7 +359,6 @@ fun HeroCompose(hero : CharacterBase,
                     if (!isDragStarted)
                     {
                         touchAlpha.snapTo(0f)
-                        isAttacking.value = false
                         setCurSpriteWithLastFrameIndex()
                     }
                     else
@@ -256,7 +371,7 @@ fun HeroCompose(hero : CharacterBase,
             onDrag = { angle ->
                 pointerAngle.floatValue = angle
 
-                isAttacking.value = false // cancel the attack if is moving
+                AttackingActive(false) // cancel the attack if is moving
 
                 // Call the Move to change xPos and yPos under the angle
                 Move(angle)
@@ -332,6 +447,29 @@ fun HeroCompose(hero : CharacterBase,
             }
         }
 
+        if (bFlagDisplayActionCollider)
+        {
+            // Draw the action collider for checking
+            hero.getActionCollider().forEach{ (eDir, collider)->
+
+                val boxSizeCollider = with(density) {
+                    collider.getSizeWidth().toFloat().toDp() to collider.getSizeHeight().toFloat().toDp()
+                }
+
+                Box(modifier = Modifier
+                    .size(boxSizeCollider.first, boxSizeCollider.second)
+                    .align(Alignment.TopStart)
+                    // Offset is in Pixel
+                    .absoluteOffset {
+                        IntOffset(
+                            collider.getXPos().toInt() - xScreenPos.toInt(),
+                            collider.getYPos().toInt() - yScreenPos.toInt()
+                        )
+                    }
+                    .background(Color.Red)){}
+            }
+        }
+
         // Character Box (Moves)
         Box(
             modifier = Modifier
@@ -340,7 +478,12 @@ fun HeroCompose(hero : CharacterBase,
                 //.size(boxSize)
                 .align(Alignment.TopStart)
                 // Offset is in Pixel
-                .absoluteOffset { IntOffset(xPos.value.toInt(), yPos.value.toInt()) + offsetAdjustment },
+                .absoluteOffset {
+                    IntOffset(
+                        hero.getXPos().toInt() - xScreenPos.toInt(),
+                        hero.getYPos().toInt() - yScreenPos.toInt()
+                    ) + offsetAdjustment
+                },
                 //.background(Color.Red),
             contentAlignment = Alignment.Center
         ) {
@@ -352,9 +495,9 @@ fun HeroCompose(hero : CharacterBase,
                 contentDescription = "hero",
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
             )
         }
     }
-
 }

@@ -2,11 +2,14 @@ package com.example.overrun.enitities
 
 enum class Route(val path : String){
     HOME("home"),
-    SIGNIN("signIn"),
+    SIGNUP("signup"),
+    SIGNIN("signin"),
+    PRIVACY("privacy"),
+    TERMS("terms"),
     MAIN_MENU("mainMenu"),
     START_GAME("startGame"),
     CONTROLS("controls"),
     LEVEL_1("level1"),
-    TEST_CHARACTER("TestCharacter")
+    LEVEL_0("level0")
 
 }
