@@ -55,10 +55,11 @@ enum class eObjectType(val value: Int){
     eGRASS(0),
     eTREE_BACKGROUND(1), eTREE(11),
     eROCK(2),
-    eROCK_1(21),
-    eROCK_TOXIC(22),
+    eROCK_1(21), eROCK_TOXIC(22), eROCK_2(23),
     eWALL(3),
     ePATH(4),
+    eSAND(5),
+    eCACTUS(6),
 
     //Additional trees
     eTREE_YELLOW(13),
@@ -96,7 +97,9 @@ enum class eObjectType(val value: Int){
     public fun isStatic() : Boolean
     {
         return when(this){
-            eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL,ePATH, ePATH_RANDOM, ePATH_RANDOM_2, ePATH_RANDOM_3, eGRASS_FLOWERS, eROCKY_PATCH ->true
+            eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL,ePATH, ePATH_RANDOM,
+            ePATH_RANDOM_2, ePATH_RANDOM_3, eGRASS_FLOWERS, eROCKY_PATCH,
+            eSAND->true
             else->false
         }
     }
@@ -105,7 +108,7 @@ enum class eObjectType(val value: Int){
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1, eROCK_TOXIC->true
+            eROCK_1, eROCK_TOXIC, eCACTUS->true
             else->false
         }
     }
@@ -115,7 +118,7 @@ enum class eObjectType(val value: Int){
     public fun isHarmful(): Boolean
     {
         return when(this){
-            eROCK_TOXIC->true
+            eROCK_TOXIC, eCACTUS->true
             else->false
         }
     }
@@ -140,8 +143,10 @@ enum class eObjectType(val value: Int){
             eTREE -> "Tree"
             eROCK -> "Rock"
             eROCK_1 -> "Rock 1"
+            eROCK_2 -> "Rock 2"
             eWALL -> "Wall"
             ePATH -> "Path"
+            eSAND -> "Sand"
             ePATH_RANDOM_3 -> "Random Path Tile 3"
             ePATH_BLANK_MUD -> "Blank Mud Path"
             ePATH_LEFT_BOUNDARY -> "Path Left Boundary"

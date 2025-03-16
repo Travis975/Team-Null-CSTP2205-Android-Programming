@@ -6,7 +6,7 @@ import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.eGRASS
+import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
 
 fun Stage1Configuration(context: Context,
@@ -41,7 +41,7 @@ fun Stage1Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eObjectType.eGRASS
+    val stageGroundObjectType = eSAND
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
