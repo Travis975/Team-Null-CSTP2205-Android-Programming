@@ -19,12 +19,14 @@ import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.gameStage.GameMetrics
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.delay
 
 @Composable
 fun ObjectCompose(
     gameObject: GameObject,
+    gameMetrics: GameMetrics,
     colliderManager: ColliderManager,
     objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
@@ -115,6 +117,9 @@ fun ObjectCompose(
             // TO DO: Set Destroy, Active or InActive if needed
             if (gameObject.getCollider().isInteractable()) {
                 filterOpacity = 0.8f
+
+                gameMetrics.addHeroHitCount()
+                //Log.i("Hero Hit", "Count : ${gameMetrics.getHeroHitCount()}")
             }
         }
     }

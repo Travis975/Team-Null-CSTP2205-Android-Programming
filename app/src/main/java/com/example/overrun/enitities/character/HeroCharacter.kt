@@ -6,6 +6,7 @@ import com.example.overrun.enitities.character.CharacterBase
 import com.example.overrun.enitities.eCharacterType
 import com.example.overrun.enitities.eHeroType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.gameStage.GameMetrics
 
 class HeroCharacter(objectSizeManager : GameObjectSizeAndViewManager) :
     CharacterBase(eCharacterType.eHERO.toString(),

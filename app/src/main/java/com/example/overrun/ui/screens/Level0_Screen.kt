@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -106,6 +107,7 @@ fun Level0_Screen(navController: NavController,
             {
                 gameViewModel.gameObjects.forEach{ gameObj ->
                     ObjectCompose(gameObj,
+                                  gameViewModel.gameMetrics,
                                   gameViewModel.colliderManager,
                                   gameViewModel.objectSizeAndViewManager)
                 }
@@ -124,13 +126,22 @@ fun Level0_Screen(navController: NavController,
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    Button(
-                        onClick = { navController.navigate(MAIN_MENU.path) },
-                        modifier = Modifier
-                            .width(100.dp)
-                            .padding(bottom = 12.dp)
-                    ) {
-                        Text("Quit")
+                    Column(modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center)
+                    {
+                        Button(
+                            onClick = { navController.navigate(MAIN_MENU.path) },
+                            modifier = Modifier
+                                .width(100.dp)
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Text("Quit")
+                        }
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Text("Hit Count : ${gameViewModel.gameMetrics.getHeroHitCount()}")
                     }
                 }
             }
