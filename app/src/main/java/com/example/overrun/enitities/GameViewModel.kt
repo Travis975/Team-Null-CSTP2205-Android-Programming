@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.gameStage.GameMetrics
 import com.example.overrun.enitities.gameobject.GameObject
 
 class GameViewModel : ViewModel(){
+
+    val gameMetrics = GameMetrics()
 
     val colliderManager = ColliderManager()
 
