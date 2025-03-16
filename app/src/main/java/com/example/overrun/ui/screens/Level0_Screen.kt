@@ -32,14 +32,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.overrun.enitities.character.HeroCompose
 import com.example.overrun.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.Route.HOME
 import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun TestCharacterGameScreen(navController: NavController,
+fun Level0_Screen(navController: NavController,
                             gameViewModel: GameViewModel)
 {
     // Use Remember to ensure only one instance for this Game Stage Screen
@@ -144,6 +143,6 @@ fun TestCharacterGameScreen(navController: NavController,
 @Composable
 fun Preview() {
     val gameViewModel: GameViewModel = viewModel()
-    TestCharacterGameScreen(navController = rememberNavController(),
+    Level0_Screen(navController = rememberNavController(),
                             gameViewModel)
 }

@@ -19,7 +19,7 @@ import com.example.overrun.ui.screens.MainMenuScreen
 import com.example.overrun.ui.screens.PrivacyScreen
 import com.example.overrun.ui.screens.StartGameScreen
 import com.example.overrun.ui.screens.TermsScreen
-import com.example.overrun.ui.screens.TestCharacterGameScreen
+import com.example.overrun.ui.screens.Level0_Screen
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -36,7 +36,7 @@ fun AppRoutes() {
         composable(MAIN_MENU.path) { MainMenuScreen(navController) }
         composable(PRIVACY.path) { PrivacyScreen(navController) }
         composable(TERMS.path) { TermsScreen(navController) }
-        composable(TEST_CHARACTER.path) { TestCharacterGameScreen(navController, gameViewModel) }
+        composable(LEVEL_0.path) { Level0_Screen(navController, gameViewModel) }
         composable(LEVEL_1.path) { Level1_Screen(navController, gameViewModel) }
         composable(START_GAME.path) { StartGameScreen(navController) }
         composable(CONTROLS.path) { ControlsScreen(navController)  }

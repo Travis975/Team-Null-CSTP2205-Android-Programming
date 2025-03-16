@@ -26,7 +26,7 @@ fun StartGameScreen(navController: NavController) {
 
         
         Button(
-            onClick = { navController.navigate(TEST_CHARACTER.path) },
+            onClick = { navController.navigate(LEVEL_0.path) },
             modifier = Modifier.padding(top = 8.dp)
         ) {
             Text("Start Level 0")

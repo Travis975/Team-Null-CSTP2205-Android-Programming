@@ -37,7 +37,11 @@ fun ObjectCompose(
         val resourceId = when (gameObject.getObjType()) {
             eGRASS -> R.drawable.grass_tile
             eTREE, eTREE_BACKGROUND -> R.drawable.tree_1
-            eROCK, eROCK_1, eROCK_TOXIC -> R.drawable.rock1_1
+            eROCK, eROCK_1 -> R.drawable.rock1_1
+            eROCK_TOXIC->R.drawable.rock3_toxic
+            eROCK_2 -> R.drawable.rock2_1
+            eSAND -> R.drawable.sand_1
+            eCACTUS -> R.drawable.cactus_1
 
             // The newly added object types and their drawables:
             ePATH_BLANK_MUD -> R.drawable.path_blank_mud
@@ -159,11 +163,30 @@ fun ObjectCompose(
                     )
                 }
 
-                // Rock
-                eROCK, eROCK_1, eROCK_TOXIC -> {
+                // Sand
+                eSAND -> {
                     Image(
                         painter = objectbitmapPainter,
-                        contentDescription = "rock1_1",
+                        contentDescription = "Sand tile",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                eCACTUS -> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "cactus tile",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                // Rock
+                eROCK, eROCK_1, eROCK_TOXIC, eROCK_2 -> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "rock tile",
                         modifier = Modifier
                             .fillMaxSize(),
                         contentScale = ContentScale.Fit,
