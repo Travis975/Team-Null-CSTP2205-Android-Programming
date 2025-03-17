@@ -9,7 +9,9 @@ object GameConstant{
     // Hero Attribute
     // All value are in Pixels
     const val DEFAULT_LIVES = 5U
-    const val DEFAULT_HERO_SPEED = 50U
+    const val DEFAULT_HERO_SPEED = 3U
+    const val DEFAULT_HERO_REPEL_SPEED = 80U
+    const val DEFAULT_HERO_HURT_INVINCIBLE_CYCLE = 3
     const val INTERACT_FILER_INTERVAL_MS = 100U
 
     // for scaling

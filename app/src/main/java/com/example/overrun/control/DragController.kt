@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -90,7 +91,7 @@ fun GuestureControllerEx(
                     onTap(down.position)
 
                     // Start a coroutine to keep calling onDrag() while touching
-                    val dragActionThread = coroutineScope.launch {
+                    val dragActionThread = coroutineScope.launch(Dispatchers.Default) {
                         while (isTouching.value){
 
                             Log.i("GestureController", "Persist Angle: ${persistAngle.value}")

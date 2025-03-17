@@ -41,11 +41,15 @@ import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.R
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
 import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.sprites.loadSpriteSheet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -134,7 +138,7 @@ fun HeroCompose(hero : CharacterBase,
         else
         {
             filterOpacity = 0.0f
-            invincibleCycle = 3
+            invincibleCycle = DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
             hero.getCollider().setActive(true)
         }
     }
@@ -154,10 +158,10 @@ fun HeroCompose(hero : CharacterBase,
     //    Right-Down (↘)	(10, 10)	            atan2(10, 10) ≈ 0.785 (PI / 4)	        45°
 
     // Move function with angle radian Input
-    fun Move(angleRad : Float, specificSpeed : Int = -1)
+    fun Move(angleRad : Float, repelSpeed : Int = -1)
     {
         // In pixel
-        val speed = if (specificSpeed > 0) specificSpeed.toUInt() else hero.getSpeed()
+        val speed = if (repelSpeed > 0) repelSpeed.toUInt() else hero.getSpeed()
         val xDeltaPx = speed.toDouble() * cos(angleRad)
         val yDeltaPx = speed.toDouble() * sin(angleRad)
 
@@ -178,15 +182,19 @@ fun HeroCompose(hero : CharacterBase,
         Log.i("Angle","$normalizedAngle")
 
         // Update the direction back to the data class
-        when{
-            // Left Up to (not include) Right Up -> assign as UP Dir
-            normalizedAngle in 225.0..<315.0 -> hero.setDirection(eDirection.eUP)
-            // Right Up to (not include) Right Down -> assign as Right Dir
-            normalizedAngle in 315.0 ..<360.0 || normalizedAngle in 0.0..< 45.0 -> hero.setDirection(eDirection.eRIGHT)
-            // Right Down to (not include) Left Down -> assign as Down Dir
-            normalizedAngle in 45.0..<135.0 -> hero.setDirection(eDirection.eDOWN)
-            // Left Down to (not include) Left Up -> assign as Left Dir
-            normalizedAngle in 135.0..<225.0 -> hero.setDirection(eDirection.eLEFT)
+        // if at the repel case, not to update the direction since it is passive movement
+        if (repelSpeed < 0)
+        {
+            when{
+                // Left Up to (not include) Right Up -> assign as UP Dir
+                normalizedAngle in 225.0..<315.0 -> hero.setDirection(eDirection.eUP)
+                // Right Up to (not include) Right Down -> assign as Right Dir
+                normalizedAngle in 315.0 ..<360.0 || normalizedAngle in 0.0..< 45.0 -> hero.setDirection(eDirection.eRIGHT)
+                // Right Down to (not include) Left Down -> assign as Down Dir
+                normalizedAngle in 45.0..<135.0 -> hero.setDirection(eDirection.eDOWN)
+                // Left Down to (not include) Left Up -> assign as Left Dir
+                normalizedAngle in 135.0..<225.0 -> hero.setDirection(eDirection.eLEFT)
+            }
         }
 
         // Cancel the previous job
@@ -194,7 +202,7 @@ fun HeroCompose(hero : CharacterBase,
 
         //Log.i("Before Move Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
 
-        currentMoveJob = corontine.launch {
+        currentMoveJob = CoroutineScope(Dispatchers.Default).launch {
 
             // X and Y run simultaneously in two individual threads
             val moveXJob = launch{
@@ -258,7 +266,7 @@ fun HeroCompose(hero : CharacterBase,
                     eRIGHT -> PI
                     else -> 0.0
                 }
-                Move(pushBackAngle.toFloat(), DEFAULT_HERO_SPEED.toInt() * 2)
+                Move(pushBackAngle.toFloat(), DEFAULT_HERO_REPEL_SPEED.toInt())
             }
         }
     }
@@ -349,13 +357,13 @@ fun HeroCompose(hero : CharacterBase,
 
                 startAttack.value = true
 
-                corontine.launch{
+                corontine.launch(Dispatchers.Default){
                     touchAlpha.snapTo(0.4f)
                 }
             },
 
             onTapEnd = { isDragStarted ->
-                corontine.launch {
+                corontine.launch(Dispatchers.Default) {
                     if (!isDragStarted)
                     {
                         touchAlpha.snapTo(0f)
@@ -380,7 +388,7 @@ fun HeroCompose(hero : CharacterBase,
             // When Drag started
             onDragStart = { dragStartPt ->
                 startMove.value = true
-                corontine.launch{
+                corontine.launch(Dispatchers.Default){
                     // Set the Alpha value to 1f, for pointer arrow rendering
                     pointerAlpha.snapTo(0.4f)
                 }
@@ -389,7 +397,7 @@ fun HeroCompose(hero : CharacterBase,
             // When Drag End
             onDragEnd = {
                 startMove.value = false
-                corontine.launch{
+                corontine.launch(Dispatchers.Default){
                     pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
                 }
             }
