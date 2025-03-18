@@ -130,7 +130,7 @@ fun HomeScreen(navController: NavController) {
 }
 
 
-// Preview without NavController
+// Preview 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable

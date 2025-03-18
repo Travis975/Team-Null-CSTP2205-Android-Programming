@@ -93,7 +93,7 @@ fun ControlsScreen(navController: NavController) {
 }
 
 
-// Preview without NavController
+// Preview
 @Preview(showBackground = true)
 @Composable
 fun ControlsPreview() {
