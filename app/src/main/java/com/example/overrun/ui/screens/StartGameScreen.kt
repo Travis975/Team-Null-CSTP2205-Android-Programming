@@ -24,14 +24,6 @@ fun StartGameScreen(navController: NavController) {
     ) {
         Text(text = "Select level")
 
-        
-        Button(
-            onClick = { navController.navigate(LEVEL_0.path) },
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            Text("Start Level 0")
-        }
-
         Button(
             onClick = { navController.navigate(LEVEL_1.path) },
             modifier = Modifier.padding(top = 8.dp)
@@ -39,6 +31,12 @@ fun StartGameScreen(navController: NavController) {
             Text("Start Level 1")
         }
 
+        Button(
+            onClick = { navController.navigate(LEVEL_2.path) },
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text("Start Level 2")
+        }
 
     }
 }

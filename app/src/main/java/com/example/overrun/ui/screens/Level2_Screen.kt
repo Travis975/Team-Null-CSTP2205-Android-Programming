@@ -39,9 +39,10 @@ import com.example.overrun.enitities.gameobject.ObjectCompose
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun Level0_Screen(navController: NavController,
+fun Level2_Screen(navController: NavController,
                             gameViewModel: GameViewModel)
 {
+
     // Use Remember to ensure only one instance for this Game Stage Screen
     val gameStageManager : GameStageManager = remember{ GameStageManager(eGameStage.eStage1) }
 
@@ -154,6 +155,6 @@ fun Level0_Screen(navController: NavController,
 @Composable
 fun Preview() {
     val gameViewModel: GameViewModel = viewModel()
-    Level0_Screen(navController = rememberNavController(),
+    Level2_Screen(navController = rememberNavController(),
                             gameViewModel)
 }
