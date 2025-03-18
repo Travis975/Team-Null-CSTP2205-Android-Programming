@@ -28,7 +28,7 @@ import com.example.overrun.R
 fun LevelIcon(level: Int, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(128.dp) // Size for the icon container
+            .size(108.dp) // Size for the icon container
             .background(
                 color = if (isSelected) Color.Yellow.copy(alpha = 0.5f) else Color.Transparent,
                 shape = RoundedCornerShape(12.dp)
@@ -46,13 +46,14 @@ fun LevelIcon(level: Int, isSelected: Boolean, onClick: () -> Unit) {
                     id = when (level) {
                         1 -> R.drawable.level_1_icon
                         2 -> R.drawable.level_2_icon
+                        // Commenting out Level 3 for now
+                        // 3 -> R.drawable.level_3_icon
                         else -> R.drawable.unavailable_icon
                     }
                 ),
                 contentDescription = "Level $level",
-                modifier = Modifier
-                    .size(96.dp), // Fixed size for the icons
-                contentScale = ContentScale.Fit
+                modifier = Modifier.size(64.dp), // Fixed size for the icons
+//                contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -60,7 +61,7 @@ fun LevelIcon(level: Int, isSelected: Boolean, onClick: () -> Unit) {
             Text(
                 text = "Level $level",
                 color = Color.Black,
-                fontSize = 12.sp
+                fontSize = 14.sp
             )
         }
     }
