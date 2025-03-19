@@ -25,13 +25,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.overrun.R
 
+
 @Composable
-fun LevelIcon(level: Int, isSelected: Boolean, onClick: () -> Unit) {
+fun CharacterIcon(characterId: Int, characterName: String, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(108.dp) // Size for the icon container
             .background(
-                color = if (isSelected) Color.Yellow.copy(alpha = 0.5f) else Color.Transparent,
+                color = if (isSelected) Color.Cyan.copy(alpha = 0.5f) else Color.Transparent,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(8.dp)
@@ -44,23 +45,21 @@ fun LevelIcon(level: Int, isSelected: Boolean, onClick: () -> Unit) {
         ) {
             Image(
                 painter = painterResource(
-                    id = when (level) {
-                        1 -> R.drawable.level_1_icon
-                        2 -> R.drawable.level_2_icon
-                        // Commenting out Level 3 for now
-                        // 3 -> R.drawable.level_3_icon
+                    id = when (characterName) {
+                        "Paul" -> R.drawable.tokage_right_hit
+                        "????" -> R.drawable.unavailable_icon
+                        "???" -> R.drawable.unavailable_icon
                         else -> R.drawable.unavailable_icon
                     }
                 ),
-                contentDescription = "Level $level",
+                contentDescription = "$characterName Icon",
                 modifier = Modifier.size(64.dp), // Fixed size for the icons
-//                contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Level $level",
+                text = characterName,
                 color = Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold

@@ -14,7 +14,6 @@ import com.example.overrun.enitities.Route.*
 import com.example.overrun.ui.screens.ControlsScreen
 import com.example.overrun.ui.screens.HomeScreen
 import com.example.overrun.ui.screens.Level1_Screen
-//import com.example.overrun.ui.screens.*
 import com.example.overrun.ui.screens.MainMenuScreen
 import com.example.overrun.ui.screens.PrivacyScreen
 import com.example.overrun.ui.screens.StartGameScreen

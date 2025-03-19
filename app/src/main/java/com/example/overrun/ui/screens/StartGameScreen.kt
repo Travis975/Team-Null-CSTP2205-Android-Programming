@@ -31,12 +31,17 @@ import com.example.overrun.enitities.Route.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.overrun.ui.components.CharacterIcon
 import com.example.overrun.ui.components.LevelIcon
-
-
 @Composable
 fun StartGameScreen(navController: NavController) {
+    var selectedCharacter by remember { mutableStateOf<Int?>(null) }
     var selectedLevel by remember { mutableStateOf<Int?>(null) }
+
+    val characterNames = mapOf(
+        1 to "Paul",
+        2 to "????"
+    )
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -66,9 +71,37 @@ fun StartGameScreen(navController: NavController) {
                         color = Color.White.copy(alpha = 0.9f),
                         shape = RoundedCornerShape(16.dp)
                     )
-                    .padding(50.dp)
+                    .padding(20.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Select Character",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Character Selection Icons
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        CharacterIcon(
+                            characterId = 1,
+                            isSelected = selectedCharacter == 1,
+                            onClick = { selectedCharacter = if (selectedCharacter == 1) null else 1 },
+                            characterName = characterNames[1] ?: "Unknown"
+                        )
+                        CharacterIcon(
+                            characterId = 2,
+                            isSelected = selectedCharacter == 2,
+                            onClick = { selectedCharacter = if (selectedCharacter == 2) null else 2 },
+                            characterName = characterNames[2] ?: "Unknown"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     Text(
                         text = "Select Level",
                         fontSize = 20.sp,
@@ -76,7 +109,7 @@ fun StartGameScreen(navController: NavController) {
                         color = Color.Black
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     // Level Selection Icons
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -90,47 +123,40 @@ fun StartGameScreen(navController: NavController) {
                             isSelected = selectedLevel == 2,
                             onClick = { selectedLevel = if (selectedLevel == 2) null else 2 }
                         )
-                        // Commenting out Level 3 for now
-                        // LevelIcon(
-                        //     level = 3,
-                        //     isSelected = selectedLevel == 3,
-                        //     onClick = { selectedLevel = if (selectedLevel == 3) null else 3 }
-                        // )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Start Game Button (Enabled only if a level and character are selected)
+                    Button(
+                        onClick = {
+                            val route = when {
+                                selectedCharacter != null && selectedLevel != null -> {
+                                    // Navigate to the corresponding level screen based on the selected level
+                                    when (selectedLevel) {
+                                        1 -> "level1"
+                                        2 -> "level2"
+                                        else -> MAIN_MENU.path
+                                    }
+                                }
+                                else -> MAIN_MENU.path
+                            }
+                            navController.navigate(route)
+                        },
+                        enabled = selectedLevel != null && selectedCharacter != null,
+                        modifier = Modifier.fillMaxWidth(0.6f)
+                    ) {
+                        Text("Start Game")
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
 
-            // Start Game Button (Enabled only if a level is selected)
-            Button(
-                onClick = {
-                    val route = when (selectedLevel) {
-                        1 -> LEVEL_1
-                        2 -> LEVEL_2
-                        // Commenting out Level 3 for now
-                        // 3 -> LEVEL_3
-                        else -> MAIN_MENU
-                    }
-                    navController.navigate(route.path)
-                },
-                enabled = selectedLevel != null,
-                modifier = Modifier.fillMaxWidth(0.6f)
-            ) {
-                Text("Start Game")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { navController.navigate(MAIN_MENU.path) },
-                modifier = Modifier.fillMaxWidth(0.6f)
-            ) {
-                Text("Back")
-            }
         }
     }
 }
+
+
 
 // Preview
 @Preview(showBackground = true)
