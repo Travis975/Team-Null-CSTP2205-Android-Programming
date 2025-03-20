@@ -37,6 +37,7 @@ import com.example.overrun.enitities.Route.HOME
 import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
+import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -50,6 +51,16 @@ fun Level1_Screen(navController: NavController,
     val context = LocalContext.current
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
+    // Timer State
+    val gameTime = remember { mutableStateOf(0) } // Tracks elapsed seconds
+
+    // Start timer when the screen is launched
+    LaunchedEffect(true) {
+        while (true) {
+            delay(1000L) // Wait 1 second
+            gameTime.value++ // Increment timer
+        }
+    }
 
     // Call Once when the Screen first Compose
     DisposableEffect(Unit) {
@@ -75,14 +86,6 @@ fun Level1_Screen(navController: NavController,
         verticalArrangement = Arrangement.Center
     )
     {
-//        Button(
-//            onClick = { navController.navigate(MAIN_MENU.path) },
-//            modifier = Modifier
-//                .padding(bottom = 12.dp)
-//        ) {
-//            Text("Quit")
-//        }
-
         BoxWithConstraints(modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
@@ -139,10 +142,22 @@ fun Level1_Screen(navController: NavController,
                         ) {
                             Text("Quit")
                         }
-
                         Spacer(modifier = Modifier.width(10.dp))
+                        // Display Timer
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Time: ${gameTime.value}s",
+                                color = Color.White,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
 
-                        Text("Hit Count : ${gameViewModel.gameMetrics.getHeroHitCount()}")
+                            Text("Hit Count : ${gameViewModel.gameMetrics.getHeroHitCount()}")
+                        }
                     }
                 }
             }
