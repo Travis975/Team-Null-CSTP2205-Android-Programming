@@ -7,6 +7,7 @@ enum class Route(val path : String){
     PRIVACY("privacy"),
     TERMS("terms"),
     MAIN_MENU("mainMenu"),
+    SETTINGS("settings"),
     START_GAME("startGame"),
     CONTROLS("controls"),
     LEVEL_1("level1"),

@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
+import com.example.overrun.ui.components.SettingsIcon
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -88,6 +89,17 @@ fun MainMenuScreen(navController: NavController) {
                 )
         }
 
+        // Settings Icon
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 16.dp, top = 36.dp),
+            contentAlignment = Alignment.TopEnd // Position at top-right
+        ) {
+            // call function here
+            SettingsIcon(navController)
+        }
+
         // Foreground Content
         Column(
             modifier = Modifier.fillMaxSize().padding(8.dp),
@@ -119,14 +131,6 @@ fun MainMenuScreen(navController: NavController) {
                 Text("Controls")
             }
 
-            Spacer(modifier = Modifier.height(36.dp))
-
-            Button(
-                onClick = { navController.navigate(HOME.path) },
-                modifier = Modifier.padding(bottom = 32.dp)
-            ) {
-                Text("Quit")
-            }
         }
     }
 }
