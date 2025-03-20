@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,13 +38,13 @@ import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
+import com.example.overrun.ui.components.PauseIcon
+import com.example.overrun.ui.components.PauseMenu
 import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun Level2_Screen(navController: NavController,
-                            gameViewModel: GameViewModel)
-{
+fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     // Use Remember to ensure only one instance for this Game Stage Screen
     val gameStageManager : GameStageManager = remember{ GameStageManager(eGameStage.eStage1) }
@@ -52,16 +54,23 @@ fun Level2_Screen(navController: NavController,
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
-    // Timer State
-    val gameTime = remember { mutableStateOf(0) } // Tracks elapsed seconds
+    // Timer state
+    val isTimerRunning = gameViewModel.isTimerRunning.value
 
-    // Start timer when the screen is launched
-    LaunchedEffect(true) {
-        while (true) {
-            delay(1000L) // Wait 1 second
-            gameTime.value++ // Increment timer
+    val gameTimeLevel2 = remember { mutableStateOf(0) } // Tracks elapsed seconds
+
+    // Timer logic with pause-resume control
+    LaunchedEffect(isTimerRunning) {
+        if (isTimerRunning) {
+            while (true) {
+                delay(1000L) // Wait 1 second
+                gameTimeLevel2.value++ // Increment timer
+            }
         }
     }
+
+    // State to control the visibility of the pause menu
+    val isPauseDialogVisible = remember { mutableStateOf(false) }
 
     // Call Once when the Screen first Compose
     DisposableEffect(Unit) {
@@ -128,37 +137,62 @@ fun Level2_Screen(navController: NavController,
 
 
                 // Screen Control
-                Row(modifier = Modifier.fillMaxWidth(),
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
-                ){
-                    Column(modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center)
-                    {
-                        Button(
-                            onClick = { navController.navigate(MAIN_MENU.path) },
-                            modifier = Modifier
-                                .width(100.dp)
-                                .padding(bottom = 12.dp)
-                        ) {
-                            Text("Quit")
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        // Display Timer
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Time: ${gameTime.value}s",
-                                color = Color.White,
-                                modifier = Modifier.padding(8.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        // Add pause icon to pull up the pause menu
+                        PauseIcon(
+                            navController = navController,
+                            gameViewModel = gameViewModel,
+                            onPause = {
+                                isPauseDialogVisible.value = true
+                                gameViewModel.toggleTimer() // Stop the timer on pause
+                            }
+                        )
 
-                            Text("Hit Count : ${gameViewModel.gameMetrics.getHeroHitCount()}")
+                        // Pause Menu Dialog
+                        if (isPauseDialogVisible.value) {
+                            PauseMenu(
+                                onResume = {
+                                    isPauseDialogVisible.value = false // Close the dialog
+                                    gameViewModel.toggleTimer() // Resume the timer
+                                },
+                                onQuit = {
+                                    navController.navigate(MAIN_MENU.path) // Navigate to the main menu
+                                }
+                            )
+                        }
+
+                        // Display Timer and Hit Count outside the pause menu conditional
+                        if (!isPauseDialogVisible.value) {  // Ensure these are only shown when the game is not paused
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Time: ${gameTimeLevel2.value}s",
+                                    color = Color.Black,
+                                    modifier = Modifier.padding(8.dp),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+
+                                Text(
+                                    text = "Hit Count: ${gameViewModel.gameMetrics.getHeroHitCount()}",
+                                    color = Color.Black,
+                                    modifier = Modifier.padding(8.dp),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 }
@@ -172,6 +206,5 @@ fun Level2_Screen(navController: NavController,
 @Composable
 fun Preview() {
     val gameViewModel: GameViewModel = viewModel()
-    Level2_Screen(navController = rememberNavController(),
-                            gameViewModel)
+    Level2_Screen(navController = rememberNavController(), gameViewModel)
 }
