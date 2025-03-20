@@ -1,5 +1,6 @@
 package com.example.overrun.enitities
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.HeroCharacter
@@ -8,6 +9,14 @@ import com.example.overrun.enitities.gameStage.GameMetrics
 import com.example.overrun.enitities.gameobject.GameObject
 
 class GameViewModel : ViewModel(){
+
+    // Timer state
+    var isTimerRunning = mutableStateOf(true) // This controls whether the timer is running
+
+    // Function to toggle the timer for pause menu
+    fun toggleTimer() {
+        isTimerRunning.value = !isTimerRunning.value
+    }
 
     val gameMetrics = GameMetrics()
 

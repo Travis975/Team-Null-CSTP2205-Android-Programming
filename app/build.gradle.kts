@@ -67,4 +67,9 @@ dependencies {
     // Firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+    // For additional Icons
+    implementation ("androidx.compose.material3:material3:1.0.1")
+    implementation ("androidx.compose.material:material-icons-extended:1.0.1")
+
+
 }
