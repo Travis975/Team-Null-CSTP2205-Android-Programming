@@ -54,6 +54,11 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
+    // Starting enemy update coroutine
+    LaunchedEffect(Unit) {
+        gameViewModel.startEnemyUpdates() // Start when game launches
+    }
+
     // Timer state
     val isTimerRunning = gameViewModel.isTimerRunning.value
 

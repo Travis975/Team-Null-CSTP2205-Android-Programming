@@ -10,7 +10,9 @@ import com.example.overrun.enitities.gameobject.GameObject
 abstract class CharacterBase(id : String,
                              etype: eCharacterType,
                              lives : UInt, speed : UInt,
-                             objectSizeManager : GameObjectSizeAndViewManager) :
+                             objectSizeManager : GameObjectSizeAndViewManager,
+                             //Adding for the enemy
+                             interactable : Boolean) :
     GameObject(id, eObjectType.eCHARACTER,
                 objectSizeManager, true)
 {

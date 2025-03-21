@@ -66,4 +66,6 @@ class Collider(var id : String,
             objectSizeAndViewManager = this._objSizeAndViewManager
         )
     }
+
+
 }

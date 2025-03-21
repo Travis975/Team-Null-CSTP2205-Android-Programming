@@ -94,6 +94,9 @@ enum class eObjectType(val value: Int){
     eWATER_CENTER_RIGHT(57),
     eWATER_LOW_RIGHT(58),
 
+    // Enemy
+    eENEMY(101),
+
     eCHARACTER(99);
 
     public fun isStatic() : Boolean
@@ -102,6 +105,7 @@ enum class eObjectType(val value: Int){
             eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL,ePATH, ePATH_RANDOM,
             ePATH_RANDOM_2, ePATH_RANDOM_3, eGRASS_FLOWERS, eROCKY_PATCH,
             eSAND->true
+            eENEMY -> false
             else->false
         }
     }
@@ -172,6 +176,7 @@ enum class eObjectType(val value: Int){
             eWATER_CENTER_RIGHT -> "Water Center Right"
             eWATER_LOW_RIGHT -> "Water Low Right"
             eCHARACTER->"Character"
+            eENEMY -> "Enemy" // <-- New toString case
             else->"Invalid Object"
         }
     }

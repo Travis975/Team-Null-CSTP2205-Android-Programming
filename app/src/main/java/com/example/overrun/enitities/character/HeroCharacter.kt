@@ -11,7 +11,7 @@ import com.example.overrun.enitities.gameStage.GameMetrics
 class HeroCharacter(objectSizeManager : GameObjectSizeAndViewManager) :
     CharacterBase(eCharacterType.eHERO.toString(),
                     eCharacterType.eHERO, DEFAULT_LIVES, DEFAULT_HERO_SPEED,
-                    objectSizeManager)
+                    objectSizeManager, interactable = true)
 {
     private var eType : eHeroType = eHeroType.eHERO_TOKAGE
 

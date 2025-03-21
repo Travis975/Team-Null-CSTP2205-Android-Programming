@@ -22,7 +22,7 @@ class GameStageManager(private val eStage: eGameStage) {
     ) {
         val colliderManager = gameVM.colliderManager
         val hero = gameVM.hero
-        val gameObjects = gameVM.gameObjects
+        val gameObjects = gameVM._gameObjects
         val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
         // Important, Update the screen width and height pixel for the game

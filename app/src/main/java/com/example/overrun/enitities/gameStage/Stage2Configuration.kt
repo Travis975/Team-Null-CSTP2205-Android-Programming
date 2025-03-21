@@ -14,7 +14,7 @@ fun Stage2Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
-    val gameObjects = gameVM.gameObjects
+    val gameObjects = gameVM._gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
     // 1 - Load Stage Map

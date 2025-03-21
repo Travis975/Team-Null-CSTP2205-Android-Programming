@@ -3,6 +3,7 @@ package com.example.overrun.enitities.gameStage
 import android.content.Context
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.GameViewModel
+import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
@@ -14,7 +15,6 @@ fun Stage1Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
-    val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
     // 1 - Load Stage Map
@@ -44,10 +44,9 @@ fun Stage1Configuration(context: Context,
     val stageGroundObjectType = eSAND
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
-
         row.withIndex().forEach{ (colIdx, objectTypeNum)->
-
-            gameObjects.add(
+            // Use thread-safe add method
+            gameVM.addGameObject(
                 GameObject(
                     id = "${stageGroundObjectType.value}_${colIdx}_${rowIdx}",
                     objType = stageGroundObjectType,
@@ -60,16 +59,15 @@ fun Stage1Configuration(context: Context,
         }
     }
 
-    // Loop 2D Map to create Object, and by pass the ground object type
+    // Loop 2D Map to create Object, and bypass the ground object type
     map2DInt.withIndex().forEach{ (rowIdx, row)->
-
         row.withIndex().forEach{ (colIdx, objectTypeNum)->
-
             val objectType = eObjectType.fromValue(objectTypeNum)!!
 
             if (objectType != stageGroundObjectType)
             {
-                gameObjects.add(
+                // Use thread-safe add method
+                gameVM.addGameObject(
                     GameObject(
                         id = "${objectTypeNum}_${colIdx}_${rowIdx}",
                         objType = objectType,
@@ -89,12 +87,22 @@ fun Stage1Configuration(context: Context,
 
     // Skip grass for collisions so hero can move over it
     colliderManager.setObjectColliders(
-        gameObjects
-            .filter { !it.getObjType().isStatic()}
-            .toMutableList() // convert to MutableList
+        gameVM.gameObjects  // Use thread-safe getter
+            .filter { !it.getObjType().isStatic() }
+            .toMutableList()
     )
 
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
-}
 
+    // ENEMY Spawning in the level
+    val enemy = EnemyCharacter(
+        objectSizeManager = gameObjSizeAndViewManager,
+        hero = hero
+    ).apply {
+        updatePosition(xStartWorldPos + 100U, yStartWorldPos)
+    }
+
+    // Use thread-safe add method
+    gameVM.addGameObject(enemy)
+}
