@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.overrun.enitities.character.HeroCompose
 import com.example.overrun.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
+import com.example.overrun.enitities.Route.GAMEOVER
 import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
@@ -54,18 +55,11 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
-    // Timer state
-    val isTimerRunning = gameViewModel.isTimerRunning.value
-
-    val gameTimeLevel2 = remember { mutableStateOf(0) } // Tracks elapsed seconds
-
-    // Timer logic with pause-resume control
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (true) {
-                delay(1000L) // Wait 1 second
-                gameTimeLevel2.value++ // Increment timer
-            }
+    // Timer logic from the GameViewModel
+    LaunchedEffect(gameViewModel.isTimerRunning.value) {
+        while (gameViewModel.isTimerRunning.value) {
+            delay(1000L)
+            gameViewModel.incrementGameTime() // Calls the function in the GameViewModel
         }
     }
 
@@ -165,7 +159,10 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                                     gameViewModel.toggleTimer() // Resume the timer
                                 },
                                 onQuit = {
-                                    navController.navigate(MAIN_MENU.path) // Navigate to the main menu
+                                    // Reset the timer for next run
+                                    gameViewModel.resetGameTime()
+                                    // Navigate to the game over screen to see stats
+                                    navController.navigate(GAMEOVER.path)
                                 }
                             )
                         }
@@ -180,16 +177,16 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Time: ${gameTimeLevel2.value}s",
+                                    text = "Time: ${gameViewModel.gameTime.value}s",
                                     color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
+                                    modifier = Modifier.padding(12.dp),
                                     fontWeight = FontWeight.SemiBold
                                 )
 
                                 Text(
                                     text = "Hit Count: ${gameViewModel.gameMetrics.getHeroHitCount()}",
                                     color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
+                                    modifier = Modifier.padding(12.dp),
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }

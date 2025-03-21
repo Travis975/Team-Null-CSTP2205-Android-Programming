@@ -8,14 +8,28 @@ import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.gameStage.GameMetrics
 import com.example.overrun.enitities.gameobject.GameObject
 
-class GameViewModel : ViewModel(){
+// Update: game time should be handled in the view model entirely for consistency
+// And helps prevent memory leaks...hopefully
 
-    // Timer state
-    var isTimerRunning = mutableStateOf(true) // This controls whether the timer is running
+class GameViewModel : ViewModel(){
+    // Timer state - controls whether the timer is running
+    var isTimerRunning = mutableStateOf(true)
+
+    var gameTime = mutableStateOf(0)
 
     // Function to toggle the timer for pause menu
     fun toggleTimer() {
         isTimerRunning.value = !isTimerRunning.value
+    }
+
+    // Timer goes up
+    fun incrementGameTime() {
+        gameTime.value++
+    }
+    // For reset on quiting
+    fun resetGameTime() {
+        gameTime.value = 0
+        toggleTimer()
     }
 
     val gameMetrics = GameMetrics()
@@ -35,7 +49,11 @@ class GameViewModel : ViewModel(){
 
     // when gameViewModel destruct
     override fun onCleared() {
+        // Stop timer
+        toggleTimer()
+        gameTime.value = 0
         gameObjects.clear()
         colliderManager.cancelCollisionCheck()
+
     }
 }
