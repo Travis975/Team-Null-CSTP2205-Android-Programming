@@ -13,12 +13,19 @@ import com.example.overrun.enitities.gameobject.GameObject
 
 class GameViewModel : ViewModel(){
 
+    // Trigger Stage Start
+    var isStageStartRender = mutableStateOf(true)
+    fun triggerStageStartRender() {
+        isStageStartRender.value = !isStageStartRender.value
+        SetTimerRunStop(true)
+    }
+
     // Timer state
     var isTimerRunning = mutableStateOf(true) // This controls whether the timer is running
 
     // Function to toggle the timer for pause menu
-    fun toggleTimer() {
-        isTimerRunning.value = !isTimerRunning.value
+    fun SetTimerRunStop(isRun : Boolean) {
+        isTimerRunning.value = isRun
     }
 
     val gameMetrics = GameMetrics()

@@ -504,7 +504,7 @@ fun HeroCompose(hero : CharacterBase,
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
-                colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
+                colorFilter = ColorFilter.tint(Color.Red.copy(alpha = filterOpacity), BlendMode.SrcAtop)
             )
         }
     }
