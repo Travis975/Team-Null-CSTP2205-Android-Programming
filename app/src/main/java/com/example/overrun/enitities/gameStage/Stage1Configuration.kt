@@ -5,6 +5,7 @@ import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
@@ -96,5 +97,16 @@ fun Stage1Configuration(context: Context,
 
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
+
+    // 7) Setup EnemyFactory
+    gameVM.stopAllEnemiesMoveThread()
+    gameVM.enemies.clear()
+    gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
+                                                eEnemyType.eENEMY_PARROT,
+                                                5U, // Max have 5 enemies at one time
+                                                listOf(1L, 2L, 4L, 8L, 10L),  // list of intervals in second to be random pick
+                                                gameVM.objectSizeAndViewManager)
+
+    gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
 }
 

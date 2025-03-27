@@ -19,4 +19,6 @@ class HeroCharacter(objectSizeManager : GameObjectSizeAndViewManager) :
         this.eType = eType
     }
     public fun getHeroType() = eType
+
+    public fun getHeroXYPos() = getCollider().getXYPos()
 }

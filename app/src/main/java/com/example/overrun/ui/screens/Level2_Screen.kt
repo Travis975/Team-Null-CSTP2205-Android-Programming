@@ -36,6 +36,7 @@ import com.example.overrun.enitities.character.HeroCompose
 import com.example.overrun.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.character.EnemyCompose
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 import com.example.overrun.ui.components.PauseIcon
@@ -84,6 +85,8 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
             // Important !! //
             gameViewModel.colliderManager.cancelCollisionCheck()
 
+            gameViewModel.destructEnemyFactoryRoutine()
+
             println("Game Screen is leaving the composition")
         }
     }
@@ -127,14 +130,20 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                                   gameViewModel.objectSizeAndViewManager)
                 }
 
-                // And Enemy here shall overlap the hero
-
                 // Remember, hero always overlap the game object
                 HeroCompose(gameViewModel.hero,
                             gameViewModel.colliderManager,
                             gameViewModel.objectSizeAndViewManager)
 
-
+                // And Enemy here shall overlap the hero
+                gameViewModel.enemies.forEach { enemy ->
+                    EnemyCompose(
+                        enemy,
+                        gameViewModel.hero::getHeroXYPos,
+                        gameViewModel.colliderManager,
+                        gameViewModel.objectSizeAndViewManager
+                    )
+                }
 
                 // Screen Control
                 Row(
