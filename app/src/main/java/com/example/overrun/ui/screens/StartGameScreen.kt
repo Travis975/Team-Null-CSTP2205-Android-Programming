@@ -31,10 +31,12 @@ import com.example.overrun.enitities.Route.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.ui.components.CharacterIcon
 import com.example.overrun.ui.components.LevelIcon
 @Composable
-fun StartGameScreen(navController: NavController) {
+fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) {
     var selectedCharacter by remember { mutableStateOf<Int?>(null) }
     var selectedLevel by remember { mutableStateOf<Int?>(null) }
 
@@ -141,6 +143,7 @@ fun StartGameScreen(navController: NavController) {
                                 }
                                 else -> MAIN_MENU.path
                             }
+                            gameViewModel.triggerStageStartRender()
                             navController.navigate(route)
                         },
                         enabled = selectedLevel != null && selectedCharacter != null,
@@ -162,5 +165,6 @@ fun StartGameScreen(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun StartGamePreview() {
-    StartGameScreen(navController = rememberNavController())
+    val gameViewModel: GameViewModel = viewModel()
+    StartGameScreen(navController = rememberNavController(), gameViewModel)
 }

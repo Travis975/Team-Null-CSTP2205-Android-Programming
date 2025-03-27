@@ -41,7 +41,9 @@ import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 import com.example.overrun.ui.components.PauseIcon
 import com.example.overrun.ui.components.PauseMenu
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -55,15 +57,22 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
+    // declare for re-render trigger
+    val isNewStart = gameViewModel.isStageStartRender
+
     // Timer state
     val isTimerRunning = gameViewModel.isTimerRunning.value
 
     val gameTimeLevel2 = remember { mutableStateOf(0) } // Tracks elapsed seconds
 
+    // Important, use Dispatchers.Default rather than the main thread
     // Timer logic with pause-resume control
     LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (true) {
+
+        // use separate thread other than main thread
+        withContext(Dispatchers.Default)
+        {
+            while (isTimerRunning) {
                 delay(1000L) // Wait 1 second
                 gameTimeLevel2.value++ // Increment timer
             }
@@ -162,7 +171,7 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                             gameViewModel = gameViewModel,
                             onPause = {
                                 isPauseDialogVisible.value = true
-                                gameViewModel.toggleTimer() // Stop the timer on pause
+                                gameViewModel.SetTimerRunStop(false) // Stop the timer on pause
                             }
                         )
 
@@ -171,7 +180,7 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                             PauseMenu(
                                 onResume = {
                                     isPauseDialogVisible.value = false // Close the dialog
-                                    gameViewModel.toggleTimer() // Resume the timer
+                                    gameViewModel.SetTimerRunStop(true) // Resume the timer
                                 },
                                 onQuit = {
                                     navController.navigate(MAIN_MENU.path) // Navigate to the main menu
