@@ -5,12 +5,15 @@ import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_LIVES
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eCharacterType
+import com.example.overrun.enitities.eObjectType
 
-class EnemyCharacter(eEnemy : eEnemyType,
+class EnemyCharacter(id : String,
+                     eEnemy : eEnemyType,
                      startX : UInt, startY : UInt,
                      objectSizeManager : GameObjectSizeAndViewManager) :
-    CharacterBase(eCharacterType.eENEMY.toString(),
-        eCharacterType.eENEMY, DEFAULT_ENEMY_LIVES, DEFAULT_ENEMY_SPEED,
+    CharacterBase(id,
+        eCharacterType.eENEMY, eObjectType.eENEMY,
+        DEFAULT_ENEMY_LIVES, DEFAULT_ENEMY_SPEED,
         objectSizeManager)
 {
     private var eType : eEnemyType = eEnemy

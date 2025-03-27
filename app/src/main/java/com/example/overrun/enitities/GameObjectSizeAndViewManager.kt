@@ -84,7 +84,7 @@ class GameObjectSizeAndViewManager {
         var actionSizePx = 0U
         when(objType){
             // For characters, enemy:
-            eCHARACTER -> {
+            eCHARACTER, eENEMY -> {
                 actionSizePx = GET_CHARACTER_INTERACT_SIZE() - GET_CHARACTER_SIZE()
             }
 

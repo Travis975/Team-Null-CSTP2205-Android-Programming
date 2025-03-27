@@ -87,6 +87,43 @@ fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
     return allAnimateFrames
 }
 
+// Return 1D List of Image
+fun loadSpriteSheet1D(res: android.content.res.Resources, @DrawableRes resId: Int,
+                    frameWidth: UInt, frameHeight: UInt,
+                    scaleFactor: Float = 1f): MutableList<ImageBitmap> {
+
+    val options = BitmapFactory.Options().apply {
+        inScaled = false  // Disable scaling based on density
+    }
+
+    val imageBitmap = BitmapFactory.decodeResource(res, resId, options).asImageBitmap()
+
+    //Log.i("image","Image : ${imageBitmap.width} ${imageBitmap.height}")
+
+    val allAnimateFrames = mutableListOf<ImageBitmap>()
+    val columns = imageBitmap.width / frameWidth.toInt()
+    val rows = imageBitmap.height / frameHeight.toInt()
+
+    val isInVertical = if (rows > columns) true else false
+    val sizes = if (isInVertical) rows else columns
+
+    for (i in 0..<sizes) {
+
+        val x = if (isInVertical) 0 else i
+        val y = if (isInVertical) i else 0
+
+        var frame = createFrame(frameWidth, frameHeight, x, y, imageBitmap)
+
+        // Scale the frame
+        if (scaleFactor != 1f)
+        {
+            frame = scaleImageBitmap(frame, scaleFactor)
+        }
+        allAnimateFrames.add(frame)
+    }
+    return allAnimateFrames
+}
+
 // Overload function for single frame
 fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int): ImageBitmap {
 

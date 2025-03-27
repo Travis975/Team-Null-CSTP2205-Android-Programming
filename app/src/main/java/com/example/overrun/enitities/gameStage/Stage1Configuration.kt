@@ -84,7 +84,21 @@ fun Stage1Configuration(context: Context,
         }
     }
 
-    // 6) Setup colliders
+    // 6) Setup EnemyFactory
+    gameVM.stopAllEnemiesMoveThread()
+    gameVM.enemies.clear()
+    gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
+                                                eEnemyType.eENEMY_PARROT,
+                                                50U, // Max have at most 50 enemies
+                                                listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+                                                colliderManager,
+                                                gameObjSizeAndViewManager)
+
+    gameVM.gameEnemyFactory?.resetEnemyUniqueID()
+    gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
+
+
+    // 7) Setup colliders
     colliderManager.resetAllCollider()
     colliderManager.setHeroCollider(hero)
 
@@ -97,16 +111,5 @@ fun Stage1Configuration(context: Context,
 
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
-
-    // 7) Setup EnemyFactory
-    gameVM.stopAllEnemiesMoveThread()
-    gameVM.enemies.clear()
-    gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
-                                                eEnemyType.eENEMY_PARROT,
-                                                5U, // Max have 5 enemies at one time
-                                                listOf(1L, 2L, 4L, 8L, 10L),  // list of intervals in second to be random pick
-                                                gameVM.objectSizeAndViewManager)
-
-    gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
 }
 

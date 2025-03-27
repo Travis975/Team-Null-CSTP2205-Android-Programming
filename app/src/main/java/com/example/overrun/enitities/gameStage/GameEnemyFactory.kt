@@ -1,14 +1,19 @@
 package com.example.overrun.enitities.gameStage
 
+import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.EnemyCharacter
+import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eCharacterType
 import com.example.overrun.enitities.eDirection.*
 import com.example.overrun.enitities.eEnemyType
+import com.example.overrun.enitities.eObjectType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 // pass in the enemies list reference to manipulate
@@ -16,6 +21,7 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
                        private val eEnemyType : eEnemyType,
                         private val maxNumOfEnemy : UInt,
                        private val spawnIntervalSecList : List<Long>,
+                       private val colliderManager : ColliderManager,
                        private val objectSizeManager : GameObjectSizeAndViewManager)
 {
 
@@ -29,8 +35,34 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
     var lastSpawnEnemyTimeSec : Long = 0L
     var nextSpawnEnemyInterval = spawnIntervalSecList[Random.nextInt(0, spawnIntervalSecList.size)]
 
+    private var _enemyUniqueID : AtomicLong = AtomicLong(0L)
+
+    fun resetEnemyUniqueID(){
+        _enemyUniqueID = AtomicLong(0L)
+    }
+
+    fun checkAndRemoveDeadEnemy()
+    {
+        // Temp not to remove, had datarace problem
+        // Remove collider first
+//        var removeIDList : MutableList<String> = mutableListOf()
+//        enemies.forEach{ enemy ->
+//            if (enemy.isDieFinished())
+//            {
+//                removeIDList.add(enemy.getID())
+//                colliderManager.removeEnemyCollider(enemy.getID())
+//            }
+//        }
+//
+//        // then remove from the pool
+//        enemies.removeIf{it.getID() in removeIDList}
+    }
+
     fun SpawnEnemy()
     {
+        // Check if any existing enemy die, remove from the pool
+        checkAndRemoveDeadEnemy()
+
         if (enemies.count() >= maxNumOfEnemy.toInt())
         {
             return
@@ -69,13 +101,15 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
             }
         }
 
-        enemies.add(
-            EnemyCharacter(eEnemyType,
-                    //currentScreenX.toUInt(), currentScreenY.toUInt(),
-                    randomX, randomY,
-                    objectSizeManager
-            )
-        )
+        val id = _enemyUniqueID.incrementAndGet()
+        // id = "Enemy_drawableUnqieId_UniqueID"
+        val enemy = EnemyCharacter("${eObjectType.eENEMY.value}_${eEnemyType.resId}_${id}",
+                                    eEnemyType,
+                                    randomX, randomY,
+                                    objectSizeManager)
+
+        enemies.add(enemy)
+        colliderManager.addEnemyColliders(enemy)
     }
 
     public fun startCheckAndSpawnEnemy()

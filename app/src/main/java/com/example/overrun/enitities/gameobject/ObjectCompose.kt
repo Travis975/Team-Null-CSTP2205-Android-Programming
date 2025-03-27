@@ -19,6 +19,7 @@ import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.collider.ColliderManager.eColliderType
 import com.example.overrun.enitities.gameStage.GameMetrics
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.delay
@@ -102,7 +103,7 @@ fun ObjectCompose(
     // If no ID is registered, response is 0L
     val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
-            colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L     // if no id registered, response as 0L
+            colliderManager.heroInteractedToOther[eColliderType.eCollideObject]!![gameObject.getID()] ?: 0L     // if no id registered, response as 0L
         }
     }
 

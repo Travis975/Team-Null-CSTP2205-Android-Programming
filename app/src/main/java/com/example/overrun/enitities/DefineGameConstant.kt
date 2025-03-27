@@ -41,8 +41,8 @@ object GameConstant{
     const val MOVE_COLLIDE_OFFSET_X = -30
     const val MOVE_COLLIDE_OFFSET_Y = -30
 
-    const val BE_INTERACT_COLLIDE_OFFSET_X = 30
-    const val BE_INTERACT_COLLIDE_OFFSET_Y = 30
+    const val BE_INTERACT_COLLIDE_OFFSET_X = 15
+    const val BE_INTERACT_COLLIDE_OFFSET_Y = 15
 }
 
 // ObjectType
@@ -101,6 +101,7 @@ enum class eObjectType(val value: Int){
     eWATER_CENTER_RIGHT(57),
     eWATER_LOW_RIGHT(58),
 
+    eENEMY(98),
     eCHARACTER(99);
 
     public fun isStatic() : Boolean
@@ -117,7 +118,7 @@ enum class eObjectType(val value: Int){
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1, eROCK_TOXIC, eCACTUS->true
+            eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY->true
             else->false
         }
     }
@@ -127,7 +128,7 @@ enum class eObjectType(val value: Int){
     public fun isHarmful(): Boolean
     {
         return when(this){
-            eROCK_TOXIC, eCACTUS->true
+            eROCK_TOXIC, eCACTUS, eENEMY->true
             else->false
         }
     }
@@ -178,6 +179,7 @@ enum class eObjectType(val value: Int){
             eWATER_CENTER_LEFT -> "Water Center Left"
             eWATER_CENTER_RIGHT -> "Water Center Right"
             eWATER_LOW_RIGHT -> "Water Low Right"
+            eENEMY->"Enemy"
             eCHARACTER->"Character"
             else->"Invalid Object"
         }
