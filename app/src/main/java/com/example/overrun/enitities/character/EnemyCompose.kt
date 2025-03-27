@@ -43,6 +43,7 @@ import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_HEIGHT_
 import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.collider.ColliderManager.eColliderType
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
@@ -50,6 +51,7 @@ import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.sprites.loadSpriteSheet
+import com.example.overrun.enitities.sprites.loadSpriteSheet1D
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -70,6 +72,11 @@ fun EnemyCompose(enemy : CharacterBase,
     // ********************* Temp Remark, enemy do not have action collider
     // For Debugging
     //val bFlagDisplayActionCollider = false
+    var isEnemyDie by remember { mutableStateOf<Boolean>(enemy.isDie()) }
+    if (isEnemyDie)
+    {
+        return
+    }
 
     // Change to use World Coord for Screen X Y Pos system for trigger rendering
     // User animateFLoat for smooth transition of value
@@ -85,6 +92,14 @@ fun EnemyCompose(enemy : CharacterBase,
     val context = LocalContext.current
     val density = LocalDensity.current
 
+    // Control and Render
+    val startMove = remember{mutableStateOf(true)} // default enemy always move, even pos not change, sprite keep changes
+
+    val startAttack = remember{mutableStateOf(false)}
+    val isAttacking = remember{mutableStateOf(false)}
+    val lastAttackDir = remember{ mutableStateOf(enemy.getDirection()) }
+
+
     // Enemy is a kind of Character
     val CHARACTER_SIZE = objectSizeAndViewManager.GET_CHARACTER_SIZE()
     val CHARACTER_INTERACT_EXTEND_SIZE = objectSizeAndViewManager.GET_CHARACTER_INTERACT_SIZE()
@@ -98,6 +113,19 @@ fun EnemyCompose(enemy : CharacterBase,
             ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
+    val spriteDie = remember{
+        loadSpriteSheet1D(context.resources, R.drawable.enemy_die_sprite,
+            ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL, ENEMY_CHARACTER_SPRITE_HEIGHT_PIXEL,
+            // would do a auto sprite scale up or down from the screen size
+            ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
+        )
+    }
+
+    // Default Down
+    val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
+
+    var lastDieSpriteFrameIndex by remember{ mutableStateOf<Int>(-1) } // default not started
+
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
 
     // ********************** Temp Remark do not have attack sprite for enemy
@@ -113,15 +141,25 @@ fun EnemyCompose(enemy : CharacterBase,
     var filterOpacity by remember{mutableStateOf(0f)}
     var invincibleCycle by remember{mutableStateOf(3)}
 
-    // snapShot stored the ObjID and interaction timestamp in ms
+    // snapShotMap stored the interaction timestamp in ms
+    // If no ID is registered, response is 0L
+    val isBeingInteracted = remember(enemy.getID()) {
+        derivedStateOf {
+            colliderManager.heroInteractedToOther[eColliderType.eCollideEnemy]!![enemy.getID()] ?: 0L     // if no id registered, response as 0L
+        }
+    }
 
-    // ***************************************************** Temp Remark, need change to observe the collider object id that interact by hero
-//    val isBeingInteracted = remember {
-//        derivedStateOf {
-//            colliderManager.otherInteractedToHero     // default is pair(" ", 0L)
-//        }
-//    }
+    fun resetEssentialFlagWhenDie()
+    {
+        // Stop Move sprite Launch
+        startMove.value = false // Stop Move sprite Launch
 
+        // Stop Running Move Thread
+        val enemyCharacter = (enemy as EnemyCharacter)
+        enemyCharacter.runningMoveThread = false
+    }
+
+    // Ever being hit would turn into invincible cycle
     LaunchedEffect(filterOpacity){
 
         if (invincibleCycle > 0)
@@ -141,12 +179,38 @@ fun EnemyCompose(enemy : CharacterBase,
         {
             filterOpacity = 0.0f
             invincibleCycle = DEFAULT_ENEMY_HURT_INVINCIBLE_CYCLE
-            enemy.getCollider().setActive(true)
+
+            // if not yet die resume the collider
+            if (enemy.isDie())
+            {
+                resetEssentialFlagWhenDie()
+                lastDieSpriteFrameIndex = 0 // set start dying
+            }
+            else
+            {
+                enemy.getCollider().setActive(true)
+            }
         }
     }
 
-    // Default Down
-    val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
+    LaunchedEffect(lastDieSpriteFrameIndex)
+    {
+        // Means started the dying
+        if (lastDieSpriteFrameIndex >= spriteDie.size)
+        {
+            // set
+            isEnemyDie = true
+            enemy.setDieFinished() // trigger EnemyFactory to remove from pool and collider
+        }
+        else if (lastDieSpriteFrameIndex >= 0)
+        {
+            currentSprite.value = spriteDie[lastDieSpriteFrameIndex]
+
+            lastDieSpriteFrameIndex++
+
+            delay(100)
+        }
+    }
 
     //
     //    Drag Direction	Example Offset (x, y)	atan2(y, x) in Radians	                Angle in Degrees
@@ -255,43 +319,27 @@ fun EnemyCompose(enemy : CharacterBase,
     }
 
     // ***************************************************** Temp Remark, need change to observe the collider object id that interact by hero
-//    LaunchedEffect(isBeingInteracted.value)
-//    {
-//        // only process when triggered with timestamp recorded
-//        if (isBeingInteracted.value.second > 0L) {
-//
-//            // Can apply for Object to debug for interaction
-//            val objectID = isBeingInteracted.value.first
-//            val interactObj = eObjectType.fromIDStringToObjType(objectID)
-//
-//            // under different object configuration to set the object data
-//            // TO DO
-//            // Set Destroy, Active or InActive
-//            if (interactObj != null &&
-//                interactObj.isHarmful()) // if the object is harmful
-//            {
-//                enemy.getCollider().setActive(false) // deactive first
-//                filterOpacity = 0.8f
-//
-//                val pushBackAngle = when(enemy.getDirection())
-//                {
-//                    eUP -> PI / 2
-//                    eDOWN -> -PI / 2
-//                    eLEFT -> 0.0
-//                    eRIGHT -> PI
-//                    else -> 0.0
-//                }
-//                Move(pushBackAngle.toFloat(), DEFAULT_ENEMY_REPEL_SPEED.toInt())
-//            }
-//        }
-//    }
+    LaunchedEffect(isBeingInteracted.value)
+    {
+        // only process when triggered with timestamp recorded
+        if (isBeingInteracted.value > 0L)
+        {
+            enemy.getCollider().setActive(false) // deactive first
+            enemy.decrementLives(1U)
 
-    // Control and Render
-    val startMove = remember{mutableStateOf(true)} // default enemy always move, even pos not change, sprite keep changes
+            filterOpacity = 0.8f
 
-    val startAttack = remember{mutableStateOf(false)}
-    val isAttacking = remember{mutableStateOf(false)}
-    val lastAttackDir = remember{ mutableStateOf(enemy.getDirection()) }
+            val pushBackAngle = when(enemy.getDirection())
+            {
+                eUP -> PI / 2
+                eDOWN -> -PI / 2
+                eLEFT -> 0.0
+                eRIGHT -> PI
+                else -> 0.0
+            }
+            Move(pushBackAngle.toFloat(), DEFAULT_ENEMY_REPEL_SPEED.toInt())
+        }
+    }
 
     fun setCurSpriteWithLastFrameIndex()
     {
@@ -444,7 +492,6 @@ fun EnemyCompose(enemy : CharacterBase,
             modifier = Modifier
                 // Assign the Size of Pixel corresponding dp to create the box
                 .size(boxSize.first, boxSize.second)
-                //.size(boxSize)
                 .align(Alignment.TopStart)
                 // Offset is in Pixel
                 .absoluteOffset {
