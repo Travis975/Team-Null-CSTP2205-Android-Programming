@@ -1,10 +1,7 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.character.HeroCharacter
-import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.*
@@ -15,8 +12,12 @@ fun Stage1Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
+    val gameMetricsAndCtrl = gameVM.gameMetricsAndCtrl
     val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
+
+    // 0 - Clear Metrics
+    gameMetricsAndCtrl.resetCounter()
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
@@ -89,8 +90,9 @@ fun Stage1Configuration(context: Context,
     gameVM.enemies.clear()
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
                                                 eEnemyType.eENEMY_PARROT,
-                                                20U, // Max have at most 50 enemies
+                                                30U, // Max have at most 30 enemies
                                                 listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+                                                gameMetricsAndCtrl,
                                                 colliderManager,
                                                 gameObjSizeAndViewManager)
 

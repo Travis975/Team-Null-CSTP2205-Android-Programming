@@ -1,28 +1,21 @@
 package com.example.overrun.enitities.character
 
 import android.util.Log
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -32,13 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import com.example.overrun.R
-import com.example.overrun.control.DrawDragDirectionArrow
-import com.example.overrun.control.DrawTapCircle
-import com.example.overrun.control.GuestureControllerEx
 import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_HURT_INVINCIBLE_CYCLE
 import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_REPEL_SPEED
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
 import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
@@ -49,8 +37,7 @@ import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
-import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.gameStage.GameMetrics
+import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import com.example.overrun.enitities.sprites.loadSpriteSheet1D
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +54,7 @@ import kotlin.math.sin
 @Composable
 fun EnemyCompose(enemy : CharacterBase,
                  getHeroXYPos: ()->Pair<UInt, UInt>,
-                 gameMetrics: GameMetrics,
+                 gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
@@ -202,7 +189,7 @@ fun EnemyCompose(enemy : CharacterBase,
         {
             // set
             isEnemyDie = true
-            gameMetrics.addHeroHitCount()
+            gameMetricsAndCtrl.addEnemyKillCount()
             enemy.setDieFinished() // trigger EnemyFactory to remove from pool and collider
         }
         else if (lastDieSpriteFrameIndex >= 0)
@@ -300,21 +287,24 @@ fun EnemyCompose(enemy : CharacterBase,
             val enemyCharacter = (enemy as EnemyCharacter)
             while (enemyCharacter.runningMoveThread)
             {
-                // Here keep tracking hero pos and moving to hero angle direction
-                val heroXY = getHeroXYPos()
+                if (!gameMetricsAndCtrl.isGamePaused.value)
+                {
+                    // Here keep tracking hero pos and moving to hero angle direction
+                    val heroXY = getHeroXYPos()
 
-                val xDiff = heroXY.first.toDouble() - enemy.getXPos().toDouble()
-                val yDiff = heroXY.second.toDouble() - enemy.getYPos().toDouble()
+                    val xDiff = heroXY.first.toDouble() - enemy.getXPos().toDouble()
+                    val yDiff = heroXY.second.toDouble() - enemy.getYPos().toDouble()
 
-                var angleInRad = atan2(yDiff,        // delta y
-                                        xDiff)        // delta x
+                    var angleInRad = atan2(yDiff,        // delta y
+                                            xDiff)        // delta x
 
-//                Log.i("enemy move", ("xDiff: %.2f, yDiff: %.2f, angleInRad: %.2f, hero: (${heroXY.first.toInt()}, ${heroXY.second.toInt()})," +
-//                        " enemy pos: (${enemy.getXPos().toInt()}, ${enemy.getYPos().toInt()})")
-//                        .format(xDiff, yDiff, angleInRad)
-//                )
+    //                Log.i("enemy move", ("xDiff: %.2f, yDiff: %.2f, angleInRad: %.2f, hero: (${heroXY.first.toInt()}, ${heroXY.second.toInt()})," +
+    //                        " enemy pos: (${enemy.getXPos().toInt()}, ${enemy.getYPos().toInt()})")
+    //                        .format(xDiff, yDiff, angleInRad)
+    //                )
 
-                Move(angleInRad.toFloat())
+                    Move(angleInRad.toFloat())
+                }
 
                 delay(100)
             }
@@ -366,11 +356,13 @@ fun EnemyCompose(enemy : CharacterBase,
         var frameIndex = 0
         while(startMove.value)
         {
-            setCurSpriteWithLastFrameIndex()
-
-            if (++lastMoveSpriteFrameIndex.value >= spriteMove[enemy.getDirection().value].count())
+            if (!gameMetricsAndCtrl.isGamePaused.value)
             {
-                lastMoveSpriteFrameIndex.value = 0
+                setCurSpriteWithLastFrameIndex()
+
+                if (++lastMoveSpriteFrameIndex.value >= spriteMove[enemy.getDirection().value].count()) {
+                    lastMoveSpriteFrameIndex.value = 0
+                }
             }
 
             delay(100)

@@ -1,12 +1,10 @@
 package com.example.overrun.enitities.gameobject
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -15,19 +13,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.collider.ColliderManager.eColliderType
-import com.example.overrun.enitities.gameStage.GameMetrics
+import com.example.overrun.enitities.eObjectType.*
+import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.delay
 
 @Composable
 fun ObjectCompose(
     gameObject: GameObject,
-    gameMetrics: GameMetrics,
+    gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
     objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
@@ -119,7 +117,7 @@ fun ObjectCompose(
             if (gameObject.getCollider().isInteractable()) {
                 filterOpacity = 0.8f
 
-                gameMetrics.addHeroHitCount()
+                gameMetricsAndCtrl.addHeroHitCount()
                 //Log.i("Hero Hit", "Count : ${gameMetrics.getHeroHitCount()}")
             }
         }

@@ -1,8 +1,14 @@
 package com.example.overrun.enitities.collider
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_X
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_Y
+import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_X
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
+import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.gameobject.GameObject
@@ -11,14 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_X
-import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_Y
-import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
-import com.example.overrun.enitities.character.EnemyCharacter
-import androidx.compose.runtime.mutableStateListOf
 
 class ColliderManager {
 
@@ -154,62 +152,80 @@ class ColliderManager {
     {
         if (colliderList.isNotEmpty())
         {
-            colliderList.forEach{ collider->
+            var objID: String? = "unknown" // Declare objID outside the loop for log if error happen
+            var debugIdx : Int = 0
 
-                val objID = collider.getID()
+            try {
 
-                // if object is still active, not yet destroyed
-                if (collider.isActive() &&
-                    collider.isInteractable())
-                {
-                    val lastHeroInteractTime = _heroInteractedToOther[eType]!!.get(objID)                  // For Hero Interact Other, (hero attack other)
-                    val lastOtherInteractTime = _otherInteractedToHero.value.second                        // For Other Interact Hero, like hero step on object (suffer attack)
+                colliderList.forEach{ collider->
 
-                    val curTime = System.currentTimeMillis()
+                    objID = collider.getID()
 
-                    // either the first time Or the interval larger than define value
-                    val allowHeroInteract = lastHeroInteractTime == null ||
-                            ((curTime - lastHeroInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
-
-                    val allowOtherInteract = lastOtherInteractTime == 0L ||
-                            ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
-
-                    if (allowHeroInteract &&
-                        detectHeroActionCollision(collider) != null)
+                    // if object is still active, not yet destroyed
+                    if (collider.isActive() &&
+                        collider.isInteractable())
                     {
-                        _heroInteractedToOther[eType]!![objID] = curTime
-                    }
+                        debugIdx = 1
 
-                    val heroCollider = _heroCollider
+                        val lastHeroInteractTime = _heroInteractedToOther[eType]!!.get(objID)                  // For Hero Interact Other, (hero attack other)
 
-                    if (allowOtherInteract &&
-                        heroCollider != null &&
-                        heroCollider.isActive() && // not at interacting
-                        heroCollider.IsCollided(collider, interactToHeroOffset.first, interactToHeroOffset.second))
-                    {
-                        _otherInteractedToHero.value = Pair(objID, curTime)
+                        debugIdx = 2
+
+                        val lastOtherInteractTime = _otherInteractedToHero.value.second                        // For Other Interact Hero, like hero step on object (suffer attack)
+
+                        debugIdx = 3
+
+                        val curTime = System.currentTimeMillis()
+
+                        debugIdx = 4
+
+                        // either the first time Or the interval larger than define value
+                        val allowHeroInteract = lastHeroInteractTime == null ||
+                                ((curTime - lastHeroInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                        val allowOtherInteract = lastOtherInteractTime == 0L ||
+                                ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                        if (allowHeroInteract &&
+                            detectHeroActionCollision(collider) != null)
+                        {
+                            debugIdx = 5
+                            _heroInteractedToOther[eType]!![objID] = curTime
+                            debugIdx = 6
+                        }
+
+                        val heroCollider = _heroCollider
+
+                        debugIdx = 7
+
+                        if (allowOtherInteract &&
+                            heroCollider != null &&
+                            heroCollider.isActive() && // not at interacting
+                            heroCollider.IsCollided(collider, interactToHeroOffset.first, interactToHeroOffset.second))
+                        {
+                            debugIdx = 8
+                            _otherInteractedToHero.value = Pair(objID, curTime)
+                            debugIdx = 9
+                        }
                     }
                 }
+            }
+            catch(e: Exception)
+            {
+                val errorMessage = e.message
+                val stackTrace = Log.getStackTraceString(e)
+
+                Log.e("ErrorExport", "Collider type : $eType, Collider ID : $objID, Debug Idx: $debugIdx,  $stackTrace")
             }
         }
     }
 
     private fun checkIfHeroAndOtherCollidersCollides()
     {
-
-        try {
-            // Check To Enemy
-            checkCollidersCollides(eColliderType.eCollideEnemy,
-                                    _enemyColliders,
-                                    Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
-        }
-        catch(e: Exception)
-        {
-            val errorMessage = e.message
-            val stackTrace = Log.getStackTraceString(e)
-
-            Log.e("ErrorExport", "Error: $errorMessage\nStackTrace: $stackTrace")
-        }
+        // Check To Enemy
+        checkCollidersCollides(eColliderType.eCollideEnemy,
+                                _enemyColliders,
+                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
 
         // Check To Object
         checkCollidersCollides(eColliderType.eCollideObject,

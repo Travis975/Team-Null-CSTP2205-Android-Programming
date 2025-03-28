@@ -1,12 +1,8 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.character.HeroCharacter
-import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.eGRASS
 import com.example.overrun.enitities.gameobject.GameObject
 
 fun Stage2Configuration(context: Context,
@@ -14,8 +10,12 @@ fun Stage2Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
+    val gameMetricsAndCtrl = gameVM.gameMetricsAndCtrl
     val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
+
+    // 0 - Clear Metrics
+    gameMetricsAndCtrl.resetCounter()
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map2.txt")
