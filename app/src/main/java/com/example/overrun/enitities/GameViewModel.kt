@@ -3,12 +3,11 @@ package com.example.overrun.enitities
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.gameStage.GameEnemyFactory
-import com.example.overrun.enitities.gameStage.GameMetrics
+import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.gameobject.GameObject
 
 class GameViewModel : ViewModel(){
@@ -28,7 +27,7 @@ class GameViewModel : ViewModel(){
         isTimerRunning.value = isRun
     }
 
-    val gameMetrics = GameMetrics()
+    val gameMetricsAndCtrl = GameMetricsAndControl()
 
     val colliderManager = ColliderManager()
 

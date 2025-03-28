@@ -1,14 +1,8 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.overrun.enitities.eGameStage
-import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.gameobject.GameObject
-import kotlin.math.ceil
-import kotlin.random.Random
-import kotlin.random.nextUInt
+import com.example.overrun.enitities.eGameStage
 
 class GameStageManager(private val eStage: eGameStage) {
 

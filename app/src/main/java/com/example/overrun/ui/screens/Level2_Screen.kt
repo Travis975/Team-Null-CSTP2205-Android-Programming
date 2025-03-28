@@ -113,13 +113,14 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
             {
                 gameViewModel.gameObjects.forEach{ gameObj ->
                     ObjectCompose(gameObj,
-                                  gameViewModel.gameMetrics,
+                                  gameViewModel.gameMetricsAndCtrl,
                                   gameViewModel.colliderManager,
                                   gameViewModel.objectSizeAndViewManager)
                 }
 
                 // Remember, hero always overlap the game object
                 HeroCompose(gameViewModel.hero,
+                            gameViewModel.gameMetricsAndCtrl,
                             gameViewModel.colliderManager,
                             gameViewModel.objectSizeAndViewManager)
 
@@ -128,7 +129,7 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                     EnemyCompose(
                         enemy,
                         gameViewModel.hero::getHeroXYPos,
-                        gameViewModel.gameMetrics,
+                        gameViewModel.gameMetricsAndCtrl,
                         gameViewModel.colliderManager,
                         gameViewModel.objectSizeAndViewManager
                     )

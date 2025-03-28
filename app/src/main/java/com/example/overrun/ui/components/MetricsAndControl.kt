@@ -33,7 +33,7 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
     val gameTime = remember { mutableStateOf(0) } // Tracks elapsed seconds
 
     // State to control the visibility of the pause menu
-    val isPauseDialogVisible = remember { mutableStateOf(false) }
+    val isPauseDialogVisible = remember { mutableStateOf(gameViewModel.gameMetricsAndCtrl.isGamePaused.value) }
 
     // Important, use Dispatchers.Default rather than the main thread
     // Timer logic with pause-resume control
@@ -66,6 +66,7 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                 gameViewModel = gameViewModel,
                 onPause = {
                     isPauseDialogVisible.value = true
+                    gameViewModel.gameMetricsAndCtrl.isGamePaused.value = true
                     gameViewModel.SetTimerRunStop(false) // Stop the timer on pause
                 }
             )
@@ -74,7 +75,8 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
             if (isPauseDialogVisible.value) {
                 PauseMenu(
                     onResume = {
-                        isPauseDialogVisible.value = false // Close the dialog
+                        isPauseDialogVisible.value = false
+                        gameViewModel.gameMetricsAndCtrl.isGamePaused.value = false
                         gameViewModel.SetTimerRunStop(true) // Resume the timer
                     },
                     onQuit = {
@@ -82,9 +84,10 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                     }
                 )
             }
-
             // Display Timer and Hit Count outside the pause menu conditional
-            if (!isPauseDialogVisible.value) {  // Ensure these are only shown when the game is not paused
+            // Ensure these are only shown when the game is not paused
+            else
+            {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
@@ -100,7 +103,7 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                     )
 
                     Text(
-                        text = "Hit Count: ${gameViewModel.gameMetrics.getHeroHitCount()}",
+                        text = "Kill Count: ${gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()}",
                         color = Color.Black,
                         modifier = Modifier.padding(8.dp),
                         fontWeight = FontWeight.SemiBold

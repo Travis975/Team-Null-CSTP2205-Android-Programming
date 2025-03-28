@@ -1,10 +1,8 @@
 package com.example.overrun.enitities.gameStage
 
-import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.collider.ColliderManager
-import com.example.overrun.enitities.eCharacterType
 import com.example.overrun.enitities.eDirection.*
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
@@ -21,6 +19,7 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
                        private val eEnemyType : eEnemyType,
                         private val maxNumOfEnemy : UInt,
                        private val spawnIntervalSecList : List<Long>,
+                       private val gameMetricsAndCtrl: GameMetricsAndControl,
                        private val colliderManager : ColliderManager,
                        private val objectSizeManager : GameObjectSizeAndViewManager)
 {
@@ -124,15 +123,22 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
             {
                 val start = System.currentTimeMillis()
 
-                if (lastSpawnEnemyTimeSec == 0L)
+                if (!gameMetricsAndCtrl.isGamePaused.value)
                 {
-                    lastSpawnEnemyTimeSec = (System.currentTimeMillis() / 1000)
+                    if (lastSpawnEnemyTimeSec == 0L)
+                    {
+                        lastSpawnEnemyTimeSec = (System.currentTimeMillis() / 1000)
+                    }
+                    else if (((start / 1000) - lastSpawnEnemyTimeSec) > nextSpawnEnemyInterval)
+                    {
+                        SpawnEnemy()
+                        lastSpawnEnemyTimeSec = (System.currentTimeMillis() / 1000)
+                        nextSpawnEnemyInterval = spawnIntervalSecList[Random.nextInt(0, spawnIntervalSecList.size)]
+                    }
                 }
-                else if (((start / 1000) - lastSpawnEnemyTimeSec) > nextSpawnEnemyInterval)
+                else
                 {
-                    SpawnEnemy()
                     lastSpawnEnemyTimeSec = (System.currentTimeMillis() / 1000)
-                    nextSpawnEnemyInterval = spawnIntervalSecList[Random.nextInt(0, spawnIntervalSecList.size)]
                 }
 
                 val timeUsed = System.currentTimeMillis() - start
