@@ -41,6 +41,7 @@ import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 import com.example.overrun.ui.components.PauseIcon
 import com.example.overrun.ui.components.PauseMenu
+import com.example.overrun.ui.components.ScreenControlAndMetrics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -59,28 +60,6 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     // declare for re-render trigger
     val isNewStart = gameViewModel.isStageStartRender
-
-    // Timer state
-    val isTimerRunning = gameViewModel.isTimerRunning.value
-
-    val gameTimeLevel2 = remember { mutableStateOf(0) } // Tracks elapsed seconds
-
-    // Important, use Dispatchers.Default rather than the main thread
-    // Timer logic with pause-resume control
-    LaunchedEffect(isTimerRunning) {
-
-        // use separate thread other than main thread
-        withContext(Dispatchers.Default)
-        {
-            while (isTimerRunning) {
-                delay(1000L) // Wait 1 second
-                gameTimeLevel2.value++ // Increment timer
-            }
-        }
-    }
-
-    // State to control the visibility of the pause menu
-    val isPauseDialogVisible = remember { mutableStateOf(false) }
 
     // Call Once when the Screen first Compose
     DisposableEffect(Unit) {
@@ -149,71 +128,14 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                     EnemyCompose(
                         enemy,
                         gameViewModel.hero::getHeroXYPos,
+                        gameViewModel.gameMetrics,
                         gameViewModel.colliderManager,
                         gameViewModel.objectSizeAndViewManager
                     )
                 }
 
                 // Screen Control
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        // Add pause icon to pull up the pause menu
-                        PauseIcon(
-                            navController = navController,
-                            gameViewModel = gameViewModel,
-                            onPause = {
-                                isPauseDialogVisible.value = true
-                                gameViewModel.SetTimerRunStop(false) // Stop the timer on pause
-                            }
-                        )
-
-                        // Pause Menu Dialog
-                        if (isPauseDialogVisible.value) {
-                            PauseMenu(
-                                onResume = {
-                                    isPauseDialogVisible.value = false // Close the dialog
-                                    gameViewModel.SetTimerRunStop(true) // Resume the timer
-                                },
-                                onQuit = {
-                                    navController.navigate(MAIN_MENU.path) // Navigate to the main menu
-                                }
-                            )
-                        }
-
-                        // Display Timer and Hit Count outside the pause menu conditional
-                        if (!isPauseDialogVisible.value) {  // Ensure these are only shown when the game is not paused
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Time: ${gameTimeLevel2.value}s",
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-
-                                Text(
-                                    text = "Hit Count: ${gameViewModel.gameMetrics.getHeroHitCount()}",
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
-                    }
-                }
+                ScreenControlAndMetrics(navController, gameViewModel)
             }
         }
     }

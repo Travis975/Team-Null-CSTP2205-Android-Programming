@@ -1,5 +1,6 @@
 package com.example.overrun.enitities.collider
 
+import android.util.Log
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_X
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
 import com.example.overrun.enitities.character.HeroCharacter
@@ -196,10 +197,19 @@ class ColliderManager {
     private fun checkIfHeroAndOtherCollidersCollides()
     {
 
-        // Check To Enemy
-        checkCollidersCollides(eColliderType.eCollideEnemy,
-                                _enemyColliders,
-                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+        try {
+            // Check To Enemy
+            checkCollidersCollides(eColliderType.eCollideEnemy,
+                                    _enemyColliders,
+                                    Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+        }
+        catch(e: Exception)
+        {
+            val errorMessage = e.message
+            val stackTrace = Log.getStackTraceString(e)
+
+            Log.e("ErrorExport", "Error: $errorMessage\nStackTrace: $stackTrace")
+        }
 
         // Check To Object
         checkCollidersCollides(eColliderType.eCollideObject,

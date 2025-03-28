@@ -89,7 +89,7 @@ fun Stage1Configuration(context: Context,
     gameVM.enemies.clear()
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
                                                 eEnemyType.eENEMY_PARROT,
-                                                50U, // Max have at most 50 enemies
+                                                20U, // Max have at most 50 enemies
                                                 listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
                                                 colliderManager,
                                                 gameObjSizeAndViewManager)
