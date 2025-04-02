@@ -108,6 +108,13 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                         modifier = Modifier.padding(8.dp),
                         fontWeight = FontWeight.SemiBold
                     )
+
+                    Text(
+                        text = "Lives: ${gameViewModel.hero.getLives()}",
+                        color = Color.Black,
+                        modifier = Modifier.padding(8.dp),
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }

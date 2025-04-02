@@ -1,5 +1,7 @@
 package com.example.overrun.enitities.character
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.example.overrun.enitities.eCharacterType
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eObjectType
@@ -21,7 +23,7 @@ abstract class CharacterBase(id : String,
     private var _speed : UInt = speed
     private var _eDir : eDirection = eDirection.eDOWN
     private var _etype : eCharacterType = etype
-    private var _lives : UInt = lives
+    private var _lives : MutableState<UInt> = mutableStateOf(lives)
     private var _finishedDie = false
 
     // GameObject Base owns collider
@@ -37,15 +39,15 @@ abstract class CharacterBase(id : String,
     }
     public fun getSpeed() = _speed
 
-    public fun setLives(lives : UInt){
-        _lives = lives
+    public fun setLives(lives: UInt) {
+        _lives.value = lives
     }
-    public fun decrementLives(size : UInt)
-    {
-        _lives -= size
+    public fun decrementLives(size: UInt) {
+        _lives.value = (_lives.value - size).coerceAtLeast(0U)
     }
-    public fun getLives() = _lives
-    public fun isDie() : Boolean = _lives <= 0U
+    public fun getLives() = _lives.value
+
+    public fun isDie() : Boolean = _lives.value <= 0U
     public fun setDieFinished()
     {
         _finishedDie = true
