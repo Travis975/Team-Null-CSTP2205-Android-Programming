@@ -1,12 +1,11 @@
 package com.example.overrun.enitities.gameobject
 
 import androidx.compose.runtime.Immutable
-import com.example.overrun.enitities.eDirection
-import com.example.overrun.enitities.eDirection.*
-import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ActionCollider
 import com.example.overrun.enitities.collider.Collider
+import com.example.overrun.enitities.eDirection.*
+import com.example.overrun.enitities.eObjectType
 
 // notate as Immutable (stable type) for avoid unncessary recomposition
 @Immutable

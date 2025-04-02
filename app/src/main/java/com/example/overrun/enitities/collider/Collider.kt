@@ -18,6 +18,7 @@ class Collider(var id : String,
     public fun getID() = _objectID
     public fun getXPos() = _xPos
     public fun getYPos() = _yPos
+    public fun getXYPos() = Pair(_xPos, _yPos)
     public fun getSizeWidth() = _objSizeAndViewManager.GET_OBJECT_SIZE()
     public fun getSizeHeight() = _objSizeAndViewManager.GET_OBJECT_SIZE()
     public fun getXEndPos() = _xPos + getSizeWidth()

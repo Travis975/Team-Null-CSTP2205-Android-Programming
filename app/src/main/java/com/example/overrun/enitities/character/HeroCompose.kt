@@ -30,23 +30,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import com.example.overrun.R
 import com.example.overrun.control.DrawDragDirectionArrow
 import com.example.overrun.control.DrawTapCircle
 import com.example.overrun.control.GuestureControllerEx
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
-import com.example.overrun.R
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
-import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +59,7 @@ import kotlin.math.sin
 
 @Composable
 fun HeroCompose(hero : CharacterBase,
+                gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
@@ -306,11 +307,14 @@ fun HeroCompose(hero : CharacterBase,
         var frameIndex = 0
         while(startMove.value)
         {
-            setCurSpriteWithLastFrameIndex()
-
-            if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
+            if (!gameMetricsAndCtrl.isGamePaused.value)
             {
-                lastMoveSpriteFrameIndex.value = 0
+                setCurSpriteWithLastFrameIndex()
+
+                if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
+                {
+                    lastMoveSpriteFrameIndex.value = 0
+                }
             }
 
             delay(100)
@@ -353,52 +357,64 @@ fun HeroCompose(hero : CharacterBase,
         GuestureControllerEx(
 
             onTap = { touchPt ->
-                touchStartPt.value = touchPt // Store the Touch Pos
 
-                startAttack.value = true
+                if (!gameMetricsAndCtrl.isGamePaused.value)
+                {
+                    touchStartPt.value = touchPt // Store the Touch Pos
 
-                corontine.launch(Dispatchers.Default){
-                    touchAlpha.snapTo(0.4f)
+                    startAttack.value = true
+
+                    corontine.launch(Dispatchers.Default){
+                        touchAlpha.snapTo(0.4f)
+                    }
                 }
             },
 
             onTapEnd = { isDragStarted ->
-                corontine.launch(Dispatchers.Default) {
-                    if (!isDragStarted)
-                    {
-                        touchAlpha.snapTo(0f)
-                        setCurSpriteWithLastFrameIndex()
-                    }
-                    else
-                    {
-                        touchAlpha.animateTo(0f, tween(150))
+
+                if (!gameMetricsAndCtrl.isGamePaused.value) {
+                    corontine.launch(Dispatchers.Default) {
+                        if (!isDragStarted) {
+                            touchAlpha.snapTo(0f)
+                            setCurSpriteWithLastFrameIndex()
+                        } else {
+                            touchAlpha.animateTo(0f, tween(150))
+                        }
                     }
                 }
             },
 
             onDrag = { angle ->
-                pointerAngle.floatValue = angle
 
-                AttackingActive(false) // cancel the attack if is moving
+                if (!gameMetricsAndCtrl.isGamePaused.value) {
+                    pointerAngle.floatValue = angle
 
-                // Call the Move to change xPos and yPos under the angle
-                Move(angle)
+                    AttackingActive(false) // cancel the attack if is moving
+
+                    // Call the Move to change xPos and yPos under the angle
+                    Move(angle)
+                }
             },
 
             // When Drag started
             onDragStart = { dragStartPt ->
-                startMove.value = true
-                corontine.launch(Dispatchers.Default){
-                    // Set the Alpha value to 1f, for pointer arrow rendering
-                    pointerAlpha.snapTo(0.4f)
+
+                if (!gameMetricsAndCtrl.isGamePaused.value) {
+                    startMove.value = true
+                    corontine.launch(Dispatchers.Default) {
+                        // Set the Alpha value to 1f, for pointer arrow rendering
+                        pointerAlpha.snapTo(0.4f)
+                    }
                 }
             },
 
             // When Drag End
             onDragEnd = {
-                startMove.value = false
-                corontine.launch(Dispatchers.Default){
-                    pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
+                if (!gameMetricsAndCtrl.isGamePaused.value) {
+                    startMove.value = false
+                    corontine.launch(Dispatchers.Default) {
+                        pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
+                    }
                 }
             }
         )
@@ -504,7 +520,7 @@ fun HeroCompose(hero : CharacterBase,
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
-                colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
+                colorFilter = ColorFilter.tint(Color.Red.copy(alpha = filterOpacity), BlendMode.SrcAtop)
             )
         }
     }

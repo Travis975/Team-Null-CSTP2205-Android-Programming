@@ -1,11 +1,8 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.character.EnemyCharacter
-import com.example.overrun.enitities.character.HeroCharacter
-import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
@@ -15,7 +12,12 @@ fun Stage1Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
+    val gameMetricsAndCtrl = gameVM.gameMetricsAndCtrl
+    val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
+
+    // 0 - Clear Metrics
+    gameMetricsAndCtrl.resetCounter()
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
@@ -44,9 +46,10 @@ fun Stage1Configuration(context: Context,
     val stageGroundObjectType = eSAND
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
+
         row.withIndex().forEach{ (colIdx, objectTypeNum)->
-            // Use thread-safe add method
-            gameVM.addGameObject(
+
+            gameObjects.add(
                 GameObject(
                     id = "${stageGroundObjectType.value}_${colIdx}_${rowIdx}",
                     objType = stageGroundObjectType,
@@ -59,15 +62,16 @@ fun Stage1Configuration(context: Context,
         }
     }
 
-    // Loop 2D Map to create Object, and bypass the ground object type
+    // Loop 2D Map to create Object, and by pass the ground object type
     map2DInt.withIndex().forEach{ (rowIdx, row)->
+
         row.withIndex().forEach{ (colIdx, objectTypeNum)->
+
             val objectType = eObjectType.fromValue(objectTypeNum)!!
 
             if (objectType != stageGroundObjectType)
             {
-                // Use thread-safe add method
-                gameVM.addGameObject(
+                gameObjects.add(
                     GameObject(
                         id = "${objectTypeNum}_${colIdx}_${rowIdx}",
                         objType = objectType,
@@ -81,28 +85,33 @@ fun Stage1Configuration(context: Context,
         }
     }
 
-    // 6) Setup colliders
+    // 6) Setup EnemyFactory
+    gameVM.stopAllEnemiesMoveThread()
+    gameVM.enemies.clear()
+    gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
+                                                eEnemyType.eENEMY_PARROT,
+                                                30U, // Max have at most 30 enemies
+                                                listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+                                                gameMetricsAndCtrl,
+                                                colliderManager,
+                                                gameObjSizeAndViewManager)
+
+    gameVM.gameEnemyFactory?.resetEnemyUniqueID()
+    gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
+
+
+    // 7) Setup colliders
     colliderManager.resetAllCollider()
     colliderManager.setHeroCollider(hero)
 
     // Skip grass for collisions so hero can move over it
     colliderManager.setObjectColliders(
-        gameVM.gameObjects  // Use thread-safe getter
-            .filter { !it.getObjType().isStatic() }
-            .toMutableList()
+        gameObjects
+            .filter { !it.getObjType().isStatic()}
+            .toMutableList() // convert to MutableList
     )
 
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
-
-    // ENEMY Spawning in the level
-    val enemy = EnemyCharacter(
-        objectSizeManager = gameObjSizeAndViewManager,
-        hero = hero
-    ).apply {
-        updatePosition(xStartWorldPos + 100U, yStartWorldPos)
-    }
-
-    // Use thread-safe add method
-    gameVM.addGameObject(enemy)
 }
+

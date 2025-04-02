@@ -9,11 +9,10 @@ import com.example.overrun.enitities.gameobject.GameObject
 // Character is a kind of GameObject
 abstract class CharacterBase(id : String,
                              etype: eCharacterType,
+                             objType : eObjectType,
                              lives : UInt, speed : UInt,
-                             objectSizeManager : GameObjectSizeAndViewManager,
-                             //Adding for the enemy
-                             interactable : Boolean) :
-    GameObject(id, eObjectType.eCHARACTER,
+                             objectSizeManager : GameObjectSizeAndViewManager) :
+    GameObject(id, objType,
                 objectSizeManager, true)
 {
 
@@ -23,6 +22,7 @@ abstract class CharacterBase(id : String,
     private var _eDir : eDirection = eDirection.eDOWN
     private var _etype : eCharacterType = etype
     private var _lives : UInt = lives
+    private var _finishedDie = false
 
     // GameObject Base owns collider
 
@@ -40,8 +40,17 @@ abstract class CharacterBase(id : String,
     public fun setLives(lives : UInt){
         _lives = lives
     }
+    public fun decrementLives(size : UInt)
+    {
+        _lives -= size
+    }
     public fun getLives() = _lives
     public fun isDie() : Boolean = _lives <= 0U
+    public fun setDieFinished()
+    {
+        _finishedDie = true
+    }
+    public fun isDieFinished() = _finishedDie
 
     public fun setDirection(eDir: eDirection){
         _eDir = eDir

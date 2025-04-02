@@ -1,7 +1,14 @@
 package com.example.overrun.enitities.collider
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_X
+import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_Y
+import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_X
 import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
+import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.gameobject.GameObject
@@ -10,34 +17,35 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_X
-import com.example.overrun.enitities.GameConstant.BE_INTERACT_COLLIDE_OFFSET_Y
-import com.example.overrun.enitities.GameConstant.INTERACT_FILER_INTERVAL_MS
-import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.character.EnemyCharacter
-import java.util.concurrent.CopyOnWriteArrayList
 
-class ColliderManager (private val gameViewModel: GameViewModel) {
+class ColliderManager {
 
     // use Hash Map for memory and speed since objects order not a matter
     private var _heroCollider : Collider? = null
     // A map of four collider
     private var _heroActionCollider : Map<eDirection, ActionCollider> = mapOf()
-
-    // Thread-safe collections for concurrent access
-    private val _enemyColliders = CopyOnWriteArrayList<Collider>()
-    private val _objectColliders = CopyOnWriteArrayList<Collider>()
+    private var _enemyColliders : MutableList<Collider> = mutableListOf()
+    private var _objectColliders : MutableList<Collider> = mutableListOf()
 
     // Single Thread Instance for hero to object collision detection
     private var _actionCollisionJob : Job? = null
     private var _runningActionCollisionChk = true
     private val _coroutineScope = CoroutineScope(Dispatchers.Default)
 
-    private var _heroInteractedToOther = mutableStateMapOf<String, Long>() // [objectID, timeStamp]
-    public val heroInteractedToOther : SnapshotStateMap<String, Long> = _heroInteractedToOther
+    public enum class eColliderType{
+        eCollideObject,     // implicit oridinal is 0
+        eCollideEnemy,      // implicit oridinal is 1
+        eTotalColliderType  // implicit oridinal is 2
+    }
+
+    // [  [objectID, timeStamp] ], predefine two category list
+    private var _heroInteractedToOther = mutableMapOf<eColliderType, SnapshotStateMap<String, Long>>().apply {
+        put(eColliderType.eCollideObject, SnapshotStateMap<String, Long>())
+        put(eColliderType.eCollideEnemy, SnapshotStateMap<String, Long>())
+    }
+
+    // For public do read only with List<>
+    public val heroInteractedToOther : Map<eColliderType, SnapshotStateMap<String, Long>> get() = _heroInteractedToOther
 
     private var _otherInteractedToHero = mutableStateOf(Pair(" ", 0L)) // Pair[objectID, timeStamp]
     public val otherInteractedToHero : Pair<String, Long> get() = _otherInteractedToHero.value
@@ -58,28 +66,32 @@ class ColliderManager (private val gameViewModel: GameViewModel) {
     public fun getHeroCollider() = _heroCollider
     public fun getHeroActionCollider() = _heroActionCollider
 
-    public fun setObjectColliders(gameObjects : MutableList<GameObject>)
+    public fun addEnemyColliders(enemy : EnemyCharacter)
     {
-        // Create thread-safe copy of colliders
-        _objectColliders.clear()
-        _objectColliders.addAll(gameObjects.map { it.getCollider() })
+        _enemyColliders.add(enemy.getCollider())
+    }
+    public fun removeEnemyCollider(enemyID : String)
+    {
+        _enemyColliders.removeIf{it.getID() == enemyID}
     }
 
+    public fun setObjectColliders(gameObjects : MutableList<GameObject>)
+    {
+        _objectColliders.clear()
+        _objectColliders = gameObjects.map{ it.getCollider() }.toMutableList()
+    }
     public fun addObjectCollider(gameObject : GameObject)
     {
-        // Synchronized add to prevent concurrent modification
-        synchronized(_objectColliders) {
-            _objectColliders.add(gameObject.getCollider())
-        }
+        _objectColliders.add(gameObject.getCollider())
     }
 
     // Return Object ID String for the first blocked
     // Return null for no block
     public fun detectMoveCollision(xDelta : Int, yDelta : Int) : String?
     {
-        if (_heroCollider != null && _objectColliders.isNotEmpty()) {
+        if (_heroCollider != null &&
+            _objectColliders.isNotEmpty()) {
 
-            // Create temporary collider for prediction
             val futureHeroCollider = _heroCollider?.copyInstance()
 
             if (futureHeroCollider != null)
@@ -88,13 +100,10 @@ class ColliderManager (private val gameViewModel: GameViewModel) {
                 val newYPos = futureHeroCollider.getYPos() + yDelta.toUInt()
                 futureHeroCollider.updatePosition(newXPos, newYPos)
 
-                // Use snapshot list for thread-safe collision detection
-                return detectCollision(
-                    heroCollider = futureHeroCollider,
-                    otherColliders = _objectColliders.toList(),
-                    offsetX = MOVE_COLLIDE_OFFSET_X,
-                    offsetY = MOVE_COLLIDE_OFFSET_Y
-                )
+                return detectCollision(heroCollider = futureHeroCollider,
+                                        otherColliders = _objectColliders,
+                                        offsetX = MOVE_COLLIDE_OFFSET_X,
+                                        offsetY = MOVE_COLLIDE_OFFSET_Y)
             }
         }
         return null
@@ -102,33 +111,30 @@ class ColliderManager (private val gameViewModel: GameViewModel) {
 
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
-    public fun detectCollision(
-        heroCollider : Collider,
-        otherColliders : List<Collider>,
-        offsetX: Int = 0,
-        offsetY: Int = 0
-    ) : String?
+    public fun detectCollision(heroCollider : Collider, otherColliders : List<Collider>,
+                               offsetX: Int = 0, offsetY: Int = 0) : String?
     {
-        // Iterate over snapshot list
-        otherColliders.forEach { otherCollider ->
-            // Allow hero to move towards the object a little before blocking
-            if (otherCollider.isActive() &&
-                heroCollider.IsCollided(otherCollider, offsetX, offsetY))
-            {
-                return otherCollider.getID()
+        if (otherColliders.isNotEmpty()) {
+
+            otherColliders.forEach{ otherCollider ->
+
+                // Allow hero to move towards the object a little before blocking
+                if (otherCollider.isActive() && // when object is still not destroyed
+                    heroCollider.IsCollided(otherCollider, offsetX, offsetY))
+                {
+                    return otherCollider.getID()
+                }
             }
         }
         return null
     }
 
-    public fun detectHeroActionCollision(
-        otherCollider : Collider,
-        offsetX: Int = 0,
-        offsetY: Int = 0
-    ) : String? {
+    public fun detectHeroActionCollision(otherCollider : Collider,
+                                         offsetX: Int = 0, offsetY: Int = 0) : String? {
         if (_heroActionCollider.isNotEmpty())
         {
             _heroActionCollider.forEach{ (eDir, actionCollider)->
+
                 // when action isActive (attacking)
                 if (actionCollider.isActive() &&
                     actionCollider.IsCollided(otherCollider, offsetX, offsetY))
@@ -140,93 +146,118 @@ class ColliderManager (private val gameViewModel: GameViewModel) {
         return null
     }
 
-    private fun checkIfHeroAndOtherCollidersCollides()
+    private fun checkCollidersCollides(eType : eColliderType,
+                                       colliderList : List<Collider>,
+                                        interactToHeroOffset : Pair<Int, Int> = Pair(0, 0))
     {
-        // Create snapshots for thread-safe iteration
-        val objectColliders = _objectColliders.toList()
-        val enemyColliders = _enemyColliders.toList()
-
-        // Check To Enemy
-        if (enemyColliders.isNotEmpty())
+        if (colliderList.isNotEmpty())
         {
-            // Enemy collision logic placeholder
-        }
+            var objID: String? = "unknown" // Declare objID outside the loop for log if error happen
+            var debugIdx : Int = 0
 
-        // Check To Object
-        if (objectColliders.isNotEmpty())
-        {
-            objectColliders.forEach { objectCollider ->
-                val objID = objectCollider.getID()
+            try {
 
-                // if object is still active, not yet destroyed
-                if (objectCollider.isActive() && objectCollider.isInteractable())
-                {
-                    val lastHeroInteractTime = _heroInteractedToOther[objID]  // For Hero Interact Other
-                    val lastOtherInteractTime = _otherInteractedToHero.value.second  // For Other Interact Hero
+                colliderList.forEach{ collider->
 
-                    val curTime = System.currentTimeMillis()
+                    objID = collider.getID()
 
-                    // either the first time Or the interval larger than define value
-                    val allowHeroInteract = lastHeroInteractTime == null ||
-                            ((curTime - lastHeroInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
-
-                    val allowOtherInteract = lastOtherInteractTime == 0L ||
-                            ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
-
-                    if (allowHeroInteract && detectHeroActionCollision(objectCollider) != null)
+                    // if object is still active, not yet destroyed
+                    if (collider.isActive() &&
+                        collider.isInteractable())
                     {
-                        _heroInteractedToOther[objID] = curTime
-                    }
+                        debugIdx = 1
 
-                    val heroCollider = _heroCollider
+                        val lastHeroInteractTime = _heroInteractedToOther[eType]!!.get(objID)                  // For Hero Interact Other, (hero attack other)
 
-                    if (allowOtherInteract &&
-                        heroCollider != null &&
-                        heroCollider.isActive() &&  // not at interacting
-                        heroCollider.IsCollided(objectCollider, BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
-                    {
-                        _otherInteractedToHero.value = Pair(objID, curTime)
+                        debugIdx = 2
+
+                        val lastOtherInteractTime = _otherInteractedToHero.value.second                        // For Other Interact Hero, like hero step on object (suffer attack)
+
+                        debugIdx = 3
+
+                        val curTime = System.currentTimeMillis()
+
+                        debugIdx = 4
+
+                        // either the first time Or the interval larger than define value
+                        val allowHeroInteract = lastHeroInteractTime == null ||
+                                ((curTime - lastHeroInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                        val allowOtherInteract = lastOtherInteractTime == 0L ||
+                                ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
+
+                        if (allowHeroInteract &&
+                            detectHeroActionCollision(collider) != null)
+                        {
+                            debugIdx = 5
+                            _heroInteractedToOther[eType]!![objID] = curTime
+                            debugIdx = 6
+                        }
+
+                        val heroCollider = _heroCollider
+
+                        debugIdx = 7
+
+                        if (allowOtherInteract &&
+                            heroCollider != null &&
+                            heroCollider.isActive() && // not at interacting
+                            heroCollider.IsCollided(collider, interactToHeroOffset.first, interactToHeroOffset.second))
+                        {
+                            debugIdx = 8
+                            _otherInteractedToHero.value = Pair(objID, curTime)
+                            debugIdx = 9
+                        }
                     }
                 }
+            }
+            catch(e: Exception)
+            {
+                val errorMessage = e.message
+                val stackTrace = Log.getStackTraceString(e)
+
+                Log.e("ErrorExport", "Collider type : $eType, Collider ID : $objID, Debug Idx: $debugIdx,  $stackTrace")
             }
         }
     }
 
-    public fun cancelCollisionCheck() {
-        _heroInteractedToOther.clear()
-        _runningActionCollisionChk = false
-        _actionCollisionJob?.cancel()
-    }
+    private fun checkIfHeroAndOtherCollidersCollides()
+    {
+        // Check To Enemy
+        checkCollidersCollides(eColliderType.eCollideEnemy,
+                                _enemyColliders,
+                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
 
-    public fun startCollisionCheck() {
+        // Check To Object
+        checkCollidersCollides(eColliderType.eCollideObject,
+                                _objectColliders,
+                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+    }
+    public fun startCollisionCheck()
+    {
         // Cancel if had previous coroutine
         cancelCollisionCheck()
         _runningActionCollisionChk = true
 
         // Then Launch a new coroutine
-        _actionCollisionJob = _coroutineScope.launch {
-            while (_runningActionCollisionChk) {
+        _actionCollisionJob = _coroutineScope.launch{
+            while(_runningActionCollisionChk)
+            {
                 val start = System.currentTimeMillis()
                 checkIfHeroAndOtherCollidersCollides()
-
-                // Maintain ~60 FPS timing
                 val timeUsed = System.currentTimeMillis() - start
-                val delayFor60FPS = (16.67 - timeUsed).coerceAtLeast(0.0)
+
+                // 60 FPS
+                val delayFor60FPS = (16.67 - timeUsed.toDouble()).coerceAtLeast(0.0) // bounded at 0
                 delay(delayFor60FPS.toLong())
             }
         }
     }
-
-    // Enemy collider management
-    public fun addEnemyCollider(enemy: EnemyCharacter) {
-        synchronized(_enemyColliders) {
-            _enemyColliders.add(enemy.getCollider())
+    public fun cancelCollisionCheck()
+    {
+        _heroInteractedToOther.values.forEach{ colliderTypeMap->
+            colliderTypeMap.clear()
         }
-    }
-
-    public fun removeEnemyCollider(enemy: EnemyCharacter) {
-        synchronized(_enemyColliders) {
-            _enemyColliders.remove(enemy.getCollider())
-        }
+        _runningActionCollisionChk = false
+        _actionCollisionJob?.cancel()
     }
 }

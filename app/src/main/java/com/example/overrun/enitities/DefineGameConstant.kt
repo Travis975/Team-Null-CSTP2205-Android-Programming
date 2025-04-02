@@ -13,15 +13,22 @@ object GameConstant{
     const val DEFAULT_HERO_REPEL_SPEED = 80U
     const val DEFAULT_HERO_HURT_INVINCIBLE_CYCLE = 3
     const val INTERACT_FILER_INTERVAL_MS = 100U
+    const val HERO_CHARACTER_SPRITE_WIDTH_PIXEL = 144U
+    const val HERO_CHARACTER_SPRITE_HEIGHT_PIXEL = 144U
+
+    // Enemy Attribute
+    const val DEFAULT_ENEMY_LIVES = 1U
+    const val DEFAULT_ENEMY_SPEED = 10U
+    const val DEFAULT_ENEMY_REPEL_SPEED = 60U
+    const val DEFAULT_ENEMY_HURT_INVINCIBLE_CYCLE = 3
+    const val ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL = 144U
+    const val ENEMY_CHARACTER_SPRITE_HEIGHT_PIXEL = 144U
 
     // for scaling
     const val GAME_SCREEN_COL = 7f //7.5f
     const val GAME_SCREEN_ROW = 14f //15.3f
     const val DEFAULT_SCREEN_WIDTH_PIXEL = 1080U        // a Medium Phone API 35 width pixel
     const val DEFAULT_SCREEN_HEIGHT_PIXEL = 2211U       // a Medium Phone API 35 height pixel
-
-    const val HERO_CHARACTER_SPRITE_WIDTH_PIXEL = 144U
-    const val HERO_CHARACTER_SPRITE_HEIGHT_PIXEL = 144U
 
     const val DEFAULT_INTERACT_SIZE_EXTEND_RATIO = 1.4375f
 
@@ -34,8 +41,8 @@ object GameConstant{
     const val MOVE_COLLIDE_OFFSET_X = -30
     const val MOVE_COLLIDE_OFFSET_Y = -30
 
-    const val BE_INTERACT_COLLIDE_OFFSET_X = 30
-    const val BE_INTERACT_COLLIDE_OFFSET_Y = 30
+    const val BE_INTERACT_COLLIDE_OFFSET_X = 15
+    const val BE_INTERACT_COLLIDE_OFFSET_Y = 15
 }
 
 // ObjectType
@@ -94,9 +101,7 @@ enum class eObjectType(val value: Int){
     eWATER_CENTER_RIGHT(57),
     eWATER_LOW_RIGHT(58),
 
-    // Enemy
-    eENEMY(101),
-
+    eENEMY(98),
     eCHARACTER(99);
 
     public fun isStatic() : Boolean
@@ -105,7 +110,6 @@ enum class eObjectType(val value: Int){
             eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL,ePATH, ePATH_RANDOM,
             ePATH_RANDOM_2, ePATH_RANDOM_3, eGRASS_FLOWERS, eROCKY_PATCH,
             eSAND->true
-            eENEMY -> false
             else->false
         }
     }
@@ -114,7 +118,7 @@ enum class eObjectType(val value: Int){
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1, eROCK_TOXIC, eCACTUS->true
+            eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY->true
             else->false
         }
     }
@@ -124,7 +128,7 @@ enum class eObjectType(val value: Int){
     public fun isHarmful(): Boolean
     {
         return when(this){
-            eROCK_TOXIC, eCACTUS->true
+            eROCK_TOXIC, eCACTUS, eENEMY->true
             else->false
         }
     }
@@ -175,8 +179,8 @@ enum class eObjectType(val value: Int){
             eWATER_CENTER_LEFT -> "Water Center Left"
             eWATER_CENTER_RIGHT -> "Water Center Right"
             eWATER_LOW_RIGHT -> "Water Low Right"
+            eENEMY->"Enemy"
             eCHARACTER->"Character"
-            eENEMY -> "Enemy" // <-- New toString case
             else->"Invalid Object"
         }
     }
@@ -185,13 +189,12 @@ enum class eObjectType(val value: Int){
 // Character types under the main umbrella of eCHARACTER object type.
 enum class eCharacterType{
 
-    eNA, eHERO, eSLIME, ePARROT;
+    eNA, eHERO, eENEMY;
 
     override fun toString(): String {
         return when(this){
             eHERO->"Hero"
-            eSLIME->"Slime"
-            ePARROT->"Parrot"
+            eENEMY->"Enemy"
             else->"Invalid Character"
         }
     }
@@ -200,6 +203,11 @@ enum class eCharacterType{
 // Specific hero skins or hero variants.
 enum class eHeroType(@DrawableRes val resId : Int){
     eHERO_TOKAGE(R.drawable.hero_tokage);
+    // You can add more hero types here if needed
+}
+
+enum class eEnemyType(@DrawableRes val resId : Int){
+    eENEMY_PARROT(R.drawable.parrot);
     // You can add more hero types here if needed
 }
 

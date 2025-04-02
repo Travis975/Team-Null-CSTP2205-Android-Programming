@@ -1,17 +1,16 @@
 package com.example.overrun.enitities
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.example.overrun.enitities.GameConstant.DEFAULT_INTERACT_SIZE_EXTEND_RATIO
 import com.example.overrun.enitities.GameConstant.DEFAULT_SCREEN_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.DEFAULT_SCREEN_WIDTH_PIXEL
 import com.example.overrun.enitities.GameConstant.GAME_SCREEN_COL
 import com.example.overrun.enitities.GameConstant.GAME_SCREEN_ROW
 import com.example.overrun.enitities.character.HeroCharacter
-import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.collider.Collider
+import com.example.overrun.enitities.eObjectType.*
 
 class GameObjectSizeAndViewManager {
 
@@ -83,8 +82,8 @@ class GameObjectSizeAndViewManager {
     fun GET_ACTION_INTERACT_SIZE(objType : eObjectType) : UInt {
         var actionSizePx = 0U
         when(objType){
-            // For characters:
-            eCHARACTER -> {
+            // For characters, enemy:
+            eCHARACTER, eENEMY -> {
                 actionSizePx = GET_CHARACTER_INTERACT_SIZE() - GET_CHARACTER_SIZE()
             }
 
