@@ -256,6 +256,8 @@ fun HeroCompose(hero : CharacterBase,
             if (interactObj != null &&
                 interactObj.isHarmful()) // if the object is harmful
             {
+                // Added here to decrement hero life by 1 unit
+                hero.decrementLives(1U)
                 hero.getCollider().setActive(false) // deactive first
                 filterOpacity = 0.8f
 
