@@ -35,7 +35,7 @@ fun GameOverScreen(navController: NavController) {
     ) {
         // Background Image
         Image(
-            painter = painterResource(id = R.drawable.escape_background),
+            painter = painterResource(id = R.drawable.grass_dungeon),
             contentDescription = "Background",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
