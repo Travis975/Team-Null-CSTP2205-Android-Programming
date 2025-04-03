@@ -80,7 +80,10 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                         gameViewModel.SetTimerRunStop(true) // Resume the timer
                     },
                     onQuit = {
-                        navController.navigate(GAME_OVER.path) // Navigate to the game over screen
+                        // Navigate to the game over screen
+                        gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString()) // Save time
+                        navController.navigate(GAME_OVER.path)
+
                     }
                 )
             }

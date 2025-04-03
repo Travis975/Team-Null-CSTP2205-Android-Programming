@@ -25,13 +25,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.*
+
 
 @Composable
-fun GameOverScreen(navController: NavController) {
+fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
+    val timeSurvived = gameViewModel.gameMetricsAndCtrl.getTimeSurvived()
+    val eliminations = gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Background Image
         Image(
             painter = painterResource(id = R.drawable.banished_background),
             contentDescription = "Background",
@@ -39,7 +43,6 @@ fun GameOverScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
-        // Foreground Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,10 +52,10 @@ fun GameOverScreen(navController: NavController) {
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)  // 80% width of the screen
+                    .fillMaxWidth(0.8f)
                     .background(
                         color = Color.White.copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(12.dp)  // Rounded corners
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .padding(16.dp)
             ) {
@@ -67,6 +70,12 @@ fun GameOverScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // ✅ Display stats from ViewModel
+                    Text("Time Survived: $timeSurvived", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                    Text("Eliminations: $eliminations", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color.Black)
 
                     Spacer(modifier = Modifier.height(24.dp))
 
