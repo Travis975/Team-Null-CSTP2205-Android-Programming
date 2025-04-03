@@ -15,8 +15,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.character.CharacterBase
+import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.collider.ColliderManager.eColliderType
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
@@ -27,8 +30,12 @@ fun ObjectCompose(
     gameObject: GameObject,
     gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager
+    objectSizeAndViewManager : GameObjectSizeAndViewManager,
+    hero : CharacterBase
 ) {
+    if (gameObject.getIsDestroy()) {
+        return  // Just bail out, skip drawing
+    }
     val context = LocalContext.current
 
     // Create a remembered BitmapPainter to store/cache the tile image
@@ -109,6 +116,16 @@ fun ObjectCompose(
     LaunchedEffect(isBeingInteracted.value) {
         // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
+
+            if (gameObject.getObjType() == eObjectType.eMUSHROOMS) {
+
+                hero.setLives(hero.getLives() + 1U)
+                // We found a mushroom collision -> destroy it:
+                gameObject.setDestroy()
+                // Optionally, return right away so color won't flicker
+                return@LaunchedEffect
+            }
+
             // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
 

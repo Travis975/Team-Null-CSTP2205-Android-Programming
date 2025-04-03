@@ -11,6 +11,7 @@ import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,9 +102,9 @@ class ColliderManager {
                 futureHeroCollider.updatePosition(newXPos, newYPos)
 
                 return detectCollision(heroCollider = futureHeroCollider,
-                                        otherColliders = _objectColliders,
-                                        offsetX = MOVE_COLLIDE_OFFSET_X,
-                                        offsetY = MOVE_COLLIDE_OFFSET_Y)
+                    otherColliders = _objectColliders,
+                    offsetX = MOVE_COLLIDE_OFFSET_X,
+                    offsetY = MOVE_COLLIDE_OFFSET_Y)
             }
         }
         return null
@@ -117,6 +118,12 @@ class ColliderManager {
         if (otherColliders.isNotEmpty()) {
 
             otherColliders.forEach{ otherCollider ->
+
+                val objType = eObjectType.fromIDStringToObjType(otherCollider.getID())
+                if (objType == eObjectType.eMUSHROOMS) {
+                    // Mushrooms won't block movement:
+                    return@forEach
+                }
 
                 // Allow hero to move towards the object a little before blocking
                 if (otherCollider.isActive() && // when object is still not destroyed
@@ -148,7 +155,7 @@ class ColliderManager {
 
     private fun checkCollidersCollides(eType : eColliderType,
                                        colliderList : List<Collider>,
-                                        interactToHeroOffset : Pair<Int, Int> = Pair(0, 0))
+                                       interactToHeroOffset : Pair<Int, Int> = Pair(0, 0))
     {
         if (colliderList.isNotEmpty())
         {
@@ -186,6 +193,28 @@ class ColliderManager {
                         val allowOtherInteract = lastOtherInteractTime == 0L ||
                                 ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
 
+                        // --------------------------------------------------------------------
+                        // NEW SPECIAL CONDITION FOR MUSHROOMS:
+                        // if it's a mushroom, we also register hero->object by bounding box
+                        // so player doesn't have to "attack" to interact.
+                        // --------------------------------------------------------------------
+                        val isMushroom = (eObjectType.fromIDStringToObjType(objID) == eObjectType.eMUSHROOMS)
+                        val heroCollider = _heroCollider
+                        if (
+                            allowHeroInteract &&
+                            isMushroom &&
+                            heroCollider != null &&
+                            heroCollider.isActive() &&
+                            heroCollider.IsCollided(collider, interactToHeroOffset.first, interactToHeroOffset.second)
+                        ) {
+                            debugIdx = 5
+                            _heroInteractedToOther[eType]!![objID] = curTime
+                            debugIdx = 6
+                        }
+                        // --------------------------------------------------------------------
+                        // END OF NEW SPECIAL CONDITION
+                        // --------------------------------------------------------------------
+
                         if (allowHeroInteract &&
                             detectHeroActionCollision(collider) != null)
                         {
@@ -194,10 +223,9 @@ class ColliderManager {
                             debugIdx = 6
                         }
 
-                        val heroCollider = _heroCollider
-
                         debugIdx = 7
 
+                        // for other interact to hero
                         if (allowOtherInteract &&
                             heroCollider != null &&
                             heroCollider.isActive() && // not at interacting
@@ -224,13 +252,13 @@ class ColliderManager {
     {
         // Check To Enemy
         checkCollidersCollides(eColliderType.eCollideEnemy,
-                                _enemyColliders,
-                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+            _enemyColliders,
+            Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
 
         // Check To Object
         checkCollidersCollides(eColliderType.eCollideObject,
-                                _objectColliders,
-                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+            _objectColliders,
+            Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
     }
     public fun startCollisionCheck()
     {

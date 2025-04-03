@@ -115,7 +115,8 @@ fun Level2_Screen(navController: NavController, gameViewModel: GameViewModel) {
                     ObjectCompose(gameObj,
                                   gameViewModel.gameMetricsAndCtrl,
                                   gameViewModel.colliderManager,
-                                  gameViewModel.objectSizeAndViewManager)
+                                  gameViewModel.objectSizeAndViewManager,
+                                  gameViewModel.hero)
                 }
 
                 // Remember, hero always overlap the game object
