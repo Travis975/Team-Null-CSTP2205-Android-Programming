@@ -117,7 +117,8 @@ fun Level1_Screen(navController: NavController, gameViewModel: GameViewModel) {
                         gameObj,
                         gameViewModel.gameMetricsAndCtrl,
                         gameViewModel.colliderManager,
-                        gameViewModel.objectSizeAndViewManager
+                        gameViewModel.objectSizeAndViewManager,
+                        gameViewModel.hero
                     )
                 }
 

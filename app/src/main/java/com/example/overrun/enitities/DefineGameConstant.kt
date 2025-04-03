@@ -118,7 +118,7 @@ enum class eObjectType(val value: Int){
     public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY->true
+            eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY, eMUSHROOMS->true
             else->false
         }
     }
