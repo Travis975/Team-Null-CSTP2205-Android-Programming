@@ -30,6 +30,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.overrun.R
 import com.example.overrun.control.DrawDragDirectionArrow
 import com.example.overrun.control.DrawTapCircle
@@ -46,6 +48,7 @@ import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
 import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.effect.HealthUpEffect
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.CoroutineScope
@@ -53,12 +56,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
 fun HeroCompose(hero : CharacterBase,
+                destroyObjFun : (String)->Boolean,
                 gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
@@ -113,6 +119,10 @@ fun HeroCompose(hero : CharacterBase,
 
     var filterOpacity by remember{mutableStateOf(0f)}
     var invincibleCycle by remember{mutableStateOf(3)}
+
+    var healthEffects by remember { mutableStateOf(listOf<Int>()) }
+    val mutexHealthEffect = remember { Mutex() }
+    val scopeRunHealthEffect = rememberCoroutineScope()
 
     // snapShot stored the ObjID and interaction timestamp in ms
     val isBeingInteracted = remember {
@@ -253,23 +263,38 @@ fun HeroCompose(hero : CharacterBase,
             // under different object configuration to set the object data
             // TO DO
             // Set Destroy, Active or InActive
-            if (interactObj != null &&
-                interactObj.isHarmful()) // if the object is harmful
+            if (interactObj != null)
             {
-                // Added here to decrement hero life by 1 unit
-                hero.decrementLives(1U)
-                hero.getCollider().setActive(false) // deactive first
-                filterOpacity = 0.8f
-
-                val pushBackAngle = when(hero.getDirection())
+                if (interactObj.isHealthUpGem())
                 {
-                    eUP -> PI / 2
-                    eDOWN -> -PI / 2
-                    eLEFT -> 0.0
-                    eRIGHT -> PI
-                    else -> 0.0
+                    if (destroyObjFun(objectID))
+                    {
+                        hero.incrementLives(1U)
+
+                        scopeRunHealthEffect.launch{
+                            mutexHealthEffect.withLock{
+                                healthEffects = healthEffects + listOf(1)
+                            }
+                        }
+                    }
                 }
-                Move(pushBackAngle.toFloat(), DEFAULT_HERO_REPEL_SPEED.toInt())
+                else if (interactObj.isHarmful()) // if the object is harmful
+                {
+                    // Added here to decrement hero life by 1 unit
+                    hero.decrementLives(1U)
+                    hero.getCollider().setActive(false) // deactive first
+                    filterOpacity = 0.8f
+
+                    val pushBackAngle = when(hero.getDirection())
+                    {
+                        eUP -> PI / 2
+                        eDOWN -> -PI / 2
+                        eLEFT -> 0.0
+                        eRIGHT -> PI
+                        else -> 0.0
+                    }
+                    Move(pushBackAngle.toFloat(), DEFAULT_HERO_REPEL_SPEED.toInt())
+                }
             }
         }
     }
@@ -523,6 +548,42 @@ fun HeroCompose(hero : CharacterBase,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
                 colorFilter = ColorFilter.tint(Color.Red.copy(alpha = filterOpacity), BlendMode.SrcAtop)
+            )
+        }
+
+        // Display the +1HP Effect
+        healthEffects.forEachIndexed { index, amount ->
+            HealthUpEffect(
+                amount = amount,
+                modifier = Modifier
+                    .size(boxSize.first, boxSize.second)
+                    .align(Alignment.Center)
+                    .absoluteOffset {
+                        IntOffset(
+                            hero.getXPos().toInt() - xScreenPos.toInt(),
+                            hero.getYPos().toInt() - yScreenPos.toInt()
+                        ) + IntOffset(0, (-10).toInt())
+                    },
+                onEffectComplete = {
+                    // Safely remove the health effect when it completes
+                    scopeRunHealthEffect.launch {
+
+                        try {
+                            mutexHealthEffect.withLock {
+                                if (index in healthEffects.indices)
+                                {
+                                    healthEffects = healthEffects.toMutableList().apply {
+                                        removeAt(index)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Handle the error here, outside the composable function
+                            Log.e("HealthEffectError", "Error removing health effect: $e")
+                        }
+
+                    }
+                }
             )
         }
     }

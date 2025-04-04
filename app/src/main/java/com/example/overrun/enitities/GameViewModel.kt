@@ -70,6 +70,18 @@ class GameViewModel : ViewModel(){
     //val enemies : MutableList<EnemyCharacter> = arrayListOf()
     val gameObjects : MutableList<GameObject> = arrayListOf()
 
+    fun setGameObjectDestroyByID(id : String) : Boolean
+    {
+        val gameObject = gameObjects.filter{it.getID() == id}.firstOrNull()
+        val isAlreadyDestoryed = if (gameObject != null) gameObject.getIsDestroy() else false
+        if (!isAlreadyDestoryed)
+        {
+            gameObject?.setDestroy()
+            return true
+        }
+        return false
+    }
+
     // when gameViewModel destruct
     override fun onCleared() {
         gameObjects.clear()

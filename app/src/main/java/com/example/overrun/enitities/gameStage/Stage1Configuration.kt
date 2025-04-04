@@ -1,6 +1,7 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
+import com.example.overrun.enitities.GameConstant
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
@@ -16,8 +17,11 @@ fun Stage1Configuration(context: Context,
     val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
-    // 0 - Clear Metrics
+    // 0 - Clear Metrics and Reset
     gameMetricsAndCtrl.resetCounter()
+    gameVM.gameMetricsAndCtrl.isGamePaused.value = false
+    gameVM.SetTimerRunStop(true) // Resume the timer
+    hero.setLives(GameConstant.DEFAULT_LIVES)
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
@@ -55,6 +59,7 @@ fun Stage1Configuration(context: Context,
                     objType = stageGroundObjectType,
                     objectSizeAndViewManager = gameObjSizeAndViewManager,
                     interactable = stageGroundObjectType.isInteractable(),
+                    blockable = stageGroundObjectType.isColliderBlockable(),
                     x = colIdx.toUInt() * tileSize,
                     y = rowIdx.toUInt() * tileSize
                 )
@@ -77,6 +82,7 @@ fun Stage1Configuration(context: Context,
                         objType = objectType,
                         objectSizeAndViewManager = gameObjSizeAndViewManager,
                         interactable = objectType.isInteractable(),
+                        blockable = objectType.isColliderBlockable(),
                         x = colIdx.toUInt() * tileSize,
                         y = rowIdx.toUInt() * tileSize
                     )

@@ -124,6 +124,7 @@ fun Level1_Screen(navController: NavController, gameViewModel: GameViewModel) {
                 // Remember, hero always overlap the game object
                 HeroCompose(
                     gameViewModel.hero,
+                    gameViewModel::setGameObjectDestroyByID,
                     gameViewModel.gameMetricsAndCtrl,
                     gameViewModel.colliderManager,
                     gameViewModel.objectSizeAndViewManager
