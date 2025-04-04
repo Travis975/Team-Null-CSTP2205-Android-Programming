@@ -11,7 +11,6 @@ import com.example.overrun.enitities.GameConstant.MOVE_COLLIDE_OFFSET_Y
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.eDirection
-import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.gameobject.GameObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -119,14 +118,9 @@ class ColliderManager {
 
             otherColliders.forEach{ otherCollider ->
 
-                val objType = eObjectType.fromIDStringToObjType(otherCollider.getID())
-                if (objType == eObjectType.eMUSHROOMS) {
-                    // Mushrooms won't block movement:
-                    return@forEach
-                }
-
                 // Allow hero to move towards the object a little before blocking
                 if (otherCollider.isActive() && // when object is still not destroyed
+                    otherCollider.isBlockable() &&
                     heroCollider.IsCollided(otherCollider, offsetX, offsetY))
                 {
                     return otherCollider.getID()
@@ -167,6 +161,7 @@ class ColliderManager {
                 colliderList.forEach{ collider->
 
                     objID = collider.getID()
+                    val firstNumber = objID.split("_").getOrNull(0)?.toIntOrNull()
 
                     // if object is still active, not yet destroyed
                     if (collider.isActive() &&
@@ -193,27 +188,7 @@ class ColliderManager {
                         val allowOtherInteract = lastOtherInteractTime == 0L ||
                                 ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
 
-                        // --------------------------------------------------------------------
-                        // NEW SPECIAL CONDITION FOR MUSHROOMS:
-                        // if it's a mushroom, we also register hero->object by bounding box
-                        // so player doesn't have to "attack" to interact.
-                        // --------------------------------------------------------------------
-                        val isMushroom = (eObjectType.fromIDStringToObjType(objID) == eObjectType.eMUSHROOMS)
                         val heroCollider = _heroCollider
-                        if (
-                            allowHeroInteract &&
-                            isMushroom &&
-                            heroCollider != null &&
-                            heroCollider.isActive() &&
-                            heroCollider.IsCollided(collider, interactToHeroOffset.first, interactToHeroOffset.second)
-                        ) {
-                            debugIdx = 5
-                            _heroInteractedToOther[eType]!![objID] = curTime
-                            debugIdx = 6
-                        }
-                        // --------------------------------------------------------------------
-                        // END OF NEW SPECIAL CONDITION
-                        // --------------------------------------------------------------------
 
                         if (allowHeroInteract &&
                             detectHeroActionCollision(collider) != null)

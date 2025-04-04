@@ -30,9 +30,8 @@ fun ObjectCompose(
     gameObject: GameObject,
     gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager,
-    hero : CharacterBase
-) {
+    objectSizeAndViewManager : GameObjectSizeAndViewManager)
+{
     if (gameObject.getIsDestroy()) {
         return  // Just bail out, skip drawing
     }
@@ -116,15 +115,6 @@ fun ObjectCompose(
     LaunchedEffect(isBeingInteracted.value) {
         // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
-
-            if (gameObject.getObjType() == eObjectType.eMUSHROOMS) {
-
-                hero.setLives(hero.getLives() + 1U)
-                // We found a mushroom collision -> destroy it:
-                gameObject.setDestroy()
-                // Optionally, return right away so color won't flicker
-                return@LaunchedEffect
-            }
 
             // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray

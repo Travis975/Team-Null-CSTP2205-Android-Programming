@@ -15,7 +15,7 @@
                                  lives : UInt, speed : UInt,
                                  objectSizeManager : GameObjectSizeAndViewManager) :
         GameObject(id, objType,
-                    objectSizeManager, true)
+                    objectSizeManager, true, true)
     {
 
         // Character attributes
@@ -41,6 +41,9 @@
 
         public fun setLives(lives: UInt) {
             _lives.value = lives
+        }
+        public fun incrementLives(size: UInt){
+            _lives.value += size
         }
         public fun decrementLives(size: UInt) {
             _lives.value = (_lives.value - size).coerceAtLeast(0U)

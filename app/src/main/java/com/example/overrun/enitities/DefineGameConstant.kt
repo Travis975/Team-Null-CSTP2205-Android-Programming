@@ -114,11 +114,27 @@ enum class eObjectType(val value: Int){
         }
     }
 
+    public fun isColliderBlockable() : Boolean
+    {
+        return when(this){
+            eMUSHROOMS->false
+            else->true
+        }
+    }
+
     // Able to be interact or able to interact hero
     public fun isInteractable() : Boolean
     {
         return when(this){
             eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY, eMUSHROOMS->true
+            else->false
+        }
+    }
+
+    public fun isHealthUpGem(): Boolean
+    {
+        return when(this){
+            eMUSHROOMS->true
             else->false
         }
     }
