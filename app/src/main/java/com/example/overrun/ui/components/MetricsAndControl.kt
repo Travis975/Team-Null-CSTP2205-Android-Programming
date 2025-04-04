@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.Route.GAME_OVER
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -80,7 +80,10 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                         gameViewModel.SetTimerRunStop(true) // Resume the timer
                     },
                     onQuit = {
-                        navController.navigate(MAIN_MENU.path) // Navigate to the main menu
+                        // Navigate to the game over screen
+                        gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString()) // Save time
+                        navController.navigate(GAME_OVER.path)
+
                     }
                 )
             }
@@ -103,7 +106,7 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                     )
 
                     Text(
-                        text = "Kill Count: ${gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()}",
+                        text = "Eliminations: ${gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()}",
                         color = Color.Black,
                         modifier = Modifier.padding(8.dp),
                         fontWeight = FontWeight.SemiBold

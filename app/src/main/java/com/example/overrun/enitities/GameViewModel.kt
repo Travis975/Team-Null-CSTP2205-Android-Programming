@@ -27,6 +27,17 @@ class GameViewModel : ViewModel(){
         isTimerRunning.value = isRun
     }
 
+    // Track the current map for leaderboards, set default to level 1
+    var currentMap = mutableStateOf("Spooky Forest")
+
+    fun setCurrentMap(mapName: String) {
+        currentMap.value = mapName
+    }
+
+    fun getCurrentMap(): String {
+        return currentMap.value
+    }
+
     val gameMetricsAndCtrl = GameMetricsAndControl()
 
     val colliderManager = ColliderManager()
