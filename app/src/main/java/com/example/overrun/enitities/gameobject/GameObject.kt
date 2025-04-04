@@ -12,13 +12,14 @@ import com.example.overrun.enitities.eObjectType
 open class GameObject(id : String, objType : eObjectType,
                       objectSizeAndViewManager : GameObjectSizeAndViewManager,
                       interactable : Boolean,
+                      blockable : Boolean,
                       x : UInt = 0U, y : UInt = 0U) {
 
     private val _objectType = objType
     private var _isDestroy = false
 
     // Object Collider, default world pos (0, 0)
-    private var _collider = Collider(id, x, y, interactable,
+    private var _collider = Collider(id, x, y, interactable, blockable,
                                         objectSizeAndViewManager)
 
     private var _actionCollider = mapOf(
