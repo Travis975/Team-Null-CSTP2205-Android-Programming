@@ -101,9 +101,9 @@ class ColliderManager {
                 futureHeroCollider.updatePosition(newXPos, newYPos)
 
                 return detectCollision(heroCollider = futureHeroCollider,
-                                        otherColliders = _objectColliders,
-                                        offsetX = MOVE_COLLIDE_OFFSET_X,
-                                        offsetY = MOVE_COLLIDE_OFFSET_Y)
+                    otherColliders = _objectColliders,
+                    offsetX = MOVE_COLLIDE_OFFSET_X,
+                    offsetY = MOVE_COLLIDE_OFFSET_Y)
             }
         }
         return null
@@ -120,6 +120,7 @@ class ColliderManager {
 
                 // Allow hero to move towards the object a little before blocking
                 if (otherCollider.isActive() && // when object is still not destroyed
+                    otherCollider.isBlockable() &&
                     heroCollider.IsCollided(otherCollider, offsetX, offsetY))
                 {
                     return otherCollider.getID()
@@ -148,7 +149,7 @@ class ColliderManager {
 
     private fun checkCollidersCollides(eType : eColliderType,
                                        colliderList : List<Collider>,
-                                        interactToHeroOffset : Pair<Int, Int> = Pair(0, 0))
+                                       interactToHeroOffset : Pair<Int, Int> = Pair(0, 0))
     {
         if (colliderList.isNotEmpty())
         {
@@ -160,6 +161,7 @@ class ColliderManager {
                 colliderList.forEach{ collider->
 
                     objID = collider.getID()
+                    val firstNumber = objID.split("_").getOrNull(0)?.toIntOrNull()
 
                     // if object is still active, not yet destroyed
                     if (collider.isActive() &&
@@ -186,6 +188,8 @@ class ColliderManager {
                         val allowOtherInteract = lastOtherInteractTime == 0L ||
                                 ((curTime - lastOtherInteractTime) > INTERACT_FILER_INTERVAL_MS.toLong())
 
+                        val heroCollider = _heroCollider
+
                         if (allowHeroInteract &&
                             detectHeroActionCollision(collider) != null)
                         {
@@ -194,10 +198,9 @@ class ColliderManager {
                             debugIdx = 6
                         }
 
-                        val heroCollider = _heroCollider
-
                         debugIdx = 7
 
+                        // for other interact to hero
                         if (allowOtherInteract &&
                             heroCollider != null &&
                             heroCollider.isActive() && // not at interacting
@@ -224,13 +227,13 @@ class ColliderManager {
     {
         // Check To Enemy
         checkCollidersCollides(eColliderType.eCollideEnemy,
-                                _enemyColliders,
-                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+            _enemyColliders,
+            Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
 
         // Check To Object
         checkCollidersCollides(eColliderType.eCollideObject,
-                                _objectColliders,
-                                Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
+            _objectColliders,
+            Pair(BE_INTERACT_COLLIDE_OFFSET_X, BE_INTERACT_COLLIDE_OFFSET_Y))
     }
     public fun startCollisionCheck()
     {
