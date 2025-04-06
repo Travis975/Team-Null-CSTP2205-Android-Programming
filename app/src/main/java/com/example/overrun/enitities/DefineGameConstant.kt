@@ -32,6 +32,10 @@ object GameConstant{
 
     const val DEFAULT_INTERACT_SIZE_EXTEND_RATIO = 1.4375f
 
+    // For record, keep here
+    //const val DEFAULT_OBJECT_SIZE = 144U // 96U // 144U    // x 9 from 16 pixels = 144U (Medium Phone),  x 6 from 16 pixels = 96U (nokia 2.4)
+    //const val DEFAULT_CHARACTER_INTERACT_SIZE = 207U // 138U // 207U // x 9 from 23 pixels, ,  x 6 from 23 pixels (nokia 2.4)
+
     // Offset -ve : shrink the other box
     // Offset +ve : enlarge the other box
     const val MOVE_COLLIDE_OFFSET_X = -30
@@ -66,7 +70,7 @@ enum class eObjectType(val value: Int){
     eSAND(5),
     eCACTUS(6),
 
-    //Additional trees
+    // Additional trees
     eTREE_YELLOW(13),
     eTREE_28(12),
 
@@ -78,14 +82,14 @@ enum class eObjectType(val value: Int){
     ePATH_RANDOM(45),
     ePATH_RANDOM_2(46),
 
-    // Additional foliage/plants/rocks
+    // Addititonal foilage, grass or plants
     eMUSHROOMS(34),
     eROCKY_PATCH(30),
     eGRASS_BLANK(31),
     eGRASS_NORMAL(32),
     eGRASS_FLOWERS(33),
 
-    // Water-related tiles
+    // Water-related tiles (from the old script):
     eWATER_TOP_CENTER(50),
     eWATER_TOP_LEFT(51),
     eWATER_TOP_RIGHT(52),
@@ -96,8 +100,7 @@ enum class eObjectType(val value: Int){
     eWATER_CENTER_RIGHT(57),
     eWATER_LOW_RIGHT(58),
 
-    // ----------------------------------------------------------------
-    // Newly added toxic or snow assets, matching your integer codes:
+    // Newly added sprites
     eTOXIC_ROCK_SNOW(60),
     eTOXIC_SHRUB(61),
     eTOXIC_TREE_TOP(62),
@@ -129,51 +132,90 @@ enum class eObjectType(val value: Int){
     eENEMY(98),
     eCHARACTER(99);
 
-    fun isStatic() : Boolean
+    // Is this object static (non-moving)?
+    public fun isStatic() : Boolean
     {
-        // You can add new tiles here if you intend them to be static (non-moving).
         return when(this){
-            eGRASS, eTREE_BACKGROUND, eGRASS_NORMAL, ePATH,
-            ePATH_RANDOM, ePATH_RANDOM_2, ePATH_RANDOM_3,
-            eGRASS_FLOWERS, eROCKY_PATCH, eSAND,
-            eWHITE_SNOW_BLANK, eWHITE_SNOW_PATCHES_1, eWHITE_SNOW_PATCHES_2,
-            eWHITE_SNOW_PATCHES_3, eWHITE_SNOW_PATCHES_4,
-            eGREY_SNOW_BLANK, eGREY_SNOW_PATCHES_1, eGREY_SNOW_PATCHES_2,
-            eGREY_SNOW_PATCHES_3, eGREY_SNOW_PATCHES_4
+            eGRASS,
+            eTREE_BACKGROUND,
+            eGRASS_NORMAL,
+            ePATH,
+            ePATH_RANDOM,
+            ePATH_RANDOM_2,
+            ePATH_RANDOM_3,
+            eGRASS_FLOWERS,
+            eROCKY_PATCH,
+            eSAND,
+
+                // Typically, snow tiles are also static
+            eWHITE_SNOW_BLANK,
+            eWHITE_SNOW_PATCHES_1,
+            eWHITE_SNOW_PATCHES_2,
+            eWHITE_SNOW_PATCHES_3,
+            eWHITE_SNOW_PATCHES_4,
+
+            eGREY_SNOW_BLANK,
+            eGREY_SNOW_PATCHES_1,
+            eGREY_SNOW_PATCHES_2,
+            eGREY_SNOW_PATCHES_3,
+            eGREY_SNOW_PATCHES_4
                 -> true
-            else-> false
+
+            else -> false
         }
     }
 
-    fun isColliderBlockable() : Boolean
+    // Is this object collidable (blocks movement)?
+    public fun isColliderBlockable() : Boolean
     {
-        // By default only mushrooms are walk-through; everything else is blocked.
+        // By default, mushrooms are passable; everything else typically blocks the hero
         return when(this){
             eMUSHROOMS -> false
             else -> true
         }
     }
 
-    // Able to be interact (hero can collide + trigger effect)
-    fun isInteractable() : Boolean
+    // Can the hero interact with it (trigger collisions/effects)?
+    public fun isInteractable() : Boolean
     {
         return when(this){
-            eROCK_1, eROCK_TOXIC, eCACTUS, eENEMY, eMUSHROOMS,
-            eTOXIC_ROCK_SNOW, eTOXIC_SHRUB, eTOXIC_TREE_TOP, eTOXIC_TREE_BOTTOM,
+            eROCK_1,
+            eROCK_TOXIC,
+            eCACTUS,
+            eENEMY,
+            eMUSHROOMS,
+            eTOXIC_ROCK_SNOW,
+            eTOXIC_SHRUB,
+            eTOXIC_TREE_TOP,
+            eTOXIC_TREE_BOTTOM,
             eHALF_TREE_OBSTACLE
                 -> true
-            else-> false
+            else -> false
         }
     }
 
-    // Once interact to hero happens, is it harmful?
-    fun isHarmful(): Boolean
+    // Is it a "health-up" item, e.g., mushrooms that increase hero HP?
+    public fun isHealthUpGem(): Boolean
     {
         return when(this){
-            eROCK_TOXIC, eCACTUS, eENEMY,
-            eTOXIC_ROCK_SNOW, eTOXIC_SHRUB, eTOXIC_TREE_TOP, eTOXIC_TREE_BOTTOM
+            eMUSHROOMS -> true
+            else -> false
+        }
+    }
+
+    // Is the object harmful to the hero (reduces hero life on collision)?
+    public fun isHarmful(): Boolean
+    {
+        return when(this){
+            eROCK_TOXIC,
+            eCACTUS,
+            eENEMY,
+            eTOXIC_ROCK_SNOW,
+            eTOXIC_SHRUB,
+            eTOXIC_TREE_TOP,
+            eTOXIC_TREE_BOTTOM
                 -> true
-            else-> false
+            else -> false
         }
     }
 
@@ -188,8 +230,8 @@ enum class eObjectType(val value: Int){
     }
 
     override fun toString(): String {
-        // Give each object a nice string for debugging/logging
         return when(this){
+            // Retaining both old and new naming for consistency
             eNA -> "Not Applicable"
             eGRASS -> "Grass"
             eTREE_BACKGROUND -> "Tree_Background"
@@ -223,14 +265,14 @@ enum class eObjectType(val value: Int){
             eWATER_CENTER_RIGHT -> "Water Center Right"
             eWATER_LOW_RIGHT -> "Water Low Right"
 
-            // Newly added toxic or snow assets
+            // Newly added
             eTOXIC_ROCK_SNOW -> "Toxic Rock Snow"
             eTOXIC_SHRUB -> "Toxic Shrub"
             eTOXIC_TREE_TOP -> "Toxic Tree Top"
             eTOXIC_TREE_BOTTOM -> "Toxic Tree Bottom"
             eHALF_TREE_OBSTACLE -> "Half Tree Obstacle"
             eSNOWMAN -> "Snowman"
-            eWATER_IN_WHITE -> "White Water Tile"
+            eWATER_IN_WHITE -> "Water in White"
             eBLUE_ARROW -> "Blue Arrow"
             eRED_FLAG -> "Red Flag"
             eBLUE_FLAG -> "Blue Flag"
@@ -238,20 +280,19 @@ enum class eObjectType(val value: Int){
             eSNOW_BUSH -> "Snow Bush"
             eSNOW_TREE_TOP -> "Snow Tree Top"
             eSNOW_TREE_BOTTOM -> "Snow Tree Bottom"
-            eWHITE_SNOW_BLANK -> "White Snow (Blank)"
+            eWHITE_SNOW_BLANK -> "White Snow Blank"
             eWHITE_SNOW_PATCHES_1 -> "White Snow Patches 1"
             eWHITE_SNOW_PATCHES_2 -> "White Snow Patches 2"
             eWHITE_SNOW_PATCHES_3 -> "White Snow Patches 3"
             eWHITE_SNOW_PATCHES_4 -> "White Snow Patches 4"
-            eGREY_SNOW_BLANK -> "Grey Snow (Blank)"
+            eGREY_SNOW_BLANK -> "Grey Snow Blank"
             eGREY_SNOW_PATCHES_1 -> "Grey Snow Patches 1"
             eGREY_SNOW_PATCHES_2 -> "Grey Snow Patches 2"
             eGREY_SNOW_PATCHES_3 -> "Grey Snow Patches 3"
             eGREY_SNOW_PATCHES_4 -> "Grey Snow Patches 4"
 
-            eENEMY-> "Enemy"
-            eCHARACTER-> "Character"
-
+            eENEMY -> "Enemy"
+            eCHARACTER -> "Character"
             else -> "Invalid Object"
         }
     }
@@ -279,7 +320,7 @@ enum class eHeroType(@DrawableRes val resId : Int){
 enum class eEnemyType(@DrawableRes val resId : Int){
     eENEMY_PARROT(R.drawable.parrot),
     eENEMY_SLIME(R.drawable.slime)
-    // You can add more enemy types here if needed
+    // You can add more hero types here if needed
 }
 
 // Directions for character or object movement (e.g., up, down, left, right).

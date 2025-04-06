@@ -126,6 +126,11 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                             isSelected = selectedLevel == 2,
                             onClick = { selectedLevel = if (selectedLevel == 2) null else 2 }
                         )
+                        LevelIcon(
+                            level = 3,
+                            isSelected = selectedLevel == 3,
+                            onClick = { selectedLevel = if (selectedLevel == 3) null else 3 }
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))

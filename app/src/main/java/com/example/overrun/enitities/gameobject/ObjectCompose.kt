@@ -29,12 +29,10 @@ fun ObjectCompose(
     gameObject: GameObject,
     gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager,
-    hero : CharacterBase
+    objectSizeAndViewManager : GameObjectSizeAndViewManager
 ) {
-    // If this object was flagged for destruction, skip drawing
     if (gameObject.getIsDestroy()) {
-        return
+        return  // Just bail out, skip drawing
     }
     val context = LocalContext.current
 
@@ -43,8 +41,6 @@ fun ObjectCompose(
     val objectbitmapPainter = remember(gameObject.getObjType()) {
         // Map each eObjectType to its corresponding drawable resource
         val resourceId = when (gameObject.getObjType()) {
-
-            // Existing mappings
             eGRASS -> R.drawable.grass_tile
             eTREE, eTREE_BACKGROUND -> R.drawable.tree_1
             eROCK, eROCK_1 -> R.drawable.rock1_1
@@ -53,7 +49,7 @@ fun ObjectCompose(
             eSAND -> R.drawable.sand_1
             eCACTUS -> R.drawable.cactus_1
 
-            // Additional object types
+            // The newly added object types and their drawables:
             ePATH_BLANK_MUD -> R.drawable.path_blank_mud
             ePATH_LEFT_BOUNDARY -> R.drawable.path_left_boundary
             ePATH_RIGHT_BOUNDARY -> R.drawable.path_right_boundary
@@ -109,7 +105,7 @@ fun ObjectCompose(
             eGREY_SNOW_PATCHES_3 -> R.drawable.grey_snow_patches_3
             eGREY_SNOW_PATCHES_4 -> R.drawable.grey_snow_patches_4
 
-            // Fallback if unrecognized
+            // Default fallback
             else -> R.drawable.grass_tile
         }
 
@@ -117,12 +113,16 @@ fun ObjectCompose(
         BitmapPainter(loadSpriteSheet(context.resources, resourceId))
     }
 
-    // Skip drawing if not within screen
+    // For not within the Screen, skip rendering
     if (!objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider())) {
         return
     }
 
-    // Retrieve the current screen offsets
+    // Use xPos and yPos for rendering
+    //val xPos = remember { Animatable(gameObject.getXPos().toFloat()) }
+    //val yPos = remember { Animatable(gameObject.getYPos().toFloat()) }
+
+    // Change to use World Coord for Screen X Y Pos system for trigger rendering
     val xScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldX)
     val yScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldY)
 
@@ -132,37 +132,32 @@ fun ObjectCompose(
     var lastColor by remember { mutableStateOf(Color.DarkGray) }
     var filterOpacity by remember { mutableStateOf(0f) }
 
-    // Retrieve timestamp from hero-object interaction map
+    // snapShotMap stored the interaction timestamp in ms
+    // If no ID is registered, response is 0L
     val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
             colliderManager.heroInteractedToOther[eColliderType.eCollideObject]!![gameObject.getID()] ?: 0L
         }
     }
 
-    // Process changes in the interaction state
+    // Launch a effect to process the interaction object reaction
     LaunchedEffect(isBeingInteracted.value) {
-        // Only process when timestamp > 0
+        // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
-
-            if (gameObject.getObjType() == eObjectType.eMUSHROOMS) {
-                // Example: mushrooms add +1 life and then destroy themselves
-                hero.setLives(hero.getLives() + 1U)
-                gameObject.setDestroy()
-                return@LaunchedEffect
-            }
 
             // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
 
-            // If collider is marked as interactable, briefly flash the tint
+            // under different object configuration to set the object data
+            // TO DO: Set Destroy, Active or InActive if needed
             if (gameObject.getCollider().isInteractable()) {
                 filterOpacity = 0.8f
                 gameMetricsAndCtrl.addHeroHitCount()
+                //Log.i("Hero Hit", "Count : ${gameMetrics.getHeroHitCount()}")
             }
         }
     }
 
-    // Fades out the tint effect
     LaunchedEffect(filterOpacity) {
         if (filterOpacity > 0f) {
             delay(50)
@@ -172,12 +167,20 @@ fun ObjectCompose(
         }
     }
 
-    // Render the object
+    // Debug log (if needed)
+    // Log.i("Object", "Type ${gameObject.getObjType()}  id : ${gameObject.getID()} x : ${gameObject.getXPos()}  y : ${gameObject.getYPos()}")
+
     Box(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .size(boxSize)
                 .align(Alignment.TopStart)
+                // don't use graphicLayer since its transformation would auto scaling and translate
+                // may cause edge residue issue for the rendering
+                // .graphicsLayer {
+                //     translationX = (gameObject.getXPos().toFloat() - xScreenPos)
+                //     translationY = (gameObject.getYPos().toFloat() - yScreenPos)
+                // }
                 .absoluteOffset {
                     IntOffset(
                         gameObject.getXPos().toInt() - xScreenPos.toInt(),
@@ -187,7 +190,6 @@ fun ObjectCompose(
                 .background(Color.Transparent)
         ) {
             when (gameObject.getObjType()) {
-
                 // Grass
                 eGRASS -> {
                     Image(
@@ -208,7 +210,6 @@ fun ObjectCompose(
                     )
                 }
 
-                // Cactus
                 eCACTUS -> {
                     Image(
                         painter = objectbitmapPainter,
@@ -218,12 +219,13 @@ fun ObjectCompose(
                     )
                 }
 
-                // Rocks (and other 'toxic' or tinted obstacles)
+                // Rock or "toxic" type obstacles (tinted on collision)
                 eROCK, eROCK_1, eROCK_TOXIC, eROCK_2,
-                eTOXIC_ROCK_SNOW, eTOXIC_SHRUB, eTOXIC_TREE_TOP, eTOXIC_TREE_BOTTOM -> {
+                eTOXIC_ROCK_SNOW, eTOXIC_SHRUB, eTOXIC_TREE_TOP,
+                eTOXIC_TREE_BOTTOM, eHALF_TREE_OBSTACLE -> {
                     Image(
                         painter = objectbitmapPainter,
-                        contentDescription = "Rock or Toxic tile",
+                        contentDescription = "Rock/Toxic/Obstacle tile",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit,
                         colorFilter = ColorFilter.tint(
@@ -233,7 +235,7 @@ fun ObjectCompose(
                     )
                 }
 
-                // Regular tree or tree background
+                // Trees (including tree background)
                 eTREE, eTREE_BACKGROUND -> {
                     Image(
                         painter = objectbitmapPainter,
@@ -256,19 +258,18 @@ fun ObjectCompose(
                     )
                 }
 
-                // Misc new items that render normally (no tint logic)
-                eHALF_TREE_OBSTACLE, eSNOWMAN, eBLUE_ARROW, eRED_FLAG,
-                eBLUE_FLAG, eRED_ARROW, eSNOW_BUSH, eSNOW_TREE_TOP,
-                eSNOW_TREE_BOTTOM -> {
+                // Snow objects / decorations drawn normally
+                eSNOWMAN, eBLUE_ARROW, eRED_FLAG, eBLUE_FLAG,
+                eRED_ARROW, eSNOW_BUSH, eSNOW_TREE_TOP, eSNOW_TREE_BOTTOM -> {
                     Image(
                         painter = objectbitmapPainter,
-                        contentDescription = "Obstacle or decoration",
+                        contentDescription = "Snow/decoration tile",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 }
 
-                // Snow tile sets
+                // White or Grey snow tiles
                 eWHITE_SNOW_BLANK, eWHITE_SNOW_PATCHES_1, eWHITE_SNOW_PATCHES_2,
                 eWHITE_SNOW_PATCHES_3, eWHITE_SNOW_PATCHES_4,
                 eGREY_SNOW_BLANK, eGREY_SNOW_PATCHES_1, eGREY_SNOW_PATCHES_2,
@@ -282,8 +283,9 @@ fun ObjectCompose(
                 }
 
                 // Additional plants/grass
-                eTREE_28, eMUSHROOMS, eGRASS_BLANK, eGRASS_NORMAL,
-                eGRASS_FLOWERS, eTREE_YELLOW, eROCKY_PATCH -> {
+                eTREE_28, eMUSHROOMS, eGRASS_BLANK,
+                eGRASS_NORMAL, eGRASS_FLOWERS, eTREE_YELLOW,
+                eROCKY_PATCH -> {
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "Plants tile",
@@ -303,9 +305,10 @@ fun ObjectCompose(
                     )
                 }
 
-                // All else (fallback)
+                // For all other enumerated types, we can display as-is (if no special logic needed)
+                // We'll default to the same loaded bitmap, without special filter.
                 else -> {
-                    // Default magenta box for unknown object types
+                    // Default magenta box for other object types
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
