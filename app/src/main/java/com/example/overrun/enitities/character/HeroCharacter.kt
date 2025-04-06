@@ -1,5 +1,6 @@
 package com.example.overrun.enitities.character
 
+import com.example.overrun.enitities.GameConstant
 import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
 import com.example.overrun.enitities.GameConstant.DEFAULT_LIVES
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
@@ -21,4 +22,11 @@ class HeroCharacter(objectSizeManager : GameObjectSizeAndViewManager) :
     public fun getHeroType() = eType
 
     public fun getHeroXYPos() = getCollider().getXYPos()
+
+    public fun reset(lives : UInt)
+    {
+        resetDieFinished()
+        setLives(lives)
+        getCollider().setActive(true)
+    }
 }

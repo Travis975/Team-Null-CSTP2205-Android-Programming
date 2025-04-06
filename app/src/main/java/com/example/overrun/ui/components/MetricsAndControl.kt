@@ -23,6 +23,8 @@ import com.example.overrun.enitities.Route.GAME_OVER
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameViewModel)
@@ -31,6 +33,8 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
     val isTimerRunning = gameViewModel.isTimerRunning.value
 
     val gameTime = remember { mutableStateOf(0) } // Tracks elapsed seconds
+
+    var isGameOver by remember{mutableStateOf(false)}
 
     // State to control the visibility of the pause menu
     val isPauseDialogVisible = remember { mutableStateOf(gameViewModel.gameMetricsAndCtrl.isGamePaused.value) }
@@ -71,6 +75,15 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                 }
             )
 
+            // if Hero die, navigate to GameOver
+            if (gameViewModel.hero.isDieFinished() &&
+                !isGameOver)
+            {
+                isGameOver = true
+                gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString())
+                navController.navigate(GAME_OVER.path)
+            }
+
             // Pause Menu Dialog
             if (isPauseDialogVisible.value) {
                 PauseMenu(
@@ -83,7 +96,6 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                         // Navigate to the game over screen
                         gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString()) // Save time
                         navController.navigate(GAME_OVER.path)
-
                     }
                 )
             }

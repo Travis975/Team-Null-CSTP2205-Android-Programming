@@ -38,9 +38,12 @@ import com.example.overrun.control.DrawTapCircle
 import com.example.overrun.control.GuestureControllerEx
 import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
 import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
+import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_HEIGHT_PIXEL
+import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.Route.GAME_OVER
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eDirection.eDOWN
@@ -51,6 +54,7 @@ import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.effect.HealthUpEffect
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
+import com.example.overrun.enitities.sprites.loadSpriteSheet1D
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,6 +72,12 @@ fun HeroCompose(hero : CharacterBase,
                 gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
+
+    var isHeroDie by remember { mutableStateOf<Boolean>(hero.isDie()) }
+    if (isHeroDie)
+    {
+        return
+    }
 
     // For Debugging
     val bFlagDisplayActionCollider = false
@@ -107,6 +117,15 @@ fun HeroCompose(hero : CharacterBase,
         )
     }
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
+
+    val spriteDie = remember{
+        loadSpriteSheet1D(context.resources, R.drawable.die_sprite,
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,
+            // would do a auto sprite scale up or down from the screen size
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
+        )
+    }
+    var lastDieSpriteFrameIndex by remember{ mutableStateOf<Int>(-1) } // default not started
 
     val spriteAttack = remember{
         hashMapOf(
@@ -150,12 +169,40 @@ fun HeroCompose(hero : CharacterBase,
         {
             filterOpacity = 0.0f
             invincibleCycle = DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
-            hero.getCollider().setActive(true)
+
+            // if not yet die resume the collider
+            if (hero.isDie())
+            {
+                lastDieSpriteFrameIndex = 0 // set start dying
+            }
+            else
+            {
+                hero.getCollider().setActive(true)
+            }
         }
     }
 
     // Default Down
     val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
+
+    LaunchedEffect(lastDieSpriteFrameIndex)
+    {
+        // Means started the dying
+        if (lastDieSpriteFrameIndex >= spriteDie.size)
+        {
+            // set
+            isHeroDie = true
+            hero.setDieFinished() //
+        }
+        else if (lastDieSpriteFrameIndex >= 0)
+        {
+            currentSprite.value = spriteDie[lastDieSpriteFrameIndex]
+
+            lastDieSpriteFrameIndex++
+
+            delay(50)
+        }
+    }
 
     //
     //    Drag Direction	Example Offset (x, y)	atan2(y, x) in Radians	                Angle in Degrees
@@ -305,6 +352,8 @@ fun HeroCompose(hero : CharacterBase,
     val startMove = remember{mutableStateOf(false)}
 
     val startAttack = remember{mutableStateOf(false)}
+    val mutexStartAttack = remember { Mutex() }
+    val scopeStartAttack = rememberCoroutineScope()
     val isAttacking = remember{mutableStateOf(false)}
     val lastAttackDir = remember{ mutableStateOf(hero.getDirection()) }
 
@@ -317,6 +366,15 @@ fun HeroCompose(hero : CharacterBase,
         currentSprite.value = spriteMove[hero.getDirection().value][lastMoveSpriteFrameIndex.value]
     }
 
+    fun StartAttack(start : Boolean)
+    {
+        scopeStartAttack.launch{
+            mutexStartAttack.withLock{
+                startAttack.value = start
+            }
+        }
+    }
+
     fun AttackingActive(attacking : Boolean)
     {
         isAttacking.value = attacking
@@ -324,6 +382,10 @@ fun HeroCompose(hero : CharacterBase,
         if (attacking)
         {
             lastAttackDir.value = hero.getDirection()
+        }
+        else
+        {
+            StartAttack(false)
         }
         hero.getActionCollider()[lastAttackDir.value]?.setActive(attacking)
     }
@@ -355,10 +417,14 @@ fun HeroCompose(hero : CharacterBase,
         if (startAttack.value &&
             !isAttacking.value)
         {
-            startAttack.value = false
-            AttackingActive(true)
+            mutexStartAttack.withLock{
 
-            currentSprite.value = spriteAttack[hero.getDirection()]!!
+                Log.i("Start Attack", "Start Attack : ${startAttack.value}, IsAttacking : ${isAttacking.value}")
+                StartAttack(false)
+                AttackingActive(true)
+
+                currentSprite.value = spriteAttack[hero.getDirection()]!!
+            }
         }
     }
 
@@ -370,6 +436,7 @@ fun HeroCompose(hero : CharacterBase,
         {
             delay(50)
             AttackingActive(false)
+            Log.i("End Attack", "Start Attack : ${startAttack.value}, IsAttacking : ${isAttacking.value}")
         }
         else
         {
@@ -389,7 +456,9 @@ fun HeroCompose(hero : CharacterBase,
                 {
                     touchStartPt.value = touchPt // Store the Touch Pos
 
-                    startAttack.value = true
+                    Log.i("Tap", "Touch pt $touchStartPt.value, Start Attack : ${startAttack.value}, IsAttacking : ${isAttacking.value}")
+
+                    StartAttack(true)
 
                     corontine.launch(Dispatchers.Default){
                         touchAlpha.snapTo(0.4f)
