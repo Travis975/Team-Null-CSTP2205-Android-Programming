@@ -56,6 +56,12 @@ class ColliderManager {
         _heroActionCollider = mapOf()
         _enemyColliders.clear()
         _objectColliders.clear()
+
+        _otherInteractedToHero.value = Pair(" ", 0L)
+
+        _heroInteractedToOther.values.forEach{ colliderTypeMap->
+            colliderTypeMap.clear()
+        }
     }
 
     public fun setHeroCollider(hero : HeroCharacter)
@@ -257,6 +263,7 @@ class ColliderManager {
     }
     public fun cancelCollisionCheck()
     {
+        _otherInteractedToHero.value = Pair(" ", 0L)
         _heroInteractedToOther.values.forEach{ colliderTypeMap->
             colliderTypeMap.clear()
         }

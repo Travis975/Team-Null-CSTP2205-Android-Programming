@@ -48,12 +48,16 @@
         public fun decrementLives(size: UInt) {
             _lives.value = (_lives.value - size).coerceAtLeast(0U)
         }
-        public fun getLives() = _lives.value
+        public fun getLives() = _lives.value.coerceAtLeast(0U)
 
         public fun isDie() : Boolean = _lives.value <= 0U
         public fun setDieFinished()
         {
             _finishedDie = true
+        }
+        public fun resetDieFinished()
+        {
+            _finishedDie = false
         }
         public fun isDieFinished() = _finishedDie
 
