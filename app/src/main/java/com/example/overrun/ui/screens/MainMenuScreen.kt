@@ -134,6 +134,15 @@ fun MainMenuScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
+                onClick = { navController.navigate(CHALLENGES.path) },
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
+                Text("Challenges")
+            }
+
+            Spacer(modifier = Modifier.height(36.dp))
+
+            Button(
                 onClick = { navController.navigate(CONTROLS.path) },
                 modifier = Modifier.padding(bottom = 32.dp)
             ) {
