@@ -1,25 +1,25 @@
 package com.example.overrun.enitities.gameobject
 
 import androidx.compose.runtime.Immutable
+import com.example.overrun.enitities.eDirection
+import com.example.overrun.enitities.eDirection.*
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.collider.ActionCollider
 import com.example.overrun.enitities.collider.Collider
-import com.example.overrun.enitities.eDirection.*
-import com.example.overrun.enitities.eObjectType
 
 // notate as Immutable (stable type) for avoid unncessary recomposition
 @Immutable
 open class GameObject(id : String, objType : eObjectType,
                       objectSizeAndViewManager : GameObjectSizeAndViewManager,
                       interactable : Boolean,
-                      blockable : Boolean,
                       x : UInt = 0U, y : UInt = 0U) {
 
     private val _objectType = objType
     private var _isDestroy = false
 
     // Object Collider, default world pos (0, 0)
-    private var _collider = Collider(id, x, y, interactable, blockable,
+    private var _collider = Collider(id, x, y, interactable,
                                         objectSizeAndViewManager)
 
     private var _actionCollider = mapOf(

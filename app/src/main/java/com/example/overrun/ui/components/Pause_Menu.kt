@@ -48,7 +48,7 @@ fun PauseMenu(onResume: () -> Unit, onQuit: () -> Unit) {
                 onClick = onQuit,
                 modifier = Modifier.fillMaxWidth().padding(8.dp)
             ) {
-                Text("Quit Game")
+                Text("Quit to Menu")
             }
         }
     }

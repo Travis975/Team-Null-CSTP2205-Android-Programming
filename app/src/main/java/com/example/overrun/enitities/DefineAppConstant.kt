@@ -11,8 +11,6 @@ enum class Route(val path : String){
     START_GAME("startGame"),
     CONTROLS("controls"),
     LEVEL_1("level1"),
-    LEVEL_2("level2"),
-    GAME_OVER("gameOver"),
-    LEADERBOARD("leaderboard")
+    LEVEL_2("level2")
 
 }

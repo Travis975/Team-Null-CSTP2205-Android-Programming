@@ -30,42 +30,35 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.overrun.R
 import com.example.overrun.control.DrawDragDirectionArrow
 import com.example.overrun.control.DrawTapCircle
 import com.example.overrun.control.GuestureControllerEx
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
-import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
-import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
+import com.example.overrun.R
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_HURT_INVINCIBLE_CYCLE
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_REPEL_SPEED
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
+import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.effect.HealthUpEffect
-import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
 fun HeroCompose(hero : CharacterBase,
-                destroyObjFun : (String)->Boolean,
-                gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
 
@@ -119,10 +112,6 @@ fun HeroCompose(hero : CharacterBase,
 
     var filterOpacity by remember{mutableStateOf(0f)}
     var invincibleCycle by remember{mutableStateOf(3)}
-
-    var healthEffects by remember { mutableStateOf(listOf<Int>()) }
-    val mutexHealthEffect = remember { Mutex() }
-    val scopeRunHealthEffect = rememberCoroutineScope()
 
     // snapShot stored the ObjID and interaction timestamp in ms
     val isBeingInteracted = remember {
@@ -263,38 +252,21 @@ fun HeroCompose(hero : CharacterBase,
             // under different object configuration to set the object data
             // TO DO
             // Set Destroy, Active or InActive
-            if (interactObj != null)
+            if (interactObj != null &&
+                interactObj.isHarmful()) // if the object is harmful
             {
-                if (interactObj.isHealthUpGem())
-                {
-                    if (destroyObjFun(objectID))
-                    {
-                        hero.incrementLives(1U)
+                hero.getCollider().setActive(false) // deactive first
+                filterOpacity = 0.8f
 
-                        scopeRunHealthEffect.launch{
-                            mutexHealthEffect.withLock{
-                                healthEffects = healthEffects + listOf(1)
-                            }
-                        }
-                    }
-                }
-                else if (interactObj.isHarmful()) // if the object is harmful
+                val pushBackAngle = when(hero.getDirection())
                 {
-                    // Added here to decrement hero life by 1 unit
-                    hero.decrementLives(1U)
-                    hero.getCollider().setActive(false) // deactive first
-                    filterOpacity = 0.8f
-
-                    val pushBackAngle = when(hero.getDirection())
-                    {
-                        eUP -> PI / 2
-                        eDOWN -> -PI / 2
-                        eLEFT -> 0.0
-                        eRIGHT -> PI
-                        else -> 0.0
-                    }
-                    Move(pushBackAngle.toFloat(), DEFAULT_HERO_REPEL_SPEED.toInt())
+                    eUP -> PI / 2
+                    eDOWN -> -PI / 2
+                    eLEFT -> 0.0
+                    eRIGHT -> PI
+                    else -> 0.0
                 }
+                Move(pushBackAngle.toFloat(), DEFAULT_HERO_REPEL_SPEED.toInt())
             }
         }
     }
@@ -334,14 +306,11 @@ fun HeroCompose(hero : CharacterBase,
         var frameIndex = 0
         while(startMove.value)
         {
-            if (!gameMetricsAndCtrl.isGamePaused.value)
-            {
-                setCurSpriteWithLastFrameIndex()
+            setCurSpriteWithLastFrameIndex()
 
-                if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
-                {
-                    lastMoveSpriteFrameIndex.value = 0
-                }
+            if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
+            {
+                lastMoveSpriteFrameIndex.value = 0
             }
 
             delay(100)
@@ -384,64 +353,52 @@ fun HeroCompose(hero : CharacterBase,
         GuestureControllerEx(
 
             onTap = { touchPt ->
+                touchStartPt.value = touchPt // Store the Touch Pos
 
-                if (!gameMetricsAndCtrl.isGamePaused.value)
-                {
-                    touchStartPt.value = touchPt // Store the Touch Pos
+                startAttack.value = true
 
-                    startAttack.value = true
-
-                    corontine.launch(Dispatchers.Default){
-                        touchAlpha.snapTo(0.4f)
-                    }
+                corontine.launch(Dispatchers.Default){
+                    touchAlpha.snapTo(0.4f)
                 }
             },
 
             onTapEnd = { isDragStarted ->
-
-                if (!gameMetricsAndCtrl.isGamePaused.value) {
-                    corontine.launch(Dispatchers.Default) {
-                        if (!isDragStarted) {
-                            touchAlpha.snapTo(0f)
-                            setCurSpriteWithLastFrameIndex()
-                        } else {
-                            touchAlpha.animateTo(0f, tween(150))
-                        }
+                corontine.launch(Dispatchers.Default) {
+                    if (!isDragStarted)
+                    {
+                        touchAlpha.snapTo(0f)
+                        setCurSpriteWithLastFrameIndex()
+                    }
+                    else
+                    {
+                        touchAlpha.animateTo(0f, tween(150))
                     }
                 }
             },
 
             onDrag = { angle ->
+                pointerAngle.floatValue = angle
 
-                if (!gameMetricsAndCtrl.isGamePaused.value) {
-                    pointerAngle.floatValue = angle
+                AttackingActive(false) // cancel the attack if is moving
 
-                    AttackingActive(false) // cancel the attack if is moving
-
-                    // Call the Move to change xPos and yPos under the angle
-                    Move(angle)
-                }
+                // Call the Move to change xPos and yPos under the angle
+                Move(angle)
             },
 
             // When Drag started
             onDragStart = { dragStartPt ->
-
-                if (!gameMetricsAndCtrl.isGamePaused.value) {
-                    startMove.value = true
-                    corontine.launch(Dispatchers.Default) {
-                        // Set the Alpha value to 1f, for pointer arrow rendering
-                        pointerAlpha.snapTo(0.4f)
-                    }
+                startMove.value = true
+                corontine.launch(Dispatchers.Default){
+                    // Set the Alpha value to 1f, for pointer arrow rendering
+                    pointerAlpha.snapTo(0.4f)
                 }
             },
 
             // When Drag End
             onDragEnd = {
-                if (!gameMetricsAndCtrl.isGamePaused.value) {
-                    startMove.value = false
-                    corontine.launch(Dispatchers.Default) {
-                        pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
-                    }
+                startMove.value = false
+                corontine.launch(Dispatchers.Default){
+                    pointerAlpha.animateTo(0f, tween(150)) // use 250 ms change from 1 to 0
                 }
             }
         )
@@ -547,43 +504,7 @@ fun HeroCompose(hero : CharacterBase,
                 //contentScale = ContentScale.FillWidth,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
-                colorFilter = ColorFilter.tint(Color.Red.copy(alpha = filterOpacity), BlendMode.SrcAtop)
-            )
-        }
-
-        // Display the +1HP Effect
-        healthEffects.forEachIndexed { index, amount ->
-            HealthUpEffect(
-                amount = amount,
-                modifier = Modifier
-                    .size(boxSize.first, boxSize.second)
-                    .align(Alignment.Center)
-                    .absoluteOffset {
-                        IntOffset(
-                            hero.getXPos().toInt() - xScreenPos.toInt(),
-                            hero.getYPos().toInt() - yScreenPos.toInt()
-                        ) + IntOffset(0, (-10).toInt())
-                    },
-                onEffectComplete = {
-                    // Safely remove the health effect when it completes
-                    scopeRunHealthEffect.launch {
-
-                        try {
-                            mutexHealthEffect.withLock {
-                                if (index in healthEffects.indices)
-                                {
-                                    healthEffects = healthEffects.toMutableList().apply {
-                                        removeAt(index)
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Handle the error here, outside the composable function
-                            Log.e("HealthEffectError", "Error removing health effect: $e")
-                        }
-
-                    }
-                }
+                colorFilter = ColorFilter.tint(Color.White.copy(alpha = filterOpacity), BlendMode.SrcAtop)
             )
         }
     }
