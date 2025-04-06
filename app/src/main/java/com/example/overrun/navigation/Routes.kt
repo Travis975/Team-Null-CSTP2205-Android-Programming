@@ -21,6 +21,7 @@ import com.example.overrun.ui.screens.PrivacyScreen
 import com.example.overrun.ui.screens.StartGameScreen
 import com.example.overrun.ui.screens.TermsScreen
 import com.example.overrun.ui.screens.Level2_Screen
+import com.example.overrun.ui.screens.Level3_Screen
 import com.example.overrun.ui.screens.SettingsScreen
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -45,5 +46,6 @@ fun AppRoutes() {
         composable(LEADERBOARD.path) { LeaderBoardScreen(navController) }
         composable(CONTROLS.path) { ControlsScreen(navController)  }
         composable(SETTINGS.path) { SettingsScreen(navController) }
+        composable(LEVEL_3.path) { Level3_Screen(navController, gameViewModel) }
     }
 }
