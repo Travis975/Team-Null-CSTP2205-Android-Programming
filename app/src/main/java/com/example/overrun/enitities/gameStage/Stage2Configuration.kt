@@ -45,7 +45,7 @@ fun Stage2Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eObjectType.eGRASS_NORMAL
+    val stageGroundObjectType = eSAND
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
