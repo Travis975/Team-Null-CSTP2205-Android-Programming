@@ -17,29 +17,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
-import com.example.overrun.enitities.Route.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.overrun.enitities.GameViewModel
+import com.example.overrun.enitities.Route.MAIN_MENU
 import com.example.overrun.ui.components.CharacterIcon
 import com.example.overrun.ui.components.LevelIcon
+
 @Composable
 fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) {
     var selectedCharacter by remember { mutableStateOf<Int?>(null) }
     var selectedLevel by remember { mutableStateOf<Int?>(null) }
-
 
     val characterNames = mapOf(
         1 to "Paul",
@@ -67,16 +70,18 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Changed to fillMaxWidth() to ensure enough space for the row
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth()
                     .background(
                         color = Color.White.copy(alpha = 0.9f),
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(20.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -115,7 +120,10 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Level Selection Icons
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         LevelIcon(
                             level = 1,
                             isSelected = selectedLevel == 1,
@@ -167,11 +175,8 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                     ) {
                         Text("Start Game")
                     }
-
                 }
             }
-
-
         }
     }
 }
