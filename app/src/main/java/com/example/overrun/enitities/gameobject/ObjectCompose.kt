@@ -1,12 +1,10 @@
 package com.example.overrun.enitities.gameobject
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -15,21 +13,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.R
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.character.CharacterBase
+import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
-import com.example.overrun.enitities.gameStage.GameMetrics
+import com.example.overrun.enitities.collider.ColliderManager.eColliderType
+import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.eObjectType.*
+import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import kotlinx.coroutines.delay
 
 @Composable
 fun ObjectCompose(
     gameObject: GameObject,
-    gameMetrics: GameMetrics,
+    gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager
-) {
+    objectSizeAndViewManager : GameObjectSizeAndViewManager)
+{
+    if (gameObject.getIsDestroy()) {
+        return  // Just bail out, skip drawing
+    }
     val context = LocalContext.current
 
     // Create a remembered BitmapPainter to store/cache the tile image
@@ -102,7 +107,7 @@ fun ObjectCompose(
     // If no ID is registered, response is 0L
     val isBeingInteracted = remember(gameObject.getID()) {
         derivedStateOf {
-            colliderManager.heroInteractedToOther[gameObject.getID()] ?: 0L     // if no id registered, response as 0L
+            colliderManager.heroInteractedToOther[eColliderType.eCollideObject]!![gameObject.getID()] ?: 0L     // if no id registered, response as 0L
         }
     }
 
@@ -110,6 +115,7 @@ fun ObjectCompose(
     LaunchedEffect(isBeingInteracted.value) {
         // only process when triggered with timestamp recorded
         if (isBeingInteracted.value > 0L) {
+
             // Demonstration of changing color on interaction
             lastColor = if (lastColor == Color.DarkGray) Color.Blue else Color.DarkGray
 
@@ -118,7 +124,7 @@ fun ObjectCompose(
             if (gameObject.getCollider().isInteractable()) {
                 filterOpacity = 0.8f
 
-                gameMetrics.addHeroHitCount()
+                gameMetricsAndCtrl.addHeroHitCount()
                 //Log.i("Hero Hit", "Count : ${gameMetrics.getHeroHitCount()}")
             }
         }

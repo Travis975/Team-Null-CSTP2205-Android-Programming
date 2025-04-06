@@ -37,11 +37,15 @@ import com.example.overrun.enitities.eGameStage
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.HOME
 import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.character.EnemyCompose
 import com.example.overrun.enitities.gameStage.GameStageManager
 import com.example.overrun.enitities.gameobject.ObjectCompose
 import com.example.overrun.ui.components.PauseIcon
 import com.example.overrun.ui.components.PauseMenu
+import com.example.overrun.ui.components.ScreenControlAndMetrics
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -54,23 +58,8 @@ fun Level1_Screen(navController: NavController, gameViewModel: GameViewModel) {
 
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
-    // Timer state
-    val isTimerRunning = gameViewModel.isTimerRunning.value
-
-    val gameTime = remember { mutableStateOf(0) } // Tracks elapsed seconds
-
-    // Timer logic with pause-resume control
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (true) {
-                delay(1000L) // Wait 1 second
-                gameTime.value++ // Increment timer
-            }
-        }
-    }
-
-    // State to control the visibility of the pause menu
-    val isPauseDialogVisible = remember { mutableStateOf(false) }
+    // declare for re-render trigger
+    val isNewStart = gameViewModel.isStageStartRender
 
     // Call Once when the Screen first Compose
     DisposableEffect(Unit) {
@@ -83,6 +72,8 @@ fun Level1_Screen(navController: NavController, gameViewModel: GameViewModel) {
             // Clean up memory or stop the coroutine that created for gaming
             // Important !! //
             gameViewModel.colliderManager.cancelCollisionCheck()
+
+            gameViewModel.destructEnemyFactoryRoutine()
 
             println("Game Screen is leaving the composition")
         }
@@ -124,82 +115,34 @@ fun Level1_Screen(navController: NavController, gameViewModel: GameViewModel) {
                 gameViewModel.gameObjects.forEach { gameObj ->
                     ObjectCompose(
                         gameObj,
-                        gameViewModel.gameMetrics,
+                        gameViewModel.gameMetricsAndCtrl,
                         gameViewModel.colliderManager,
                         gameViewModel.objectSizeAndViewManager
                     )
                 }
 
-                // And Enemy here shall overlap the hero
-
                 // Remember, hero always overlap the game object
                 HeroCompose(
                     gameViewModel.hero,
+                    gameViewModel::setGameObjectDestroyByID,
+                    gameViewModel.gameMetricsAndCtrl,
                     gameViewModel.colliderManager,
                     gameViewModel.objectSizeAndViewManager
                 )
 
+                // And Enemy here shall overlap the hero
+                gameViewModel.enemies.forEach { enemy ->
+                    EnemyCompose(
+                        enemy,
+                        gameViewModel.hero::getHeroXYPos,
+                        gameViewModel.gameMetricsAndCtrl,
+                        gameViewModel.colliderManager,
+                        gameViewModel.objectSizeAndViewManager
+                    )
+                }
 
                 // Screen Control
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        // Add pause icon to pull up the pause menu
-                        PauseIcon(
-                            navController = navController,
-                            gameViewModel = gameViewModel,
-                            onPause = {
-                                isPauseDialogVisible.value = true
-                                gameViewModel.toggleTimer() // Stop the timer on pause
-                            }
-                        )
-
-                        // Pause Menu Dialog
-                        if (isPauseDialogVisible.value) {
-                            PauseMenu(
-                                onResume = {
-                                    isPauseDialogVisible.value = false // Close the dialog
-                                    gameViewModel.toggleTimer() // Resume the timer
-                                },
-                                onQuit = {
-                                    navController.navigate(MAIN_MENU.path) // Navigate to the main menu
-                                }
-                            )
-                        }
-
-                        // Display Timer and Hit Count outside the pause menu conditional
-                        if (!isPauseDialogVisible.value) {  // Ensure these are only shown when the game is not paused
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Time: ${gameTime.value}s",
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-
-                                Text(
-                                    text = "Hit Count: ${gameViewModel.gameMetrics.getHeroHitCount()}",
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(8.dp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
-                    }
-                }
+                ScreenControlAndMetrics(navController, gameViewModel)
             }
         }
     }

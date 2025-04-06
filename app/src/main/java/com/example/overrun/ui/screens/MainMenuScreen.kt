@@ -125,6 +125,15 @@ fun MainMenuScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
+                onClick = { navController.navigate(LEADERBOARD.path) },
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
+                Text("Leaderboards")
+            }
+
+            Spacer(modifier = Modifier.height(36.dp))
+
+            Button(
                 onClick = { navController.navigate(CONTROLS.path) },
                 modifier = Modifier.padding(bottom = 32.dp)
             ) {

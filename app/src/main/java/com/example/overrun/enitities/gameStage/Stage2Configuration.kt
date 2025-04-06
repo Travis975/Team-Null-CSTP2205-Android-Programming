@@ -1,12 +1,12 @@
 package com.example.overrun.enitities.gameStage
 
 import android.content.Context
-import com.example.overrun.enitities.GameObjectSizeAndViewManager
+import com.example.overrun.enitities.GameConstant
+import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_SPEED
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.character.HeroCharacter
-import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.eGRASS
+import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
 
 fun Stage2Configuration(context: Context,
@@ -14,8 +14,15 @@ fun Stage2Configuration(context: Context,
 {
     val colliderManager = gameVM.colliderManager
     val hero = gameVM.hero
+    val gameMetricsAndCtrl = gameVM.gameMetricsAndCtrl
     val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
+
+    // 0 - Clear Metrics and Reset
+    gameMetricsAndCtrl.resetCounter()
+    gameVM.gameMetricsAndCtrl.isGamePaused.value = false
+    gameVM.SetTimerRunStop(true) // Resume the timer
+    hero.reset(GameConstant.DEFAULT_LIVES)
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map2.txt")
@@ -41,7 +48,7 @@ fun Stage2Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eObjectType.eGRASS_NORMAL
+    val stageGroundObjectType = eSAND
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
@@ -53,6 +60,7 @@ fun Stage2Configuration(context: Context,
                     objType = stageGroundObjectType,
                     objectSizeAndViewManager = gameObjSizeAndViewManager,
                     interactable = stageGroundObjectType.isInteractable(),
+                    blockable = stageGroundObjectType.isColliderBlockable(),
                     x = colIdx.toUInt() * tileSize,
                     y = rowIdx.toUInt() * tileSize
                 )
@@ -75,6 +83,7 @@ fun Stage2Configuration(context: Context,
                         objType = objectType,
                         objectSizeAndViewManager = gameObjSizeAndViewManager,
                         interactable = objectType.isInteractable(),
+                        blockable = objectType.isColliderBlockable(),
                         x = colIdx.toUInt() * tileSize,
                         y = rowIdx.toUInt() * tileSize
                     )
@@ -83,7 +92,39 @@ fun Stage2Configuration(context: Context,
         }
     }
 
-    // 6) Setup colliders
+    // 6) Setup EnemyFactory
+    gameVM.stopAllEnemiesMoveThread()
+    gameVM.enemies.clear()
+
+    // Design Stage 2 exists enemy and configuration
+    val enemyList = listOf(
+
+        // Parrot enemy
+        EnemyConfiguration(
+            eType = eEnemyType.eENEMY_PARROT,
+            speed = (DEFAULT_ENEMY_SPEED.toFloat() * 2.0f).toUInt()     // parrot is faster
+        ),
+
+        // Slime enemy
+        EnemyConfiguration(
+            eType = eEnemyType.eENEMY_SLIME
+        )
+    )
+
+
+    gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
+                                                enemyList,
+                                                30U, // Max have at most 30 enemies
+                                                listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+                                                gameMetricsAndCtrl,
+                                                colliderManager,
+                                                gameObjSizeAndViewManager)
+
+    gameVM.gameEnemyFactory?.resetEnemyUniqueID()
+    gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
+
+
+    // 7) Setup colliders
     colliderManager.resetAllCollider()
     colliderManager.setHeroCollider(hero)
 
@@ -97,3 +138,4 @@ fun Stage2Configuration(context: Context,
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
 }
+

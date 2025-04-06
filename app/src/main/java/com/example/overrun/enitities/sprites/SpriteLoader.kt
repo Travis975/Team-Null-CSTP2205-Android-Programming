@@ -2,18 +2,12 @@ package com.example.overrun.enitities.sprites
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.annotation.DrawableRes
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -83,6 +77,43 @@ fun loadSpriteSheet(res: android.content.res.Resources, @DrawableRes resId: Int,
             animateFrames.add(frame)
         }
         allAnimateFrames.add(animateFrames)
+    }
+    return allAnimateFrames
+}
+
+// Return 1D List of Image
+fun loadSpriteSheet1D(res: android.content.res.Resources, @DrawableRes resId: Int,
+                    frameWidth: UInt, frameHeight: UInt,
+                    scaleFactor: Float = 1f): MutableList<ImageBitmap> {
+
+    val options = BitmapFactory.Options().apply {
+        inScaled = false  // Disable scaling based on density
+    }
+
+    val imageBitmap = BitmapFactory.decodeResource(res, resId, options).asImageBitmap()
+
+    //Log.i("image","Image : ${imageBitmap.width} ${imageBitmap.height}")
+
+    val allAnimateFrames = mutableListOf<ImageBitmap>()
+    val columns = imageBitmap.width / frameWidth.toInt()
+    val rows = imageBitmap.height / frameHeight.toInt()
+
+    val isInVertical = if (rows > columns) true else false
+    val sizes = if (isInVertical) rows else columns
+
+    for (i in 0..<sizes) {
+
+        val x = if (isInVertical) 0 else i
+        val y = if (isInVertical) i else 0
+
+        var frame = createFrame(frameWidth, frameHeight, x, y, imageBitmap)
+
+        // Scale the frame
+        if (scaleFactor != 1f)
+        {
+            frame = scaleImageBitmap(frame, scaleFactor)
+        }
+        allAnimateFrames.add(frame)
     }
     return allAnimateFrames
 }

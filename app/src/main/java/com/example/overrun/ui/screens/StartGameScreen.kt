@@ -31,12 +31,15 @@ import com.example.overrun.enitities.Route.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.ui.components.CharacterIcon
 import com.example.overrun.ui.components.LevelIcon
 @Composable
-fun StartGameScreen(navController: NavController) {
+fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) {
     var selectedCharacter by remember { mutableStateOf<Int?>(null) }
     var selectedLevel by remember { mutableStateOf<Int?>(null) }
+
 
     val characterNames = mapOf(
         1 to "Paul",
@@ -130,24 +133,36 @@ fun StartGameScreen(navController: NavController) {
                     // Start Game Button (Enabled only if a level and character are selected)
                     Button(
                         onClick = {
-                            val route = when {
-                                selectedCharacter != null && selectedLevel != null -> {
-                                    // Navigate to the corresponding level screen based on the selected level
-                                    when (selectedLevel) {
-                                        1 -> "level1"
-                                        2 -> "level2"
-                                        else -> MAIN_MENU.path
-                                    }
+                            if (selectedCharacter != null && selectedLevel != null) {
+                                // ✅ Assign readable map names instead of just numbers
+                                val mapName = when (selectedLevel) {
+                                    1 -> "Level 1"
+                                    2 -> "Level 2"
+                                    3 -> "Level 3"
+                                    else -> "Unknown Map"
                                 }
-                                else -> MAIN_MENU.path
+
+                                // ✅ Set the selected map in the GameViewModel
+                                gameViewModel.setCurrentMap(mapName)
+
+                                // ✅ Navigate to the correct level
+                                val route = when (selectedLevel) {
+                                    1 -> "level1"
+                                    2 -> "level2"
+                                    3 -> "level3"
+                                    else -> MAIN_MENU.path
+                                }
+
+                                gameViewModel.triggerStageStartRender()
+                                navController.navigate(route)
                             }
-                            navController.navigate(route)
                         },
                         enabled = selectedLevel != null && selectedCharacter != null,
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text("Start Game")
                     }
+
                 }
             }
 
@@ -157,10 +172,11 @@ fun StartGameScreen(navController: NavController) {
 }
 
 
-
-// Preview
-@Preview(showBackground = true)
-@Composable
-fun StartGamePreview() {
-    StartGameScreen(navController = rememberNavController())
-}
+//
+//// Preview
+//@Preview(showBackground = true)
+//@Composable
+//fun StartGamePreview() {
+//    val gameViewModel: GameViewModel = viewModel()
+//    StartGameScreen(navController = rememberNavController(), gameViewModel)
+//}
