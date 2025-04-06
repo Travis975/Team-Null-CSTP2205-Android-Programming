@@ -103,7 +103,7 @@ fun EnemyCompose(enemy : CharacterBase,
         )
     }
     val spriteDie = remember{
-        loadSpriteSheet1D(context.resources, R.drawable.enemy_die_sprite,
+        loadSpriteSheet1D(context.resources, R.drawable.die_sprite,
             ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL, ENEMY_CHARACTER_SPRITE_HEIGHT_PIXEL,
             // would do a auto sprite scale up or down from the screen size
             ENEMY_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()

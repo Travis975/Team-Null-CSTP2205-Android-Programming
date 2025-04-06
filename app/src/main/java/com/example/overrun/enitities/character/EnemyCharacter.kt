@@ -6,22 +6,21 @@ import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eCharacterType
 import com.example.overrun.enitities.eObjectType
+import com.example.overrun.enitities.gameStage.EnemyConfiguration
 
-class EnemyCharacter(id : String,
-                     eEnemy : eEnemyType,
-                     startX : UInt, startY : UInt,
+class EnemyCharacter(config : EnemyConfiguration,
                      objectSizeManager : GameObjectSizeAndViewManager) :
-    CharacterBase(id,
+    CharacterBase(config.id,
         eCharacterType.eENEMY, eObjectType.eENEMY,
-        DEFAULT_ENEMY_LIVES, DEFAULT_ENEMY_SPEED,
+        DEFAULT_ENEMY_LIVES, config.speed,
         objectSizeManager)
 {
-    private var eType : eEnemyType = eEnemy
+    private var eType : eEnemyType = config.eType
 
     var runningMoveThread = true
 
     init{
-        updatePosition(startX, startY)
+        updatePosition(config.startX, config.startY)
     }
 
     public fun setHeroType(eType : eEnemyType){
