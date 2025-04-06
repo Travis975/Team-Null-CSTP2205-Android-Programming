@@ -2,10 +2,10 @@ package com.example.overrun.enitities.gameStage
 
 import android.content.Context
 import com.example.overrun.enitities.GameConstant
+import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_SPEED
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
-import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
 
 fun Stage1Configuration(context: Context,
@@ -17,11 +17,11 @@ fun Stage1Configuration(context: Context,
     val gameObjects = gameVM.gameObjects
     val gameObjSizeAndViewManager = gameVM.objectSizeAndViewManager
 
-    // 0 - Clear Metrics and Reset
+    // 0 - Clear Metrics
     gameMetricsAndCtrl.resetCounter()
     gameVM.gameMetricsAndCtrl.isGamePaused.value = false
     gameVM.SetTimerRunStop(true) // Resume the timer
-    hero.setLives(GameConstant.DEFAULT_LIVES)
+    hero.reset(GameConstant.DEFAULT_LIVES)
 
     // 1 - Load Stage Map
     val map2DInt = context.readMapFileInto2DIntArray("map1.txt")
@@ -94,17 +94,27 @@ fun Stage1Configuration(context: Context,
     // 6) Setup EnemyFactory
     gameVM.stopAllEnemiesMoveThread()
     gameVM.enemies.clear()
+
+    // Design Stage 1 exists enemy and configuration
+    val enemyList = listOf(
+
+        // Slime enemy
+        EnemyConfiguration(
+            eType = eEnemyType.eENEMY_SLIME
+        )
+    )
+
+
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
-                                                eEnemyType.eENEMY_PARROT,
-                                                30U, // Max have at most 30 enemies
-                                                listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
-                                                gameMetricsAndCtrl,
-                                                colliderManager,
-                                                gameObjSizeAndViewManager)
+        enemyList,
+        30U, // Max have at most 30 enemies
+        listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+        gameMetricsAndCtrl,
+        colliderManager,
+        gameObjSizeAndViewManager)
 
     gameVM.gameEnemyFactory?.resetEnemyUniqueID()
     gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
-
 
     // 7) Setup colliders
     colliderManager.resetAllCollider()
@@ -120,4 +130,3 @@ fun Stage1Configuration(context: Context,
     // Start Coroutine Check Action Collider
     colliderManager.startCollisionCheck()
 }
-

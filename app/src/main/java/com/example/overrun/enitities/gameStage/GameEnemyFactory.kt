@@ -4,7 +4,6 @@ import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eDirection.*
-import com.example.overrun.enitities.eEnemyType
 import com.example.overrun.enitities.eObjectType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +13,11 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
+
 // pass in the enemies list reference to manipulate
 class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
-                       private val eEnemyType : eEnemyType,
-                        private val maxNumOfEnemy : UInt,
+                       private val listEnemyConfig : List<EnemyConfiguration>,
+                       private val maxNumOfEnemy : UInt,
                        private val spawnIntervalSecList : List<Long>,
                        private val gameMetricsAndCtrl: GameMetricsAndControl,
                        private val colliderManager : ColliderManager,
@@ -102,9 +102,17 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
 
         val id = _enemyUniqueID.incrementAndGet()
         // id = "Enemy_drawableUnqieId_UniqueID"
-        val enemy = EnemyCharacter("${eObjectType.eENEMY.value}_${eEnemyType.resId}_${id}",
-                                    eEnemyType,
-                                    randomX, randomY,
+
+        val randomEnemyIdx = Random.nextInt(0, listEnemyConfig.size)
+
+        val enemyConfig = listEnemyConfig[randomEnemyIdx]
+
+        // Assign id and Starting position
+        enemyConfig.id = "${eObjectType.eENEMY.value}_${enemyConfig.eType.resId}_${id}"
+        enemyConfig.startX = randomX
+        enemyConfig.startY = randomY
+
+        val enemy = EnemyCharacter(enemyConfig,
                                     objectSizeManager)
 
         enemies.add(enemy)
