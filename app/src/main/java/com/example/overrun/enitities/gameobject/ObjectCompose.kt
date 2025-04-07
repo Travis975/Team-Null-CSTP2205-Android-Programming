@@ -48,6 +48,7 @@ fun ObjectCompose(
             eROCK_2 -> R.drawable.rock2_1
             eSAND -> R.drawable.sand_1
             eCACTUS -> R.drawable.cactus_1
+            ePOWER_HEALTH_GEM->R.drawable.meat_w_bone
 
             // The newly added object types and their drawables:
             ePATH_BLANK_MUD -> R.drawable.path_blank_mud
@@ -300,6 +301,16 @@ fun ObjectCompose(
                     Image(
                         painter = objectbitmapPainter,
                         contentDescription = "Path tile",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                // Power UP Gem
+                ePOWER_HEALTH_GEM -> {
+                    Image(
+                        painter = objectbitmapPainter,
+                        contentDescription = "PowerUpGem",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )

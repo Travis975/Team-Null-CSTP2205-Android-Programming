@@ -18,6 +18,7 @@ import kotlin.random.Random
 class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
                        private val listEnemyConfig : List<EnemyConfiguration>,
                        private val maxNumOfEnemy : UInt,
+                       private val percentageWithGem : Float,       // 0.3 , 30 %
                        private val spawnIntervalSecList : List<Long>,
                        private val gameMetricsAndCtrl: GameMetricsAndControl,
                        private val colliderManager : ColliderManager,
@@ -107,10 +108,24 @@ class GameEnemyFactory(private val enemies : MutableList<EnemyCharacter>,
 
         val enemyConfig = listEnemyConfig[randomEnemyIdx]
 
+        val randomGEMDecision = Random.nextInt(0, 10)
+        var eWithGemObjType = eObjectType.eNA
+
+        if (percentageWithGem > 0)
+        {
+            val randomGEMDecision = Random.nextInt(0, 100)
+
+            if (randomGEMDecision <= (percentageWithGem * 100))
+            {
+                eWithGemObjType = eObjectType.ePOWER_HEALTH_GEM
+            }
+        }
+
         // Assign id and Starting position
         enemyConfig.id = "${eObjectType.eENEMY.value}_${enemyConfig.eType.resId}_${id}"
         enemyConfig.startX = randomX
         enemyConfig.startY = randomY
+        enemyConfig.eWithObjectType = eWithGemObjType
 
         val enemy = EnemyCharacter(enemyConfig,
                                     objectSizeManager)

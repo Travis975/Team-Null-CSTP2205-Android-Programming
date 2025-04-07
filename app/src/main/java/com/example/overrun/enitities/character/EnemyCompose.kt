@@ -37,6 +37,7 @@ import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
+import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.sprites.loadSpriteSheet
 import com.example.overrun.enitities.sprites.loadSpriteSheet1D
@@ -54,6 +55,7 @@ import kotlin.math.sin
 @Composable
 fun EnemyCompose(enemy : CharacterBase,
                  getHeroXYPos: ()->Pair<UInt, UInt>,
+                 objectCreateFun : (eObjectType, UInt, UInt)->Unit,     // Type, x pos, y pos
                  gameMetricsAndCtrl: GameMetricsAndControl,
                 colliderManager: ColliderManager,
                 objectSizeAndViewManager : GameObjectSizeAndViewManager) {
@@ -191,6 +193,13 @@ fun EnemyCompose(enemy : CharacterBase,
             isEnemyDie = true
             gameMetricsAndCtrl.addEnemyKillCount()
             enemy.setDieFinished() // trigger EnemyFactory to remove from pool and collider
+
+            val enemyObj = enemy as EnemyCharacter
+            val withObjectType = enemyObj.getWithObjectType()
+            if (withObjectType.value != eObjectType.eNA.value)
+            {
+                objectCreateFun(withObjectType, enemy.getXPos(), enemy.getYPos())
+            }
         }
         else if (lastDieSpriteFrameIndex >= 0)
         {

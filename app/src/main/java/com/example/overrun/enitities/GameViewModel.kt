@@ -68,7 +68,7 @@ class GameViewModel : ViewModel(){
     }
 
     //val enemies : MutableList<EnemyCharacter> = arrayListOf()
-    val gameObjects : MutableList<GameObject> = arrayListOf()
+    val gameObjects = mutableStateListOf<GameObject>()
 
     fun setGameObjectDestroyByID(id : String) : Boolean
     {
@@ -80,6 +80,26 @@ class GameViewModel : ViewModel(){
             return true
         }
         return false
+    }
+
+    fun dynamicGameObjectCreation(eObjectType: eObjectType,
+                                    x : UInt, y : UInt)
+    {
+        val gameObj = GameObject(
+                            id = "${eObjectType.value}_${x}_${y}",
+                            objType = eObjectType,
+                            objectSizeAndViewManager = objectSizeAndViewManager,
+                            interactable = eObjectType.isInteractable(),
+                            blockable = eObjectType.isColliderBlockable(),
+                            x = x,
+                            y = y
+                        )
+        gameObjects.add(gameObj)
+
+        if (!eObjectType.isStatic())
+        {
+            colliderManager.addObjectCollider(gameObj)
+        }
     }
 
     // when gameViewModel destruct
