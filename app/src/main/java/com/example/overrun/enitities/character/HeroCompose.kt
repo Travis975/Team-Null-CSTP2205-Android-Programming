@@ -298,6 +298,17 @@ fun HeroCompose(hero : CharacterBase,
         }
     }
 
+    fun AddHealth(health: UInt)
+    {
+        hero.incrementLives(health)
+
+        scopeRunHealthEffect.launch{
+            mutexHealthEffect.withLock{
+                healthEffects = healthEffects + listOf(health.toInt())
+            }
+        }
+    }
+
     LaunchedEffect(isBeingInteracted.value)
     {
         // only process when triggered with timestamp recorded
@@ -316,13 +327,8 @@ fun HeroCompose(hero : CharacterBase,
                 {
                     if (destroyObjFun(objectID))
                     {
-                        hero.incrementLives(1U)
-
-                        scopeRunHealthEffect.launch{
-                            mutexHealthEffect.withLock{
-                                healthEffects = healthEffects + listOf(1)
-                            }
-                        }
+                        val healthSize = if (interactObj == eObjectType.ePOWER_HEALTH_GEM) 5U else 1U
+                        AddHealth(healthSize)
                     }
                 }
                 else if (interactObj.isHarmful()) // if the object is harmful

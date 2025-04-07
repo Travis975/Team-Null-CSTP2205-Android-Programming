@@ -1,6 +1,5 @@
 package com.example.overrun.enitities.character
 
-import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_SPEED
 import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_LIVES
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
 import com.example.overrun.enitities.eEnemyType
@@ -16,6 +15,7 @@ class EnemyCharacter(config : EnemyConfiguration,
         objectSizeManager)
 {
     private var eType : eEnemyType = config.eType
+    private var _eWithObjType : eObjectType = config.eWithObjectType
 
     var runningMoveThread = true
 
@@ -27,4 +27,5 @@ class EnemyCharacter(config : EnemyConfiguration,
         this.eType = eType
     }
     public fun getEnemyType() = eType
+    public fun getWithObjectType() = _eWithObjType
 }

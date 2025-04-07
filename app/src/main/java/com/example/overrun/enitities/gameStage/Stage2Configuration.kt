@@ -115,6 +115,7 @@ fun Stage2Configuration(context: Context,
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
                                                 enemyList,
                                                 30U, // Max have at most 30 enemies
+                                                0.2f,  // 20 % to have gem drop off
                                                 listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
                                                 gameMetricsAndCtrl,
                                                 colliderManager,

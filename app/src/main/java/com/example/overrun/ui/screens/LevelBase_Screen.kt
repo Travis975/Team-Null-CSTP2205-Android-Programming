@@ -116,6 +116,7 @@ fun LevelBase_Screen(navController: NavController,
                     EnemyCompose(
                         enemy,
                         gameViewModel.hero::getHeroXYPos,
+                        gameViewModel::dynamicGameObjectCreation,
                         gameViewModel.gameMetricsAndCtrl,
                         gameViewModel.colliderManager,
                         gameViewModel.objectSizeAndViewManager

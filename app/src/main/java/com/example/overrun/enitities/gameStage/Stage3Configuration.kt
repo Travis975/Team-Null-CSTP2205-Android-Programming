@@ -104,12 +104,13 @@ fun Stage3Configuration(context: Context,
         // Parrot enemy
         EnemyConfiguration(
             eType = eEnemyType.eENEMY_PARROT,
-            speed = (DEFAULT_ENEMY_SPEED.toFloat() * 2.0f).toUInt()     // parrot is faster
+            speed = (DEFAULT_ENEMY_SPEED.toFloat() * 2.5f).toUInt()     // parrot is now x2.5 in stage 3
         ),
 
         // Slime enemy
         EnemyConfiguration(
-            eType = eEnemyType.eENEMY_SLIME
+            eType = eEnemyType.eENEMY_SLIME,
+            speed = (DEFAULT_ENEMY_SPEED.toFloat() * 1.5f).toUInt() // slime now is x1.5 in stage 3
         )
     )
 
@@ -117,6 +118,7 @@ fun Stage3Configuration(context: Context,
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
         enemyList,
         30U, // Max have at most 30 enemies
+        0.2f,  // 20 % to have gem drop off
         listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
         gameMetricsAndCtrl,
         colliderManager,

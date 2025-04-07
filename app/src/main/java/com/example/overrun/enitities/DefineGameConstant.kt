@@ -69,6 +69,7 @@ enum class eObjectType(val value: Int){
     ePATH(4),
     eSAND(5),
     eCACTUS(6),
+    ePOWER_HEALTH_GEM(7),   // increase 10 health a time
 
     // Additional trees
     eTREE_YELLOW(13),
@@ -132,7 +133,8 @@ enum class eObjectType(val value: Int){
     eENEMY(98),
     eCHARACTER(99);
 
-    // Is this object static (non-moving)?
+    // All static object do not have collider
+    // that not able to detection the overlap
     public fun isStatic() : Boolean
     {
         return when(this){
@@ -165,17 +167,20 @@ enum class eObjectType(val value: Int){
         }
     }
 
-    // Is this object collidable (blocks movement)?
+    // Allow the object which having collider for not blocking movement
+    // Able to detect but not blocking
     public fun isColliderBlockable() : Boolean
     {
         // By default, mushrooms are passable; everything else typically blocks the hero
         return when(this){
-            eMUSHROOMS -> false
+            eMUSHROOMS, ePOWER_HEALTH_GEM -> false
             else -> true
         }
     }
 
-    // Can the hero interact with it (trigger collisions/effects)?
+    // Objects allow to be interact by hero action collider to attack / make it
+    // having response like blinking
+    // Or can apply effect back to hero like harm
     public fun isInteractable() : Boolean
     {
         return when(this){
@@ -184,6 +189,7 @@ enum class eObjectType(val value: Int){
             eCACTUS,
             eENEMY,
             eMUSHROOMS,
+            ePOWER_HEALTH_GEM,
             eTOXIC_ROCK_SNOW,
             eTOXIC_SHRUB,
             eTOXIC_TREE_TOP,
@@ -194,16 +200,16 @@ enum class eObjectType(val value: Int){
         }
     }
 
-    // Is it a "health-up" item, e.g., mushrooms that increase hero HP?
+    // To determine object functionalities for further action after collides
     public fun isHealthUpGem(): Boolean
     {
         return when(this){
-            eMUSHROOMS -> true
+            eMUSHROOMS, ePOWER_HEALTH_GEM-> true
             else -> false
         }
     }
 
-    // Is the object harmful to the hero (reduces hero life on collision)?
+    // To determine object functionalities for further action after collides
     public fun isHarmful(): Boolean
     {
         return when(this){
@@ -242,6 +248,7 @@ enum class eObjectType(val value: Int){
             eWALL -> "Wall"
             ePATH -> "Path"
             eSAND -> "Sand"
+            ePOWER_HEALTH_GEM->"Health Up Gem"
             ePATH_RANDOM_3 -> "Random Path Tile 3"
             ePATH_BLANK_MUD -> "Blank Mud Path"
             ePATH_LEFT_BOUNDARY -> "Path Left Boundary"
