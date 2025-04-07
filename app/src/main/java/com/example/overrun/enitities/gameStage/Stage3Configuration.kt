@@ -50,7 +50,7 @@ fun Stage3Configuration(context: Context,
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
-    val stageGroundObjectType = eWHITE_SNOW_BLANK
+    val stageGroundObjectType = eWHITE_SNOW_PATCHES_1
 
     map2DInt.withIndex().forEach{ (rowIdx, row)->
 
