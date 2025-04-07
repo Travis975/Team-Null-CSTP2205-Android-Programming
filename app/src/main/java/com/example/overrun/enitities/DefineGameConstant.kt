@@ -173,7 +173,7 @@ enum class eObjectType(val value: Int){
     {
         // By default, mushrooms are passable; everything else typically blocks the hero
         return when(this){
-            eMUSHROOMS, ePOWER_HEALTH_GEM -> false
+            eHALF_TREE_OBSTACLE, eMUSHROOMS, ePOWER_HEALTH_GEM -> false
             else -> true
         }
     }
@@ -189,6 +189,7 @@ enum class eObjectType(val value: Int){
             eCACTUS,
             eENEMY,
             eMUSHROOMS,
+            eHALF_TREE_OBSTACLE,
             ePOWER_HEALTH_GEM,
             eTOXIC_ROCK_SNOW,
             eTOXIC_SHRUB,
@@ -204,7 +205,7 @@ enum class eObjectType(val value: Int){
     public fun isHealthUpGem(): Boolean
     {
         return when(this){
-            eMUSHROOMS, ePOWER_HEALTH_GEM-> true
+            eHALF_TREE_OBSTACLE, eMUSHROOMS, ePOWER_HEALTH_GEM-> true
             else -> false
         }
     }
