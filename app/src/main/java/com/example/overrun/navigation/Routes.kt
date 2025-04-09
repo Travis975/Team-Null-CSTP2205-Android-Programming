@@ -48,7 +48,7 @@ fun AppRoutes() {
         composable(CONTROLS.path) { ControlsScreen(navController)  }
         composable(SETTINGS.path) { SettingsScreen(navController) }
         composable(LEVEL_3.path) { Level3_Screen(navController, gameViewModel) }
-        composable(CHALLENGES.path) { ChallengesScreen(navController) }
+        composable(CHALLENGES.path) { ChallengesScreen(navController, gameViewModel) }
 
     }
 }
