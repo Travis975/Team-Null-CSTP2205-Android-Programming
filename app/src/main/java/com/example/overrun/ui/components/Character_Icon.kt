@@ -25,9 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.overrun.R
 
-
 @Composable
-fun CharacterIcon(characterId: Int, characterName: String, isSelected: Boolean, onClick: () -> Unit) {
+fun CharacterIcon(
+    characterId: Int,
+    characterName: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .size(108.dp) // Size for the icon container
@@ -46,9 +50,16 @@ fun CharacterIcon(characterId: Int, characterName: String, isSelected: Boolean, 
             Image(
                 painter = painterResource(
                     id = when (characterName) {
+                        // "Paul" uses the original green Tokage's attacking sprite
                         "Paul" -> R.drawable.tokage_right_hit
+
+                        // "Jacob" uses the orange version (example: tokage_right_hit_orange)
+                        "Jacob" -> R.drawable.tokage_right_hit_orange
+
+                        // For unknown or locked characters, fall back to an unavailable icon
                         "????" -> R.drawable.unavailable_icon
                         "???" -> R.drawable.unavailable_icon
+
                         else -> R.drawable.unavailable_icon
                     }
                 ),

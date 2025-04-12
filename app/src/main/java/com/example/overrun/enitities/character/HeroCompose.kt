@@ -50,6 +50,7 @@ import com.example.overrun.enitities.eDirection.eDOWN
 import com.example.overrun.enitities.eDirection.eLEFT
 import com.example.overrun.enitities.eDirection.eRIGHT
 import com.example.overrun.enitities.eDirection.eUP
+import com.example.overrun.enitities.eHeroType
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.effect.HealthUpEffect
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
@@ -67,11 +68,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun HeroCompose(hero : CharacterBase,
-                destroyObjFun : (String)->Boolean,
-                gameMetricsAndCtrl: GameMetricsAndControl,
-                colliderManager: ColliderManager,
-                objectSizeAndViewManager : GameObjectSizeAndViewManager) {
+fun HeroCompose(
+    hero : HeroCharacter,
+    destroyObjFun : (String)->Boolean,
+    gameMetricsAndCtrl: GameMetricsAndControl,
+    colliderManager: ColliderManager,
+    objectSizeAndViewManager : GameObjectSizeAndViewManager
+) {
 
     var isHeroDie by remember { mutableStateOf<Boolean>(hero.isDie()) }
     if (isHeroDie)
@@ -88,7 +91,7 @@ fun HeroCompose(hero : CharacterBase,
     //val yPos = remember { Animatable(hero.getYPos().toFloat()) }
 
     // Change to use World Coord for Screen X Y Pos system for trigger rendering
-    // User animateFLoat for smooth transition of value
+    // Use animateFloat for smooth transition of value
     val xScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldX, label="ScreenXPos")
     val yScreenPos by animateFloatAsState(objectSizeAndViewManager.screenWorldY, label="ScreenYPos")
 
@@ -110,40 +113,59 @@ fun HeroCompose(hero : CharacterBase,
     // Load Sprite Once
     // Also store the bitmap resource to prevent recreation during rendering
     val spriteMove = remember{
-        loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
-            // would do a auto sprite scale up or down from the screen size
+        loadSpriteSheet(
+            context.resources,
+            (hero as HeroCharacter).getHeroType().resId,
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL,
+            HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
+            // would do an auto sprite scale up or down from the screen size
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
 
     val spriteDie = remember{
-        loadSpriteSheet1D(context.resources, R.drawable.die_sprite,
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,
-            // would do a auto sprite scale up or down from the screen size
+        loadSpriteSheet1D(
+            context.resources,
+            R.drawable.die_sprite,
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL,
+            HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,
+            // would do an auto sprite scale up or down from the screen size
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
     }
     var lastDieSpriteFrameIndex by remember{ mutableStateOf<Int>(-1) } // default not started
 
-    val spriteAttack = remember{
-        hashMapOf(
-            eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit),    // 144 x 207 pixels
-            eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit),        // 144 x 207 pixels
-            eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit),    // 207 x 144 pixels
-            eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)   // 207 x 144 pixels
-        )
+    // Below is the fix: conditionally load the correct attacking sprites depending on hero type.
+    val spriteAttack = remember {
+        val heroType = hero.getHeroType()
+        if (heroType == eHeroType.eHERO_TOKAGE_ORANGE) {
+            // If hero is Jacob -> use orange attacking sprites
+            hashMapOf(
+                eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit_orange),
+                eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit_orange),
+                eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit_orange),
+                eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit_orange)
+            )
+        } else {
+            // If hero is Paul -> use normal green attacking sprites
+            hashMapOf(
+                eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit),
+                eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit),
+                eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit),
+                eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)
+            )
+        }
     }
 
-    var filterOpacity by remember{mutableStateOf(0f)}
-    var invincibleCycle by remember{mutableStateOf(3)}
+    var filterOpacity by remember{ mutableStateOf(0f) }
+    var invincibleCycle by remember{ mutableStateOf(3) }
 
     var healthEffects by remember { mutableStateOf(listOf<Int>()) }
     val mutexHealthEffect = remember { Mutex() }
     val scopeRunHealthEffect = rememberCoroutineScope()
 
-    // snapShot stored the ObjID and interaction timestamp in ms
+    // snapShot stores the ObjID and interaction timestamp in ms
     val isBeingInteracted = remember {
         derivedStateOf {
             colliderManager.otherInteractedToHero     // default is pair(" ", 0L)
@@ -151,7 +173,6 @@ fun HeroCompose(hero : CharacterBase,
     }
 
     LaunchedEffect(filterOpacity){
-
         if (invincibleCycle > 0)
         {
             if (filterOpacity > 0f)
@@ -183,43 +204,50 @@ fun HeroCompose(hero : CharacterBase,
     }
 
     // Default Down
-    val currentSprite = remember{ mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
+    val currentSprite = remember { mutableStateOf(spriteMove[eDirection.eDOWN.value][0]) }
 
-    LaunchedEffect(lastDieSpriteFrameIndex)
-    {
+    LaunchedEffect(lastDieSpriteFrameIndex) {
         // Means started the dying
         if (lastDieSpriteFrameIndex >= spriteDie.size)
         {
             // set
             isHeroDie = true
-            hero.setDieFinished() //
+            hero.setDieFinished()
         }
         else if (lastDieSpriteFrameIndex >= 0)
         {
             currentSprite.value = spriteDie[lastDieSpriteFrameIndex]
-
             lastDieSpriteFrameIndex++
-
             delay(50)
         }
     }
 
     //
-    //    Drag Direction	Example Offset (x, y)	atan2(y, x) in Radians	                Angle in Degrees
-    //    Right (→)	        (10, 0)	                atan2(0, 10) = 0	                    0°
-    //    Right-Up (↗)	    (10, -10)	            atan2(-10, 10) ≈ -0.785	(-PI / 4)       -45°
-    //    Up (↑)	        (0, -10)	            atan2(-10, 0) ≈ -1.571 (-PI / 2)	    -90°
-    //    Left-Up (↖)	    (-10, -10)	            atan2(-10, -10) ≈ -2.356 (-3 * PI / 4)	-135°
-    //    Left (←)	        (-10, 0)	            atan2(0, -10) = π ≈ 3.142	            180° or -180°
-    //    Left-Down (↙)	    (-10, 10)	            atan2(10, -10) ≈ 2.356	(3 * PI / 4)    135°
-    //    Down (↓)	        (0, 10)	                atan2(10, 0) ≈ 1.571 (PI / 2)	        90°
-    //    Right-Down (↘)	(10, 10)	            atan2(10, 10) ≈ 0.785 (PI / 4)	        45°
+    //    Drag Direction    Example Offset (x, y)  atan2(y, x) in Radians                   Angle in Degrees
+    //    Right (→)         (10, 0)                atan2(0, 10) = 0                          0°
+    //    Right-Up (↗)      (10, -10)              atan2(-10, 10) ≈ -0.785 (-PI / 4)         -45°
+    //    Up (↑)            (0, -10)               atan2(-10, 0) ≈ -1.571 (-PI / 2)          -90°
+    //    Left-Up (↖)       (-10, -10)             atan2(-10, -10) ≈ -2.356 (-3 * PI / 4)    -135°
+    //    Left (←)          (-10, 0)               atan2(0, -10) = π ≈ 3.142                180° or -180°
+    //    Left-Down (↙)     (-10, 10)              atan2(10, -10) ≈ 2.356 (3 * PI / 4)       135°
+    //    Down (↓)          (0, 10)                atan2(10, 0) ≈ 1.571 (PI / 2)             90°
+    //    Right-Down (↘)    (10, 10)               atan2(10, 10) ≈ 0.785 (PI / 4)            45°
 
-    // Move function with angle radian Input
+    // Move function with angle radian input
     fun Move(angleRad : Float, repelSpeed : Int = -1)
     {
         // In pixel
-        val speed = if (repelSpeed > 0) repelSpeed.toUInt() else hero.getSpeed()
+        // Only double the speed if the hero is the orange one (Jacob).
+        val baseSpeed = hero.getSpeed()
+        val isOrangeHero = (hero as HeroCharacter).getHeroType() == eHeroType.eHERO_TOKAGE_ORANGE
+
+        // If there's a repel, use that. Otherwise: if orange, 2x speed, else normal base speed.
+        val speed = if (repelSpeed > 0) {
+            repelSpeed.toUInt()
+        } else {
+            if (isOrangeHero) baseSpeed * 2u else baseSpeed
+        }
+
         val xDeltaPx = speed.toDouble() * cos(angleRad)
         val yDeltaPx = speed.toDouble() * sin(angleRad)
 
@@ -243,11 +271,11 @@ fun HeroCompose(hero : CharacterBase,
         // if at the repel case, not to update the direction since it is passive movement
         if (repelSpeed < 0)
         {
-            when{
+            when {
                 // Left Up to (not include) Right Up -> assign as UP Dir
                 normalizedAngle in 225.0..<315.0 -> hero.setDirection(eDirection.eUP)
                 // Right Up to (not include) Right Down -> assign as Right Dir
-                normalizedAngle in 315.0 ..<360.0 || normalizedAngle in 0.0..< 45.0 -> hero.setDirection(eDirection.eRIGHT)
+                normalizedAngle in 315.0..<360.0 || normalizedAngle in 0.0..<45.0 -> hero.setDirection(eDirection.eRIGHT)
                 // Right Down to (not include) Left Down -> assign as Down Dir
                 normalizedAngle in 45.0..<135.0 -> hero.setDirection(eDirection.eDOWN)
                 // Left Down to (not include) Left Up -> assign as Left Dir
@@ -261,31 +289,29 @@ fun HeroCompose(hero : CharacterBase,
         //Log.i("Before Move Pos", "xPos: ${hero.getXPos()}    yPos: ${hero.getYPos()}")
 
         currentMoveJob = CoroutineScope(Dispatchers.Default).launch {
-
             // X and Y run simultaneously in two individual threads
-            val moveXJob = launch{
+            val moveXJob = launch {
                 //xPos.animateTo(xPos.value + xDeltaPx.toFloat())
 
-                // Also move the screen X when hero move
+                // Also move the screen X when hero moves
                 objectSizeAndViewManager.screenWorldX += xDeltaPx.toFloat()
 
                 // Update Hero X Pos at the screen center
                 val newXPos = objectSizeAndViewManager.screenWorldX +
-                              (objectSizeAndViewManager.getScreenWidth().toFloat() / 2.0f) -
-                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                        (objectSizeAndViewManager.getScreenWidth().toFloat() / 2.0f) -
+                        (CHARACTER_SIZE.toFloat() / 2.0f)
                 hero.updateXPos(newXPos.toUInt())
-
             }
-            val moveYJob = launch{
+            val moveYJob = launch {
                 //yPos.animateTo(yPos.value + yDeltaPx.toFloat())
 
-                // Also move the screen Y when hero move
+                // Also move the screen Y when hero moves
                 objectSizeAndViewManager.screenWorldY += yDeltaPx.toFloat()
 
                 // Update Hero Y Pos at the screen center
                 val newYPos = objectSizeAndViewManager.screenWorldY +
-                              (objectSizeAndViewManager.getScreenHeight().toFloat() / 2.0f) -
-                              (CHARACTER_SIZE.toFloat() / 2.0f)
+                        (objectSizeAndViewManager.getScreenHeight().toFloat() / 2.0f) -
+                        (CHARACTER_SIZE.toFloat() / 2.0f)
                 hero.updateYPos(newYPos.toUInt())
             }
             moveXJob.join()
@@ -302,15 +328,14 @@ fun HeroCompose(hero : CharacterBase,
     {
         hero.incrementLives(health)
 
-        scopeRunHealthEffect.launch{
-            mutexHealthEffect.withLock{
+        scopeRunHealthEffect.launch {
+            mutexHealthEffect.withLock {
                 healthEffects = healthEffects + listOf(health.toInt())
             }
         }
     }
 
-    LaunchedEffect(isBeingInteracted.value)
-    {
+    LaunchedEffect(isBeingInteracted.value) {
         // only process when triggered with timestamp recorded
         if (isBeingInteracted.value.second > 0L) {
 
@@ -335,7 +360,7 @@ fun HeroCompose(hero : CharacterBase,
                 {
                     // Added here to decrement hero life by 1 unit
                     hero.decrementLives(1U)
-                    hero.getCollider().setActive(false) // deactive first
+                    hero.getCollider().setActive(false) // deactivate first
                     filterOpacity = 0.8f
 
                     val pushBackAngle = when(hero.getDirection())
@@ -353,19 +378,19 @@ fun HeroCompose(hero : CharacterBase,
     }
 
     // Control and Render
-    val pointerAlpha = remember {Animatable(0f)}
-    val pointerAngle = remember {mutableFloatStateOf(0f)}
-    val startMove = remember{mutableStateOf(false)}
+    val pointerAlpha = remember { Animatable(0f) }
+    val pointerAngle = remember { mutableFloatStateOf(0f) }
+    val startMove = remember { mutableStateOf(false) }
 
-    val startAttack = remember{mutableStateOf(false)}
+    val startAttack = remember { mutableStateOf(false) }
     val mutexStartAttack = remember { Mutex() }
     val scopeStartAttack = rememberCoroutineScope()
-    val isAttacking = remember{mutableStateOf(false)}
-    val lastAttackDir = remember{ mutableStateOf(hero.getDirection()) }
+    val isAttacking = remember { mutableStateOf(false) }
+    val lastAttackDir = remember { mutableStateOf(hero.getDirection()) }
 
-    // Offset include x and y
-    val touchStartPt = remember {mutableStateOf(Offset.Zero)}
-    val touchAlpha = remember{Animatable(0f)}
+    // Offset includes x and y
+    val touchStartPt = remember { mutableStateOf(Offset.Zero) }
+    val touchAlpha = remember { Animatable(0f) }
 
     fun setCurSpriteWithLastFrameIndex()
     {
@@ -374,8 +399,8 @@ fun HeroCompose(hero : CharacterBase,
 
     fun StartAttack(start : Boolean)
     {
-        scopeStartAttack.launch{
-            mutexStartAttack.withLock{
+        scopeStartAttack.launch {
+            mutexStartAttack.withLock {
                 startAttack.value = start
             }
         }
@@ -384,7 +409,6 @@ fun HeroCompose(hero : CharacterBase,
     fun AttackingActive(attacking : Boolean)
     {
         isAttacking.value = attacking
-
         if (attacking)
         {
             lastAttackDir.value = hero.getDirection()
@@ -398,33 +422,27 @@ fun HeroCompose(hero : CharacterBase,
 
     // Moving sprite switching
     LaunchedEffect(startMove.value) {
-
         var frameIndex = 0
         while(startMove.value)
         {
             if (!gameMetricsAndCtrl.isGamePaused.value)
             {
                 setCurSpriteWithLastFrameIndex()
-
                 if (++lastMoveSpriteFrameIndex.value >= spriteMove[hero.getDirection().value].count())
                 {
                     lastMoveSpriteFrameIndex.value = 0
                 }
             }
-
             delay(100)
         }
     }
 
     // Attack sprite
-    LaunchedEffect(startAttack.value){
-
-        // If it is not the attacking
-        if (startAttack.value &&
-            !isAttacking.value)
+    LaunchedEffect(startAttack.value) {
+        // If it is not currently attacking
+        if (startAttack.value && !isAttacking.value)
         {
-            mutexStartAttack.withLock{
-
+            mutexStartAttack.withLock {
                 Log.i("Start Attack", "Start Attack : ${startAttack.value}, IsAttacking : ${isAttacking.value}")
                 StartAttack(false)
                 AttackingActive(true)
@@ -435,8 +453,7 @@ fun HeroCompose(hero : CharacterBase,
     }
 
     // When isAttacking changed then trigger
-    LaunchedEffect(isAttacking.value)
-    {
+    LaunchedEffect(isAttacking.value) {
         // when it is attacking, wait for 50ms as the attack valid time then pull down the flag
         if (isAttacking.value)
         {
@@ -450,30 +467,23 @@ fun HeroCompose(hero : CharacterBase,
         }
     }
 
-    // The whole screen can be detect and render the pointer
-    Box(Modifier.fillMaxSize()){
+    // The whole screen can detect and render the pointer
+    Box(Modifier.fillMaxSize()) {
 
         // Drag detect
         GuestureControllerEx(
-
             onTap = { touchPt ->
-
                 if (!gameMetricsAndCtrl.isGamePaused.value)
                 {
                     touchStartPt.value = touchPt // Store the Touch Pos
-
                     Log.i("Tap", "Touch pt $touchStartPt.value, Start Attack : ${startAttack.value}, IsAttacking : ${isAttacking.value}")
-
                     StartAttack(true)
-
-                    corontine.launch(Dispatchers.Default){
+                    corontine.launch(Dispatchers.Default) {
                         touchAlpha.snapTo(0.4f)
                     }
                 }
             },
-
             onTapEnd = { isDragStarted ->
-
                 if (!gameMetricsAndCtrl.isGamePaused.value) {
                     corontine.launch(Dispatchers.Default) {
                         if (!isDragStarted) {
@@ -485,22 +495,16 @@ fun HeroCompose(hero : CharacterBase,
                     }
                 }
             },
-
             onDrag = { angle ->
-
                 if (!gameMetricsAndCtrl.isGamePaused.value) {
                     pointerAngle.floatValue = angle
-
-                    AttackingActive(false) // cancel the attack if is moving
-
+                    AttackingActive(false) // cancel the attack if we move
                     // Call the Move to change xPos and yPos under the angle
                     Move(angle)
                 }
             },
-
-            // When Drag started
+            // When Drag starts
             onDragStart = { dragStartPt ->
-
                 if (!gameMetricsAndCtrl.isGamePaused.value) {
                     startMove.value = true
                     corontine.launch(Dispatchers.Default) {
@@ -509,8 +513,7 @@ fun HeroCompose(hero : CharacterBase,
                     }
                 }
             },
-
-            // When Drag End
+            // When Drag ends
             onDragEnd = {
                 if (!gameMetricsAndCtrl.isGamePaused.value) {
                     startMove.value = false
@@ -521,28 +524,21 @@ fun HeroCompose(hero : CharacterBase,
             }
         )
 
-        // Draw Tap circle response
+        // Draw tap circle response
         DrawTapCircle(touchStartPt.value, touchAlpha.value)
 
-        // Draw the Arrow for the Drag Action
-        DrawDragDirectionArrow(touchStartPt.value,
-                                pointerAlpha.value, pointerAngle.floatValue)
+        // Draw the arrow for the drag action
+        DrawDragDirectionArrow(touchStartPt.value, pointerAlpha.value, pointerAngle.floatValue)
 
-
-        // Need to change the box size when attacking, since the attack sprite is in rectangle shape
-        val boxSize = with(density)
-        {
+        // Need to change the box size when attacking, since the attack sprite is in a rectangle shape
+        val boxSize = with(density) {
             if (isAttacking.value) {
-
                 when (hero.getDirection()) {
                     eDOWN, eUP -> {
-                        CHARACTER_SIZE.toFloat()
-                            .toDp() to CHARACTER_INTERACT_EXTEND_SIZE.toFloat().toDp()
+                        CHARACTER_SIZE.toFloat().toDp() to CHARACTER_INTERACT_EXTEND_SIZE.toFloat().toDp()
                     }
-
                     eLEFT, eRIGHT -> {
-                        CHARACTER_INTERACT_EXTEND_SIZE.toFloat()
-                            .toDp() to CHARACTER_SIZE.toFloat().toDp()
+                        CHARACTER_INTERACT_EXTEND_SIZE.toFloat().toDp() to CHARACTER_SIZE.toFloat().toDp()
                     }
                 }
             } else {
@@ -550,9 +546,8 @@ fun HeroCompose(hero : CharacterBase,
             }
         }
 
-        // Offset Adjustment for Attacking Up and Left directions
+        // Offset adjustment for Attacking Up and Left directions
         val offsetAdjustment = with(density) {
-
             if (isAttacking.value)
             {
                 when(hero.getDirection()){
@@ -575,46 +570,44 @@ fun HeroCompose(hero : CharacterBase,
 
         if (bFlagDisplayActionCollider)
         {
-            // Draw the action collider for checking
-            hero.getActionCollider().forEach{ (eDir, collider)->
-
+            // Draw the action colliders for checking
+            hero.getActionCollider().forEach { (eDir, collider) ->
                 val boxSizeCollider = with(density) {
                     collider.getSizeWidth().toFloat().toDp() to collider.getSizeHeight().toFloat().toDp()
                 }
-
-                Box(modifier = Modifier
-                    .size(boxSizeCollider.first, boxSizeCollider.second)
-                    .align(Alignment.TopStart)
-                    // Offset is in Pixel
-                    .absoluteOffset {
-                        IntOffset(
-                            collider.getXPos().toInt() - xScreenPos.toInt(),
-                            collider.getYPos().toInt() - yScreenPos.toInt()
-                        )
-                    }
-                    .background(Color.Red)){}
+                Box(
+                    modifier = Modifier
+                        .size(boxSizeCollider.first, boxSizeCollider.second)
+                        .align(Alignment.TopStart)
+                        // Offset is in pixels
+                        .absoluteOffset {
+                            IntOffset(
+                                collider.getXPos().toInt() - xScreenPos.toInt(),
+                                collider.getYPos().toInt() - yScreenPos.toInt()
+                            )
+                        }
+                        .background(Color.Red)
+                ) {}
             }
         }
 
-        // Character Box (Moves)
+        // Character Box (moves)
         Box(
             modifier = Modifier
-                // Assign the Size of Pixel corresponding dp to create the box
+                // Assign the size of pixel-corresponding dp to create the box
                 .size(boxSize.first, boxSize.second)
-                //.size(boxSize)
                 .align(Alignment.TopStart)
-                // Offset is in Pixel
+                // Offset is in pixels
                 .absoluteOffset {
                     IntOffset(
                         hero.getXPos().toInt() - xScreenPos.toInt(),
                         hero.getYPos().toInt() - yScreenPos.toInt()
                     ) + offsetAdjustment
                 },
-                //.background(Color.Red),
             contentAlignment = Alignment.Center
         ) {
-//            Text("Hero(${xPos.value}, ${yPos.value})", color = Color.White, fontSize = 16.sp,
-//                textAlign = TextAlign.Center)
+            //  Text("Hero(${xPos.value}, ${yPos.value})", color = Color.White, fontSize = 16.sp,
+            //      textAlign = TextAlign.Center)
 
             Image(
                 painter = BitmapPainter(currentSprite.value),
@@ -626,7 +619,7 @@ fun HeroCompose(hero : CharacterBase,
             )
         }
 
-        // Display the +1HP Effect
+        // Display the +1HP (or +5HP, etc.) effect
         healthEffects.forEachIndexed { index, amount ->
             HealthUpEffect(
                 amount = amount,
@@ -642,11 +635,9 @@ fun HeroCompose(hero : CharacterBase,
                 onEffectComplete = {
                     // Safely remove the health effect when it completes
                     scopeRunHealthEffect.launch {
-
                         try {
                             mutexHealthEffect.withLock {
-                                if (index in healthEffects.indices)
-                                {
+                                if (index in healthEffects.indices) {
                                     healthEffects = healthEffects.toMutableList().apply {
                                         removeAt(index)
                                     }
@@ -656,7 +647,6 @@ fun HeroCompose(hero : CharacterBase,
                             // Handle the error here, outside the composable function
                             Log.e("HealthEffectError", "Error removing health effect: $e")
                         }
-
                     }
                 }
             )

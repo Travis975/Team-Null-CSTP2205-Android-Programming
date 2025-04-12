@@ -36,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.MAIN_MENU
+import com.example.overrun.enitities.eHeroType
 import com.example.overrun.ui.components.CharacterIcon
 import com.example.overrun.ui.components.LevelIcon
 
@@ -44,9 +45,12 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
     var selectedCharacter by remember { mutableStateOf<Int?>(null) }
     var selectedLevel by remember { mutableStateOf<Int?>(null) }
 
+    // Updated characterNames map:
+    // 1 -> "Paul"
+    // 2 -> "Jacob"
     val characterNames = mapOf(
         1 to "Paul",
-        2 to "????"
+        2 to "Jacob"
     )
 
     Box(
@@ -97,13 +101,17 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                         CharacterIcon(
                             characterId = 1,
                             isSelected = selectedCharacter == 1,
-                            onClick = { selectedCharacter = if (selectedCharacter == 1) null else 1 },
+                            onClick = {
+                                selectedCharacter = if (selectedCharacter == 1) null else 1
+                            },
                             characterName = characterNames[1] ?: "Unknown"
                         )
                         CharacterIcon(
                             characterId = 2,
                             isSelected = selectedCharacter == 2,
-                            onClick = { selectedCharacter = if (selectedCharacter == 2) null else 2 },
+                            onClick = {
+                                selectedCharacter = if (selectedCharacter == 2) null else 2
+                            },
                             characterName = characterNames[2] ?: "Unknown"
                         )
                     }
@@ -147,6 +155,19 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                     Button(
                         onClick = {
                             if (selectedCharacter != null && selectedLevel != null) {
+
+                                // (1) Set the hero type based on the selected character
+                                when (selectedCharacter) {
+                                    1 -> {
+                                        // Paul
+                                        gameViewModel.hero.setHeroType(eHeroType.eHERO_TOKAGE)
+                                    }
+                                    2 -> {
+                                        // Jacob
+                                        gameViewModel.hero.setHeroType(eHeroType.eHERO_TOKAGE_ORANGE)
+                                    }
+                                }
+
                                 // ✅ Assign readable map names instead of just numbers
                                 val mapName = when (selectedLevel) {
                                     1 -> "Level 1"
@@ -181,9 +202,6 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
     }
 }
 
-
-//
-//// Preview
 //@Preview(showBackground = true)
 //@Composable
 //fun StartGamePreview() {

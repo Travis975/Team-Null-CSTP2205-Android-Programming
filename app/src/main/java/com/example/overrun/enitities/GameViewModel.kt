@@ -89,17 +89,17 @@ class GameViewModel : ViewModel(){
     }
 
     fun dynamicGameObjectCreation(eObjectType: eObjectType,
-                                    x : UInt, y : UInt)
+                                  x : UInt, y : UInt)
     {
         val gameObj = GameObject(
-                            id = "${eObjectType.value}_${x}_${y}",
-                            objType = eObjectType,
-                            objectSizeAndViewManager = objectSizeAndViewManager,
-                            interactable = eObjectType.isInteractable(),
-                            blockable = eObjectType.isColliderBlockable(),
-                            x = x,
-                            y = y
-                        )
+            id = "${eObjectType.value}_${x}_${y}",
+            objType = eObjectType,
+            objectSizeAndViewManager = objectSizeAndViewManager,
+            interactable = eObjectType.isInteractable(),
+            blockable = eObjectType.isColliderBlockable(),
+            x = x,
+            y = y
+        )
         gameObjects.add(gameObj)
 
         if (!eObjectType.isStatic())
