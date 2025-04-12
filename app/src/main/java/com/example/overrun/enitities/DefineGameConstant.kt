@@ -320,9 +320,9 @@ enum class eCharacterType{
 }
 
 // Specific hero skins or hero variants.
-enum class eHeroType(@DrawableRes val resId : Int){
-    eHERO_TOKAGE(R.drawable.hero_tokage)
-    // You can add more hero types here if needed
+enum class eHeroType(@DrawableRes val resId: Int) {
+    eHERO_TOKAGE(R.drawable.hero_tokage),
+    eHERO_TOKAGE_ORANGE(R.drawable.hero_tokage_orange)
 }
 
 enum class eEnemyType(@DrawableRes val resId : Int){
