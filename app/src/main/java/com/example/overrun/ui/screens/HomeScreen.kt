@@ -1,23 +1,24 @@
 package com.example.overrun.ui.screens
 
-import android.graphics.fonts.FontStyle
+// import firebasse Oauth
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,14 +26,25 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
-// import firebasse Oauth
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.runtime.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun HomeScreen(navController: NavController) {
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
+
+    // Animate vertical bounce
+    val infiniteTransition = rememberInfiniteTransition()
+    val bounceOffset by infiniteTransition.animateFloat(
+        initialValue = 10f,
+        targetValue = -10f, // move up
+        animationSpec = infiniteRepeatable(
+            animation = tween(300, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -59,6 +71,9 @@ fun HomeScreen(navController: NavController) {
                 contentDescription = "Overrun Logo",
                 modifier = Modifier
                     .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleY = 0.9f
+                    }
                     .padding(horizontal = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
@@ -82,9 +97,14 @@ fun HomeScreen(navController: NavController) {
                     } else {
                         navController.navigate(SIGNUP.path) // Go to signup screen
                     }
-                }
+                },
+                modifier = Modifier
+                .offset(y = bounceOffset.dp)
             ) {
-                Text("Play Game")
+                Text("Game Start",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(8.dp))
             }
             Spacer(modifier = Modifier.height(64.dp))
 
@@ -112,7 +132,11 @@ fun HomeScreen(navController: NavController) {
                     painter = painterResource(id = R.drawable.slogan3_2),
                     contentDescription = "slogan3.2",
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            scaleY = 0.8f
+                            scaleX = 0.8f
+                        },
                     contentScale = ContentScale.Fit
                 )
             }
