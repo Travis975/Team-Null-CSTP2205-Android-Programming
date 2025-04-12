@@ -1,5 +1,6 @@
 package com.example.overrun.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
+import com.example.overrun.R
 
 @Composable
 fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameViewModel)
@@ -105,31 +114,102 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
             {
                 Spacer(modifier = Modifier.height(10.dp))
 
+                val density = LocalDensity.current
+                val boxSize = with(density) { gameViewModel.objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp() }
+                val iconScale = 0.5f
+                val enemyIconScale = 0.7f
+
+                val gameFontFamily = FontFamily(
+                    Font(R.font.gontdiner_swanky_regular, FontWeight.Normal),
+                )
+
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Time: ${gameTime.value}s",
-                        color = Color.Black,
-                        modifier = Modifier.padding(8.dp),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.33f)
+                        .padding(start = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalAlignment = Alignment.CenterVertically)
+                    {
+                        Image(painter = painterResource(id = R.drawable.heart),
+                                contentDescription = "heart",
+                                modifier = Modifier.size(boxSize * iconScale))
+                        Text(
+                            text = "x ${gameViewModel.hero.getLives()}",
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontFamily = gameFontFamily,
+                            modifier = Modifier.padding(2.dp),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
-                    Text(
-                        text = "Eliminations: ${gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()}",
-                        color = Color.Black,
-                        modifier = Modifier.padding(8.dp),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.33f),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically)
+                    {
 
-                    Text(
-                        text = "Lives: ${gameViewModel.hero.getLives()}",
-                        color = Color.Black,
-                        modifier = Modifier.padding(8.dp),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                        Text(
+                            text = "${gameTime.value}s",
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontFamily = gameFontFamily,
+                            modifier = Modifier.padding(2.dp),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 5.dp)
+                        .weight(0.33f),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalAlignment = Alignment.CenterVertically)
+                    {
+                        Column(modifier = Modifier
+                            .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center)
+                        {
+                            var hasEnemy = false
+                            Row(modifier = Modifier
+                                .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically)
+                            {
+                                gameViewModel.currentEnemyList.forEach{ enemyConfig->
+                                    gameViewModel.gameMetricsAndCtrl.getEnemyTypeImage(enemyConfig.eType) ?. let{ it
+                                        Image(painter = BitmapPainter(it),
+                                            contentDescription = enemyConfig.toString(),
+                                            modifier = Modifier.size(boxSize * enemyIconScale))
+
+                                        hasEnemy = true
+                                    }
+                                }
+                            }
+
+                            if (hasEnemy)
+                            {
+                                Text(
+                                    text = "x ${gameViewModel.gameMetricsAndCtrl.getEnemyRemain()}",
+                                    color = Color.Black,
+                                    fontSize = 20.sp,
+                                    fontFamily = gameFontFamily,
+                                    modifier = Modifier.padding(8.dp),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+
                 }
             }
         }

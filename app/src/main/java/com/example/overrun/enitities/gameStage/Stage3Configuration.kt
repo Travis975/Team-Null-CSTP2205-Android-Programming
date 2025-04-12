@@ -3,6 +3,7 @@ package com.example.overrun.enitities.gameStage
 
 
 import android.content.Context
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.overrun.enitities.GameConstant
 import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_SPEED
 import com.example.overrun.enitities.GameViewModel
@@ -99,7 +100,7 @@ fun Stage3Configuration(context: Context,
     gameVM.enemies.clear()
 
     // Design Stage 2 exists enemy and configuration
-    val enemyList = listOf(
+    gameVM.currentEnemyList = listOf(
 
         // Parrot enemy
         EnemyConfiguration(
@@ -113,11 +114,11 @@ fun Stage3Configuration(context: Context,
             speed = (DEFAULT_ENEMY_SPEED.toFloat() * 1.5f).toUInt() // slime now is x1.5 in stage 3
         )
     )
-
+    gameVM.gameMetricsAndCtrl.setStageEnemySize(30U)    // 30 Enemies at most
 
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
-        enemyList,
-        30U, // Max have at most 30 enemies
+        gameVM.currentEnemyList,
+        gameVM.gameMetricsAndCtrl.getEnemySize(), // Max have at most 30 enemies
         0.2f,  // 20 % to have gem drop off
         listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
         gameMetricsAndCtrl,

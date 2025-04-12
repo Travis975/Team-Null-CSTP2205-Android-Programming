@@ -23,7 +23,7 @@
         private var _speed : UInt = speed
         private var _eDir : eDirection = eDirection.eDOWN
         private var _etype : eCharacterType = etype
-        private var _lives : MutableState<UInt> = mutableStateOf(lives)
+        private var _lives : MutableState<Int> = mutableStateOf(lives.toInt())
         private var _finishedDie = false
 
         // GameObject Base owns collider
@@ -40,17 +40,17 @@
         public fun getSpeed() = _speed
 
         public fun setLives(lives: UInt) {
-            _lives.value = lives
+            _lives.value = lives.toInt()
         }
         public fun incrementLives(size: UInt){
-            _lives.value += size
+            _lives.value += size.toInt()
         }
         public fun decrementLives(size: UInt) {
-            _lives.value = (_lives.value - size).coerceAtLeast(0U)
+            _lives.value = (_lives.value - size.toInt()).coerceAtLeast(0)
         }
-        public fun getLives() = _lives.value.coerceAtLeast(0U)
+        public fun getLives() = _lives.value.coerceAtLeast(0)
 
-        public fun isDie() : Boolean = _lives.value <= 0U
+        public fun isDie() : Boolean = _lives.value <= 0
         public fun setDieFinished()
         {
             _finishedDie = true

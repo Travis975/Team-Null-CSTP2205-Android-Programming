@@ -6,9 +6,13 @@ import androidx.lifecycle.ViewModel
 import com.example.overrun.enitities.character.EnemyCharacter
 import com.example.overrun.enitities.character.HeroCharacter
 import com.example.overrun.enitities.collider.ColliderManager
+import com.example.overrun.enitities.gameStage.EnemyConfiguration
 import com.example.overrun.enitities.gameStage.GameEnemyFactory
 import com.example.overrun.enitities.gameStage.GameMetricsAndControl
 import com.example.overrun.enitities.gameobject.GameObject
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 
 class GameViewModel : ViewModel(){
 
@@ -53,6 +57,8 @@ class GameViewModel : ViewModel(){
 
     // would be manipulate through the EnemyFactory for creation and destruction
     val enemies = mutableStateListOf<EnemyCharacter>()
+
+    var currentEnemyList by mutableStateOf<List<EnemyConfiguration>>(emptyList())
 
     fun stopAllEnemiesMoveThread()
     {

@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,7 +85,7 @@ fun MainMenuScreen(navController: NavController) {
         ) {
             Text(text = "Hi, ${username ?: "Player"}!",
                 modifier = Modifier.padding(top =  32.dp),
-                fontSize = 20.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
                 )
@@ -93,7 +95,7 @@ fun MainMenuScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(end = 16.dp, top = 36.dp),
+                .padding(end = 16.dp, top = 42.dp),
             contentAlignment = Alignment.TopEnd // Position at top-right
         ) {
             // call function here
@@ -109,35 +111,44 @@ fun MainMenuScreen(navController: NavController) {
             Image(
                 painter = painterResource(id = R.drawable.main_menu_text),
                 contentDescription = "Main Menu Text",
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
                 contentScale = ContentScale.FillWidth
             )
 
-            Spacer(modifier = Modifier.height(96.dp))
+            Spacer(modifier = Modifier.height(72.dp))
 
             Button(
                 onClick = { navController.navigate(START_GAME.path) },
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
             ) {
-                Text("Start Game")
+                Text("Start",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(4.dp))
             }
 
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = { navController.navigate(LEADERBOARD.path) },
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
             ) {
-                Text("Leaderboards")
+                Text("Leaderboards",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(4.dp))
             }
 
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = { navController.navigate(CONTROLS.path) },
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
             ) {
-                Text("Controls")
+                Text("Controls",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(4.dp))
             }
 
         }

@@ -119,6 +119,16 @@ fun EnemyCompose(enemy : CharacterBase,
 
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
 
+    // Only Run once to set to map
+    LaunchedEffect(Unit)
+    {
+        val enemyChar = enemy as? EnemyCharacter
+            enemyChar?.let{
+                val eType = enemyChar.getEnemyType()
+                gameMetricsAndCtrl.addEnemyImageToMetric(eType, spriteMove[eDirection.eDOWN.value][0])
+            }
+    }
+
     // ********************** Temp Remark do not have attack sprite for enemy
 //    val spriteAttack = remember{
 //        hashMapOf(
