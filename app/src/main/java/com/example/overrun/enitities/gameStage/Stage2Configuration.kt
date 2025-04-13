@@ -5,8 +5,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.overrun.enitities.GameConstant
 import com.example.overrun.enitities.GameConstant.DEFAULT_ENEMY_SPEED
+import com.example.overrun.enitities.GameConstant.DEFAULT_HERO_SPEED
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.eEnemyType
+import com.example.overrun.enitities.eHeroType
 import com.example.overrun.enitities.eObjectType
 import com.example.overrun.enitities.eObjectType.*
 import com.example.overrun.enitities.gameobject.GameObject
@@ -47,6 +49,12 @@ fun Stage2Configuration(context: Context,
     val yStartWorldPos = (worldHeight / 2u) - heroHalfHeight
 
     gameObjSizeAndViewManager.InitScreenWorldXYPos(xStartWorldPos, yStartWorldPos, hero)
+
+    when (hero.getHeroType())
+    {
+        eHeroType.eHERO_TOKAGE_ORANGE -> hero.setSpeed(DEFAULT_HERO_SPEED * 2U)
+        else->hero.setSpeed(DEFAULT_HERO_SPEED)
+    }
     hero.updatePosition(xStartWorldPos, yStartWorldPos)
 
     // 5 - Create Default ground object
@@ -112,7 +120,7 @@ fun Stage2Configuration(context: Context,
             eType = eEnemyType.eENEMY_SLIME
         )
     )
-    gameVM.gameMetricsAndCtrl.setStageEnemySize(30U)    // 30 Enemies at most
+    gameVM.gameMetricsAndCtrl.setStageEnemySize(5U)    // 30 Enemies at most
 
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
                                                 gameVM.currentEnemyList,
