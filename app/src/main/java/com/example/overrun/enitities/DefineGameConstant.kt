@@ -2,6 +2,7 @@ package com.example.overrun.enitities
 
 import androidx.annotation.DrawableRes
 import com.example.overrun.R
+import com.example.overrun.enitities.eDirection.*
 
 // Contains various game-related constants such as default hero attributes, screen sizing,
 // and collision offsets.
@@ -322,7 +323,43 @@ enum class eCharacterType{
 // Specific hero skins or hero variants.
 enum class eHeroType(@DrawableRes val resId: Int) {
     eHERO_TOKAGE(R.drawable.hero_tokage),
-    eHERO_TOKAGE_ORANGE(R.drawable.hero_tokage_orange)
+    eHERO_TOKAGE_ORANGE(R.drawable.hero_tokage_orange);
+
+    fun getAttackSrpite(eDir: eDirection): Int
+    {
+        return when(this){
+            eHERO_TOKAGE->{
+                when(eDir)
+                {
+                    eDOWN->R.drawable.tokage_down_hit
+                    eUP->R.drawable.tokage_up_hit
+                    eLEFT->R.drawable.tokage_left_hit
+                    eRIGHT->R.drawable.tokage_right_hit
+                    else->R.drawable.tokage_down_hit
+                }
+            }
+            eHERO_TOKAGE_ORANGE->{
+                when(eDir)
+                {
+                    eDOWN->R.drawable.tokage_down_hit_orange
+                    eUP->R.drawable.tokage_up_hit_orange
+                    eLEFT->R.drawable.tokage_left_hit_orange
+                    eRIGHT->R.drawable.tokage_right_hit_orange
+                    else->R.drawable.tokage_down_hit_orange
+                }
+            }
+            else->{
+                when(eDir)
+                {
+                    eDOWN->R.drawable.tokage_down_hit
+                    eUP->R.drawable.tokage_up_hit
+                    eLEFT->R.drawable.tokage_left_hit
+                    eRIGHT->R.drawable.tokage_right_hit
+                    else->R.drawable.tokage_down_hit
+                }
+            }
+        }
+    }
 }
 
 enum class eEnemyType(@DrawableRes val resId : Int){

@@ -43,7 +43,7 @@ import com.example.overrun.enitities.GameConstant.ENEMY_CHARACTER_SPRITE_WIDTH_P
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_HEIGHT_PIXEL
 import com.example.overrun.enitities.GameConstant.HERO_CHARACTER_SPRITE_WIDTH_PIXEL
 import com.example.overrun.enitities.GameObjectSizeAndViewManager
-import com.example.overrun.enitities.Route.GAME_OVER
+import com.example.overrun.enitities.Route.GAME_END
 import com.example.overrun.enitities.collider.ColliderManager
 import com.example.overrun.enitities.eDirection
 import com.example.overrun.enitities.eDirection.eDOWN
@@ -68,13 +68,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun HeroCompose(
-    hero : HeroCharacter,
-    destroyObjFun : (String)->Boolean,
-    gameMetricsAndCtrl: GameMetricsAndControl,
-    colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager
-) {
+fun HeroCompose(hero : HeroCharacter,
+                destroyObjFun : (String)->Boolean,
+                gameMetricsAndCtrl: GameMetricsAndControl,
+                colliderManager: ColliderManager,
+                objectSizeAndViewManager : GameObjectSizeAndViewManager)
+{
 
     var isHeroDie by remember { mutableStateOf<Boolean>(hero.isDie()) }
     if (isHeroDie)
@@ -113,11 +112,8 @@ fun HeroCompose(
     // Load Sprite Once
     // Also store the bitmap resource to prevent recreation during rendering
     val spriteMove = remember{
-        loadSpriteSheet(
-            context.resources,
-            (hero as HeroCharacter).getHeroType().resId,
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL,
-            HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
+        loadSpriteSheet(context.resources, (hero as HeroCharacter).getHeroType().resId,
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,      // 144 x 144 pixels, it related to the .png
             // would do an auto sprite scale up or down from the screen size
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
@@ -125,11 +121,8 @@ fun HeroCompose(
     val lastMoveSpriteFrameIndex = remember{ mutableStateOf(0) }
 
     val spriteDie = remember{
-        loadSpriteSheet1D(
-            context.resources,
-            R.drawable.die_sprite,
-            HERO_CHARACTER_SPRITE_WIDTH_PIXEL,
-            HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,
+        loadSpriteSheet1D(context.resources, R.drawable.die_sprite,
+            HERO_CHARACTER_SPRITE_WIDTH_PIXEL, HERO_CHARACTER_SPRITE_HEIGHT_PIXEL,
             // would do an auto sprite scale up or down from the screen size
             HERO_CHARACTER_SPRITE_WIDTH_PIXEL.toFloat() / objectSizeAndViewManager.GET_CHARACTER_SIZE().toFloat()
         )
@@ -139,23 +132,12 @@ fun HeroCompose(
     // Below is the fix: conditionally load the correct attacking sprites depending on hero type.
     val spriteAttack = remember {
         val heroType = hero.getHeroType()
-        if (heroType == eHeroType.eHERO_TOKAGE_ORANGE) {
-            // If hero is Jacob -> use orange attacking sprites
-            hashMapOf(
-                eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit_orange),
-                eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit_orange),
-                eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit_orange),
-                eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit_orange)
-            )
-        } else {
-            // If hero is Paul -> use normal green attacking sprites
-            hashMapOf(
-                eDOWN to loadSpriteSheet(context.resources, R.drawable.tokage_down_hit),
-                eUP to loadSpriteSheet(context.resources, R.drawable.tokage_up_hit),
-                eLEFT to loadSpriteSheet(context.resources, R.drawable.tokage_left_hit),
-                eRIGHT to loadSpriteSheet(context.resources, R.drawable.tokage_right_hit)
-            )
-        }
+        hashMapOf(
+            eDOWN to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eDOWN)),
+            eUP to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eUP)),
+            eLEFT to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eLEFT)),
+            eRIGHT to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eRIGHT))
+        )
     }
 
     var filterOpacity by remember{ mutableStateOf(0f) }
@@ -239,13 +221,12 @@ fun HeroCompose(
         // In pixel
         // Only double the speed if the hero is the orange one (Jacob).
         val baseSpeed = hero.getSpeed()
-        val isOrangeHero = (hero as HeroCharacter).getHeroType() == eHeroType.eHERO_TOKAGE_ORANGE
 
         // If there's a repel, use that. Otherwise: if orange, 2x speed, else normal base speed.
         val speed = if (repelSpeed > 0) {
             repelSpeed.toUInt()
         } else {
-            if (isOrangeHero) baseSpeed * 2u else baseSpeed
+            baseSpeed
         }
 
         val xDeltaPx = speed.toDouble() * cos(angleRad)
