@@ -12,7 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.overrun.enitities.GameViewModel
 import com.example.overrun.enitities.Route.*
 import com.example.overrun.ui.screens.ControlsScreen
-import com.example.overrun.ui.screens.GameOverScreen
+import com.example.overrun.ui.screens.GameEndScreen
 import com.example.overrun.ui.screens.HomeScreen
 import com.example.overrun.ui.screens.LeaderBoardScreen
 import com.example.overrun.ui.screens.Level1_Screen
@@ -42,7 +42,7 @@ fun AppRoutes() {
         composable(LEVEL_2.path) { Level2_Screen(navController, gameViewModel) }
         composable(LEVEL_1.path) { Level1_Screen(navController, gameViewModel) }
         composable(START_GAME.path) { StartGameScreen(navController, gameViewModel) }
-        composable(GAME_OVER.path) { GameOverScreen(navController, gameViewModel) }
+        composable(GAME_END.path) { GameEndScreen(navController, gameViewModel) }
         composable(LEADERBOARD.path) { LeaderBoardScreen(navController) }
         composable(CONTROLS.path) { ControlsScreen(navController)  }
         composable(SETTINGS.path) { SettingsScreen(navController) }

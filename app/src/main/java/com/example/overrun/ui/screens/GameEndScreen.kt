@@ -2,6 +2,12 @@ package com.example.overrun.ui.screens
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,17 +17,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,11 +43,30 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
+fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
     val context = LocalContext.current // ✅ Get Context
     val timeSurvived = gameViewModel.gameMetricsAndCtrl.getTimeSurvived()
     val eliminations = gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()
     val currentMap = gameViewModel.getCurrentMap() // ✅ Ensure you get the map name
+
+    // Animate vertical bounce
+    val infiniteTransition = rememberInfiniteTransition()
+    val bounceYOffset by infiniteTransition.animateFloat(
+        initialValue = 10f,
+        targetValue = -10f, // move up down
+        animationSpec = infiniteRepeatable(
+            animation = tween(300, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val bounceXOffset by infiniteTransition.animateFloat(
+        initialValue = 10f,
+        targetValue = -10f, // move left right
+        animationSpec = infiniteRepeatable(
+            animation = tween(500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -59,7 +88,26 @@ fun GameOverScreen(navController: NavController, gameViewModel: GameViewModel) {
                     .padding(16.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Game Over!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+
+                    val gameFontFamily = FontFamily(
+                        Font(R.font.atma_semibold, FontWeight.Normal),
+                    )
+
+                    if (gameViewModel.gameMetricsAndCtrl.isStageClear())
+                    {
+                        Text("Stage Clear!",
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight.Bold, color = Color(0xFFE79619),
+                            fontFamily = gameFontFamily,
+                            modifier = Modifier.offset(
+                                x = bounceXOffset.dp,
+                                y = bounceYOffset.dp
+                            )
+                        )
+                    }
+                    else {
+                        Text("Game Over!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 

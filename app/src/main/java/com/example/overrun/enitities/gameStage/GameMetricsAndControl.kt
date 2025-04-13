@@ -35,6 +35,11 @@ class GameMetricsAndControl {
     fun getTimeSurvived() = _timeSurvived.value
     fun getEnemySize() = _stageEnemySize.value
     fun getEnemyRemain() = (_stageEnemySize.value - _enemyKillCount.value).coerceAtLeast(0U)
+    fun isStageClear() : Boolean{
+        return _stageEnemySize.value != 0U &&
+                _enemyKillCount.value != 0U &&
+                getEnemyRemain() <= 0U
+    }
 
     fun addHeroHitCount()
     {

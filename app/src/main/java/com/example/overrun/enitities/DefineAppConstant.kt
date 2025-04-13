@@ -13,7 +13,7 @@ enum class Route(val path : String){
     LEVEL_1("level1"),
     LEVEL_2("level2"),
     LEVEL_3("level3"),
-    GAME_OVER("gameOver"),
+    GAME_END("gameEnd"),
     LEADERBOARD("leaderboard")
 
 }

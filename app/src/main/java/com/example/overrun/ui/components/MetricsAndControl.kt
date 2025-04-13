@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.overrun.enitities.GameViewModel
-import com.example.overrun.enitities.Route.GAME_OVER
+import com.example.overrun.enitities.Route.GAME_END
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -84,13 +84,13 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                 }
             )
 
-            // if Hero die, navigate to GameOver
-            if (gameViewModel.hero.isDieFinished() &&
-                !isGameOver)
+            // if Hero die Or stage clear, navigate to GameOver
+            if ((gameViewModel.hero.isDieFinished() || gameViewModel.gameMetricsAndCtrl.isStageClear())
+                && !isGameOver)
             {
                 isGameOver = true
                 gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString())
-                navController.navigate(GAME_OVER.path)
+                navController.navigate(GAME_END.path)
             }
 
             // Pause Menu Dialog
@@ -104,7 +104,7 @@ fun ScreenControlAndMetrics(navController: NavController, gameViewModel: GameVie
                     onQuit = {
                         // Navigate to the game over screen
                         gameViewModel.gameMetricsAndCtrl.setTimeSurvived(gameTime.value.toString()) // Save time
-                        navController.navigate(GAME_OVER.path)
+                        navController.navigate(GAME_END.path)
                     }
                 )
             }
