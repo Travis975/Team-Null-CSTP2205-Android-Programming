@@ -116,14 +116,16 @@ fun Stage1Configuration(context: Context,
     )
     gameVM.gameMetricsAndCtrl.setStageEnemySize(30U)    // 30 Enemies at most
 
+    val healthDropRate = if (gameVM.is100PercentHealthDrop.value) 1f else 0f
+
     gameVM.gameEnemyFactory = GameEnemyFactory(gameVM.enemies,
-        gameVM.currentEnemyList,
-        gameVM.gameMetricsAndCtrl.getEnemySize(), // Max have at most 30 enemies
-        0f,  // 0 % to have gem drop off
-        listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
-        gameMetricsAndCtrl,
-        colliderManager,
-        gameObjSizeAndViewManager)
+                                                gameVM.currentEnemyList,
+                                                gameVM.gameMetricsAndCtrl.getEnemySize(), // Max have at most 30 enemies
+                                                healthDropRate,
+                                                listOf(1L, 2L, 4L, 8L),  // list of intervals in second to be random pick
+                                                gameMetricsAndCtrl,
+                                                colliderManager,
+                                                gameObjSizeAndViewManager)
 
     gameVM.gameEnemyFactory?.resetEnemyUniqueID()
     gameVM.gameEnemyFactory?.startCheckAndSpawnEnemy()
