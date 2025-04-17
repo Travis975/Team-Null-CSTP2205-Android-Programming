@@ -138,14 +138,24 @@ fun SignInScreen(navController: NavController) {
                             }
                         }
                 },
-                enabled = !isLoading
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Sign In")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(onClick = { navController.navigate(HOME.path) }) {
+            Button(
+                onClick = { navController.navigate(HOME.path) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
+            ) {
                 Text("Back")
             }
 

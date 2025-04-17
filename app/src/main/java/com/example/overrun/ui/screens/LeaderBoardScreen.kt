@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -82,7 +83,11 @@ fun LeaderBoardScreen(navController: NavController) {
                 levels.forEach { level ->
                     Button(
                         onClick = { selectedLevel = level },
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Show $level Leaderboard")
                     }
@@ -125,7 +130,11 @@ fun LeaderBoardScreen(navController: NavController) {
                 onClick = { navController.navigate(MAIN_MENU.path) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(top = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Back to Main Menu")
             }

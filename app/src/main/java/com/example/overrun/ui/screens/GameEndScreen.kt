@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,10 +45,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
-    val context = LocalContext.current // ✅ Get Context
+    val context = LocalContext.current // Get Context
     val timeSurvived = gameViewModel.gameMetricsAndCtrl.getTimeSurvived()
     val eliminations = gameViewModel.gameMetricsAndCtrl.getEnemyKillCount()
-    val currentMap = gameViewModel.getCurrentMap() // ✅ Ensure you get the map name
+    val currentMap = gameViewModel.getCurrentMap() // Ensure you get the map name
 
     // Animate vertical bounce
     val infiniteTransition = rememberInfiniteTransition()
@@ -69,12 +70,19 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val backgroundRes = if (gameViewModel.gameMetricsAndCtrl.isStageClear()) {
+            R.drawable.escape_background // victory background
+        } else {
+            R.drawable.banished_background    // game over background
+        }
+
         Image(
-            painter = painterResource(id = R.drawable.banished_background),
+            painter = painterResource(id = backgroundRes),
             contentDescription = "Background",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
 
         Column(
             modifier = Modifier.fillMaxSize().padding(top = 32.dp),
@@ -106,23 +114,50 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
                         )
                     }
                     else {
-                        Text("Game Over!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("Game Over!",
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight.Bold, color = Color(0xFFE79619),
+                            fontFamily = gameFontFamily,
+                            modifier = Modifier.offset(
+                                x = bounceXOffset.dp,
+                                y = bounceYOffset.dp
+                            )
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Time Survived: $timeSurvived secs", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-                    Text("Eliminations: $eliminations", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                    Text("Time Survived: $timeSurvived secs",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                    Text("Eliminations: $eliminations",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Button(onClick = { navController.navigate(MAIN_MENU.path) }, modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = { navController.navigate(MAIN_MENU.path) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
+                    ) {
                         Text("Back to Main Menu")
                     }
 
                     Button(
-                        onClick = { addStatsToLeaderboard(context, gameViewModel, currentMap) }, // ✅ Pass context
-                        modifier = Modifier.fillMaxWidth()
+                        onClick = { addStatsToLeaderboard(context, gameViewModel, currentMap) }, // Pass context
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Add Stats to Leaderboard")
                     }
