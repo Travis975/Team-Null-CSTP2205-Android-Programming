@@ -86,7 +86,7 @@ fun ControlsScreen(navController: NavController) {
                 onClick = { navController.navigate(MAIN_MENU.path) },
                 modifier = Modifier.padding(bottom = 32.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
+                    // containerColor = Color(0xFFFF9800), // orange background
                     contentColor = Color.White          // white text
                 )
             ) {

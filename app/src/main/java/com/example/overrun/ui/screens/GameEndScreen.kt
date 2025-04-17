@@ -117,11 +117,7 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
                         Text("Game Over!",
                             fontSize = 36.sp,
                             fontWeight = FontWeight.Bold, color = Color(0xFFE79619),
-                            fontFamily = gameFontFamily,
-                            modifier = Modifier.offset(
-                                x = bounceXOffset.dp,
-                                y = bounceYOffset.dp
-                            )
+                            fontFamily = gameFontFamily
                         )
                     }
 
@@ -144,7 +140,7 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
                         onClick = { navController.navigate(MAIN_MENU.path) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {
@@ -155,7 +151,7 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
                         onClick = { addStatsToLeaderboard(context, gameViewModel, currentMap) }, // Pass context
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {
@@ -175,7 +171,7 @@ fun addStatsToLeaderboard(context: Context, gameViewModel: GameViewModel, rawMap
         return
     }
 
-    // ✅ Sanitize the map name to be Firestore-safe (remove slashes, dots, etc.)
+    // Sanitize the map name to be Firestore-safe (remove slashes, dots, etc.)
     val mapName = rawMapName.replace(Regex("[^A-Za-z0-9_-]"), "_")
 
     val timeSurvived = gameViewModel.gameMetricsAndCtrl.getTimeSurvived()
@@ -195,7 +191,7 @@ fun addStatsToLeaderboard(context: Context, gameViewModel: GameViewModel, rawMap
                 "timestamp" to System.currentTimeMillis()
             )
 
-            // ✅ Use a flat collection structure for simplicity (you can later index by mapName)
+            // Use a flat collection structure for simplicity (you can later index by mapName)
             db.collection("leaderboard")
                 .add(playerStats)
                 .addOnSuccessListener {

@@ -228,7 +228,7 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                         enabled = selectedLevel != null && selectedCharacter != null,
                         modifier = Modifier.fillMaxWidth(0.6f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {

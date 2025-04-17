@@ -102,8 +102,8 @@ fun HomeScreen(navController: NavController) {
                 },
                 modifier = Modifier.offset(y = bounceOffset.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
-                    contentColor = Color.White          // white text
+                    // containerColor = Color(0xFF1B5E20), // dark green background
+                    contentColor = Color.White         // white text
                 )
             ) {
                 Text("Game Start",

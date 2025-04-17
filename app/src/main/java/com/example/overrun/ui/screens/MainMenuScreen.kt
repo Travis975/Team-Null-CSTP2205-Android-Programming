@@ -125,7 +125,7 @@ fun MainMenuScreen(navController: NavController) {
                 onClick = { navController.navigate(START_GAME.path) },
                 modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
+                    // containerColor = Color(0xFF1B5E20), // dark green background
                     contentColor = Color.White          // white text
                 )
             ) {
@@ -141,7 +141,7 @@ fun MainMenuScreen(navController: NavController) {
                 onClick = { navController.navigate(LEADERBOARD.path) },
                 modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
+                    // containerColor = Color(0xFF1B5E20), // dark green background
                     contentColor = Color.White          // white text
                 )
             ) {
@@ -158,7 +158,7 @@ fun MainMenuScreen(navController: NavController) {
                 onClick = { navController.navigate(CONTROLS.path) },
                 modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
+                    // containerColor = Color(0xFF1B5E20), // dark green background
                     contentColor = Color.White          // white text
                 )
             ) {

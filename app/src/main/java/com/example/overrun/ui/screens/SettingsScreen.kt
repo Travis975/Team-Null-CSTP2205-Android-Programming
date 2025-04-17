@@ -68,7 +68,7 @@ fun SettingsScreen(navController: NavController) {
                         onClick = { navController.navigate(SIGNIN.path) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {
@@ -81,7 +81,7 @@ fun SettingsScreen(navController: NavController) {
                         onClick = { navController.navigate(HOME.path) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {
@@ -94,7 +94,7 @@ fun SettingsScreen(navController: NavController) {
                         onClick = { navController.navigate(MAIN_MENU.path) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                           // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {

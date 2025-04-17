@@ -85,7 +85,7 @@ fun LeaderBoardScreen(navController: NavController) {
                         onClick = { selectedLevel = level },
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800), // orange background
+                            // containerColor = Color(0xFFFF9800), // orange background
                             contentColor = Color.White          // white text
                         )
                     ) {
