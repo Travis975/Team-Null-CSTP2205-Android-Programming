@@ -25,6 +25,7 @@ fun SettingsIcon(
             // Navigate to the settings screen
             navController.navigate("settings")
         },
-        tint = Color.White
+        tint = Color(0xFFFFA500) // Orange
+
     )
 }

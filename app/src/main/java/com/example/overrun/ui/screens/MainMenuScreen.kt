@@ -77,6 +77,9 @@ fun MainMenuScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
+        val gameFontFamily = FontFamily(
+            Font(R.font.atma_semibold, FontWeight.Normal),
+        )
         // Username Display in Top-Left Corner
         Box(
             modifier = Modifier
@@ -85,10 +88,10 @@ fun MainMenuScreen(navController: NavController) {
             contentAlignment = Alignment.TopStart // Position at top-left
         ) {
             Text(text = "Hi, ${username ?: "Player"}!",
-                modifier = Modifier.padding(top =  32.dp),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold, color = Color(0xFFE79619),
+                fontFamily = gameFontFamily,
+                modifier = Modifier.padding(top = 24.dp)
             )
         }
 
@@ -128,8 +131,7 @@ fun MainMenuScreen(navController: NavController) {
             ) {
                 Text("Start",
                     fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(4.dp)
+                    modifier = Modifier.padding(4.dp)
                 )
             }
 
