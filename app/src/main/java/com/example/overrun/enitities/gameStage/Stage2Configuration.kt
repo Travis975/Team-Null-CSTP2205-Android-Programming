@@ -53,7 +53,6 @@ fun Stage2Configuration(context: Context,
     when (hero.getHeroType())
     {
         eHeroType.eHERO_TOKAGE_ORANGE -> hero.setSpeed(DEFAULT_HERO_SPEED * 2U)
-        eHeroType.eHERO_TOKAGE_YELLOW -> hero.setSpeed(DEFAULT_HERO_SPEED * 3U)
         else->hero.setSpeed(DEFAULT_HERO_SPEED)
     }
     hero.updatePosition(xStartWorldPos, yStartWorldPos)

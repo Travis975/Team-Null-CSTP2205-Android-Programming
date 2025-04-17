@@ -51,7 +51,6 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
     val characterNames = mapOf(
         1 to "Paul",
         2 to "Jacob"
-        3 to "Max"
     )
 
     Box(
@@ -115,14 +114,6 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                             },
                             characterName = characterNames[2] ?: "Unknown"
                         )
-                        CharacterIcon(
-                            characterId = 3,
-                            isSelected = selectedCharacter == 3,
-                            onClick = {
-                                selectedCharacter = if (selectedCharacter == 2) null else 3
-                            },
-                            characterName = characterNames[2] ?: "Unknown"
-                        )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -174,10 +165,6 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                                     2 -> {
                                         // Jacob
                                         gameViewModel.hero.setHeroType(eHeroType.eHERO_TOKAGE_ORANGE)
-                                    }
-                                    3 -> {
-                                        // Jacob
-                                        gameViewModel.hero.setHeroType(eHeroType.eHERO_TOKAGE_YELLOW)
                                     }
                                 }
 
