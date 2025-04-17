@@ -22,6 +22,12 @@ class GameViewModel : ViewModel(){
         isStageStartRender.value = !isStageStartRender.value
         SetTimerRunStop(true)
     }
+    // Glitch for 100% health drop
+    var is100PercentHealthDrop = mutableStateOf(false)
+    fun set100PercentHealthDrop(is100: Boolean)
+    {
+        is100PercentHealthDrop.value = is100
+    }
 
     // Timer state
     var isTimerRunning = mutableStateOf(true) // This controls whether the timer is running
