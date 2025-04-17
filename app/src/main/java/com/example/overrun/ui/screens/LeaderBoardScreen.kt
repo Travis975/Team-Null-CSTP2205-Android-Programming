@@ -132,7 +132,7 @@ fun LeaderBoardScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(top = 16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800), // orange background
+                    //containerColor = Color(0xFFFF9800), // orange background
                     contentColor = Color.White          // white text
                 )
             ) {
