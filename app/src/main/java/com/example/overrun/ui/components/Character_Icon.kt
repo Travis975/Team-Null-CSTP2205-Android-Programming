@@ -56,10 +56,6 @@ fun CharacterIcon(
                         // "Jacob" uses the orange version (example: tokage_right_hit_orange)
                         "Jacob" -> R.drawable.tokage_right_hit_orange
 
-
-                        // "Max" uses the orange version (example: tokage_right_hit_orange)
-                        "Max" -> R.drawable.tokage_right_hit_yellow
-
                         // For unknown or locked characters, fall back to an unavailable icon
                         "????" -> R.drawable.unavailable_icon
                         "???" -> R.drawable.unavailable_icon
