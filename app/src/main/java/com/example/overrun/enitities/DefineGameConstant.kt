@@ -1,8 +1,8 @@
-package com.example.overrun.entities
+package com.example.overrun.enitities
 
 import androidx.annotation.DrawableRes
 import com.example.overrun.R
-import com.example.overrun.entities.eDirection.*
+import com.example.overrun.enitities.eDirection.*
 
 // Contains various game-related constants such as default hero attributes, screen sizing,
 // and collision offsets.

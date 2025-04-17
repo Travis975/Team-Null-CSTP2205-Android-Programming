@@ -133,10 +133,10 @@ fun HeroCompose(hero : HeroCharacter,
     val spriteAttack = remember {
         val heroType = hero.getHeroType()
         hashMapOf(
-            eDOWN to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eDOWN)),
-            eUP to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eUP)),
-            eLEFT to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eLEFT)),
-            eRIGHT to loadSpriteSheet(context.resources, heroType.getAttackSrpite(eRIGHT))
+            eDOWN to loadSpriteSheet(context.resources, heroType.getAttackSprite(eDOWN)),
+            eUP to loadSpriteSheet(context.resources, heroType.getAttackSprite(eUP)),
+            eLEFT to loadSpriteSheet(context.resources, heroType.getAttackSprite(eLEFT)),
+            eRIGHT to loadSpriteSheet(context.resources, heroType.getAttackSprite(eRIGHT))
         )
     }
 
