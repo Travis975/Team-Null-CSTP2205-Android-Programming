@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import com.example.overrun.R
 import com.example.overrun.enitities.Route.*
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -98,8 +100,11 @@ fun HomeScreen(navController: NavController) {
                         navController.navigate(SIGNUP.path) // Go to signup screen
                     }
                 },
-                modifier = Modifier
-                .offset(y = bounceOffset.dp)
+                modifier = Modifier.offset(y = bounceOffset.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Game Start",
                     fontSize = 20.sp,

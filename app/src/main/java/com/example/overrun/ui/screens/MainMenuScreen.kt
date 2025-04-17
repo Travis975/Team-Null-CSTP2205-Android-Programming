@@ -3,6 +3,7 @@ package com.example.overrun.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -88,7 +89,7 @@ fun MainMenuScreen(navController: NavController) {
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
-                )
+            )
         }
 
         // Settings Icon
@@ -119,36 +120,51 @@ fun MainMenuScreen(navController: NavController) {
 
             Button(
                 onClick = { navController.navigate(START_GAME.path) },
-                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Start",
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .padding(4.dp))
+                        .padding(4.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = { navController.navigate(LEADERBOARD.path) },
-                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Leaderboards",
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .padding(4.dp))
+                        .padding(4.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = { navController.navigate(CONTROLS.path) },
-                modifier = Modifier.width(200.dp).padding(bottom = 8.dp)
+                modifier = Modifier.width(200.dp).padding(bottom = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800), // orange background
+                    contentColor = Color.White          // white text
+                )
             ) {
                 Text("Controls",
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .padding(4.dp))
+                        .padding(4.dp)
+                )
             }
 
         }

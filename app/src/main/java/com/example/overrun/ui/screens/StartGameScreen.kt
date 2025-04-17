@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -201,7 +202,7 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                                     }
                                 }
 
-                                // ✅ Assign readable map names instead of just numbers
+                                // Assign readable map names instead of just numbers
                                 val mapName = when (selectedLevel) {
                                     1 -> "Level 1"
                                     2 -> "Level 2"
@@ -209,10 +210,10 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                                     else -> "Unknown Map"
                                 }
 
-                                // ✅ Set the selected map in the GameViewModel
+                                // Set the selected map in the GameViewModel
                                 gameViewModel.setCurrentMap(mapName)
 
-                                // ✅ Navigate to the correct level
+                                // Navigate to the correct level
                                 val route = when (selectedLevel) {
                                     1 -> "level1"
                                     2 -> "level2"
@@ -225,7 +226,11 @@ fun StartGameScreen(navController: NavController, gameViewModel: GameViewModel) 
                             }
                         },
                         enabled = selectedLevel != null && selectedCharacter != null,
-                        modifier = Modifier.fillMaxWidth(0.6f)
+                        modifier = Modifier.fillMaxWidth(0.6f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Start Game")
                     }

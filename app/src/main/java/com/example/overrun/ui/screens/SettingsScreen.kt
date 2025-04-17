@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -65,7 +66,11 @@ fun SettingsScreen(navController: NavController) {
 
                     Button(
                         onClick = { navController.navigate(SIGNIN.path) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Sign in with other account")
                     }
@@ -74,7 +79,11 @@ fun SettingsScreen(navController: NavController) {
 
                     Button(
                         onClick = { navController.navigate(HOME.path) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Quit Game")
                     }
@@ -83,7 +92,11 @@ fun SettingsScreen(navController: NavController) {
 
                     Button(
                         onClick = { navController.navigate(MAIN_MENU.path) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800), // orange background
+                            contentColor = Color.White          // white text
+                        )
                     ) {
                         Text("Back")
                     }
