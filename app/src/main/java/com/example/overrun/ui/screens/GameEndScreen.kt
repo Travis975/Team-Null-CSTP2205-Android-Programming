@@ -116,7 +116,7 @@ fun GameEndScreen(navController: NavController, gameViewModel: GameViewModel) {
                     else {
                         Text("Game Over!",
                             fontSize = 36.sp,
-                            fontWeight = FontWeight.Bold, color = Color(0xFFE79619),
+                            fontWeight = FontWeight.Bold, color = Color.Gray, //Color(0xFFE79619),
                             fontFamily = gameFontFamily
                         )
                     }
