@@ -6,7 +6,7 @@ import com.example.overrun.enitities.eDirection.*
 
 // Contains various game-related constants such as default hero attributes, screen sizing,
 // and collision offsets.
-object GameConstant{
+object GameConstant {
     // Hero Attribute
     // All value are in Pixels
     const val DEFAULT_LIVES = 10U
@@ -58,7 +58,7 @@ object GameConstant{
 //       |_ ePATH
 //       |_ eGRASS
 
-enum class eObjectType(val value: Int){
+enum class eObjectType(val value: Int) {
 
     // Original new-script entries:
     eNA(-1),
@@ -84,7 +84,7 @@ enum class eObjectType(val value: Int){
     ePATH_RANDOM(45),
     ePATH_RANDOM_2(46),
 
-    // Addititonal foilage, grass or plants
+    // Additional foliage, grass or plants
     eMUSHROOMS(34),
     eROCKY_PATCH(30),
     eGRASS_BLANK(31),
@@ -136,9 +136,8 @@ enum class eObjectType(val value: Int){
 
     // All static object do not have collider
     // that not able to detection the overlap
-    public fun isStatic() : Boolean
-    {
-        return when(this){
+    fun isStatic(): Boolean {
+        return when (this) {
             eGRASS,
             eTREE_BACKGROUND,
             eGRASS_NORMAL,
@@ -170,10 +169,9 @@ enum class eObjectType(val value: Int){
 
     // Allow the object which having collider for not blocking movement
     // Able to detect but not blocking
-    public fun isColliderBlockable() : Boolean
-    {
+    fun isColliderBlockable(): Boolean {
         // By default, mushrooms are passable; everything else typically blocks the hero
-        return when(this){
+        return when (this) {
             eHALF_TREE_OBSTACLE, eMUSHROOMS, ePOWER_HEALTH_GEM -> false
             else -> true
         }
@@ -182,9 +180,8 @@ enum class eObjectType(val value: Int){
     // Objects allow to be interact by hero action collider to attack / make it
     // having response like blinking
     // Or can apply effect back to hero like harm
-    public fun isInteractable() : Boolean
-    {
-        return when(this){
+    fun isInteractable(): Boolean {
+        return when (this) {
             eROCK_1,
             eROCK_TOXIC,
             eCACTUS,
@@ -203,18 +200,16 @@ enum class eObjectType(val value: Int){
     }
 
     // To determine object functionalities for further action after collides
-    public fun isHealthUpGem(): Boolean
-    {
-        return when(this){
-            eHALF_TREE_OBSTACLE, eMUSHROOMS, ePOWER_HEALTH_GEM-> true
+    fun isHealthUpGem(): Boolean {
+        return when (this) {
+            eHALF_TREE_OBSTACLE, eMUSHROOMS, ePOWER_HEALTH_GEM -> true
             else -> false
         }
     }
 
     // To determine object functionalities for further action after collides
-    public fun isHarmful(): Boolean
-    {
-        return when(this){
+    fun isHarmful(): Boolean {
+        return when (this) {
             eROCK_TOXIC,
             eCACTUS,
             eENEMY,
@@ -227,18 +222,18 @@ enum class eObjectType(val value: Int){
         }
     }
 
-    companion object{
+    companion object {
         fun fromValue(value: Int?): eObjectType? {
-            return eObjectType.entries.find { it.value == value }
+            return entries.find { it.value == value }
         }
 
-        fun fromIDStringToObjType(id : String) : eObjectType? {
-            return id.split("_")[0].toIntOrNull()?.let{fromValue(it)}
+        fun fromIDStringToObjType(id: String): eObjectType? {
+            return id.split("_")[0].toIntOrNull()?.let { fromValue(it) }
         }
     }
 
     override fun toString(): String {
-        return when(this){
+        return when (this) {
             // Retaining both old and new naming for consistency
             eNA -> "Not Applicable"
             eGRASS -> "Grass"
@@ -250,7 +245,7 @@ enum class eObjectType(val value: Int){
             eWALL -> "Wall"
             ePATH -> "Path"
             eSAND -> "Sand"
-            ePOWER_HEALTH_GEM->"Health Up Gem"
+            ePOWER_HEALTH_GEM -> "Health Up Gem"
             ePATH_RANDOM_3 -> "Random Path Tile 3"
             ePATH_BLANK_MUD -> "Blank Mud Path"
             ePATH_LEFT_BOUNDARY -> "Path Left Boundary"
@@ -308,14 +303,14 @@ enum class eObjectType(val value: Int){
 }
 
 // Character types under the main umbrella of eCHARACTER object type.
-enum class eCharacterType{
+enum class eCharacterType {
     eNA, eHERO, eENEMY;
 
     override fun toString(): String {
-        return when(this){
-            eHERO->"Hero"
-            eENEMY->"Enemy"
-            else->"Invalid Character"
+        return when (this) {
+            eHERO -> "Hero"
+            eENEMY -> "Enemy"
+            else -> "Invalid Character"
         }
     }
 }
@@ -323,82 +318,78 @@ enum class eCharacterType{
 // Specific hero skins or hero variants.
 enum class eHeroType(@DrawableRes val resId: Int) {
     eHERO_TOKAGE(R.drawable.hero_tokage),
-    eHERO_TOKAGE_ORANGE(R.drawable.hero_tokage_orange);
+    eHERO_TOKAGE_ORANGE(R.drawable.hero_tokage_orange),
+    eHERO_TOKAGE_YELLOW(R.drawable.hero_tokage_yellow);
 
-    fun getAttackSrpite(eDir: eDirection): Int
-    {
-        return when(this){
-            eHERO_TOKAGE->{
-                when(eDir)
-                {
-                    eDOWN->R.drawable.tokage_down_hit
-                    eUP->R.drawable.tokage_up_hit
-                    eLEFT->R.drawable.tokage_left_hit
-                    eRIGHT->R.drawable.tokage_right_hit
-                    else->R.drawable.tokage_down_hit
+    fun getAttackSprite(eDir: eDirection): Int {
+        return when (this) {
+            eHERO_TOKAGE -> {
+                when (eDir) {
+                    eDOWN -> R.drawable.tokage_down_hit
+                    eUP -> R.drawable.tokage_up_hit
+                    eLEFT -> R.drawable.tokage_left_hit
+                    eRIGHT -> R.drawable.tokage_right_hit
+                    else -> R.drawable.tokage_down_hit
                 }
             }
-            eHERO_TOKAGE_ORANGE->{
-                when(eDir)
-                {
-                    eDOWN->R.drawable.tokage_down_hit_orange
-                    eUP->R.drawable.tokage_up_hit_orange
-                    eLEFT->R.drawable.tokage_left_hit_orange
-                    eRIGHT->R.drawable.tokage_right_hit_orange
-                    else->R.drawable.tokage_down_hit_orange
+            eHERO_TOKAGE_ORANGE -> {
+                when (eDir) {
+                    eDOWN -> R.drawable.tokage_down_hit_orange
+                    eUP -> R.drawable.tokage_up_hit_orange
+                    eLEFT -> R.drawable.tokage_left_hit_orange
+                    eRIGHT -> R.drawable.tokage_right_hit_orange
+                    else -> R.drawable.tokage_down_hit_orange
                 }
             }
-            else->{
-                when(eDir)
-                {
-                    eDOWN->R.drawable.tokage_down_hit
-                    eUP->R.drawable.tokage_up_hit
-                    eLEFT->R.drawable.tokage_left_hit
-                    eRIGHT->R.drawable.tokage_right_hit
-                    else->R.drawable.tokage_down_hit
+            eHERO_TOKAGE_YELLOW -> {
+                when (eDir) {
+                    eDOWN -> R.drawable.tokage_down_hit_yellow
+                    eUP -> R.drawable.tokage_up_hit_yellow
+                    eLEFT -> R.drawable.tokage_left_hit_yellow
+                    eRIGHT -> R.drawable.tokage_right_hit_yellow
+                    else -> R.drawable.tokage_down_hit_yellow
                 }
             }
         }
     }
 }
 
-enum class eEnemyType(@DrawableRes val resId : Int){
+enum class eEnemyType(@DrawableRes val resId: Int) {
     eENEMY_PARROT(R.drawable.parrot),
     eENEMY_SLIME(R.drawable.slime)
-    // You can add more hero types here if needed
 }
 
 // Directions for character or object movement (e.g., up, down, left, right).
-enum class eDirection(val value: Int){
+enum class eDirection(val value: Int) {
     eDOWN(0), eUP(1), eLEFT(2), eRIGHT(3);
 
-    companion object{
+    companion object {
         // Retrieves eDirection instance by integer value.
-        fun fromValue(value : Int) : eDirection{
-            return when(value){
-                0->eDOWN
-                1->eUP
-                2->eLEFT
-                3->eRIGHT
-                else->throw IllegalArgumentException("Invalid argument $value")
+        fun fromValue(value: Int): eDirection {
+            return when (value) {
+                0 -> eDOWN
+                1 -> eUP
+                2 -> eLEFT
+                3 -> eRIGHT
+                else -> throw IllegalArgumentException("Invalid argument $value")
             }
         }
     }
 }
 
 // Defines various stages in the game.
-enum class eGameStage{
+enum class eGameStage {
     eStage1,
     eStage2,
     eStage3,
     eTotalGameStage;
 
     override fun toString(): String {
-        return when(this){
-            eStage1 ->"Stage 1"
-            eStage2 ->"Stage 2"
-            eStage3 ->"Stage 3"
-            else->"Invalid Stage"
+        return when (this) {
+            eStage1 -> "Stage 1"
+            eStage2 -> "Stage 2"
+            eStage3 -> "Stage 3"
+            else -> "Invalid Stage"
         }
     }
 }
