@@ -41,6 +41,12 @@ fun LevelBase_Screen(navController: NavController,
     val density = LocalDensity.current
     val context = LocalContext.current
 
+    val boxSize = remember(density){
+        with(density) {
+            gameViewModel.objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp()
+        }
+    }
+
     val isGameStageInitialized = remember { mutableStateOf(false) }
 
     // declare for re-render trigger
@@ -100,7 +106,8 @@ fun LevelBase_Screen(navController: NavController,
                     ObjectCompose(gameObj,
                         gameViewModel.gameMetricsAndCtrl,
                         gameViewModel.colliderManager,
-                        gameViewModel.objectSizeAndViewManager
+                        gameViewModel.objectSizeAndViewManager,
+                        boxSize
                     )
                 }
 
