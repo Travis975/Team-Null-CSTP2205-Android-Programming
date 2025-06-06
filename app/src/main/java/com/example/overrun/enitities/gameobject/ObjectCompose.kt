@@ -29,7 +29,8 @@ fun ObjectCompose(
     gameObject: GameObject,
     gameMetricsAndCtrl: GameMetricsAndControl,
     colliderManager: ColliderManager,
-    objectSizeAndViewManager : GameObjectSizeAndViewManager
+    objectSizeAndViewManager : GameObjectSizeAndViewManager,
+    boxSize: Dp
 ) {
     if (gameObject.getIsDestroy()) {
         return  // Just bail out, skip drawing
@@ -115,6 +116,9 @@ fun ObjectCompose(
     }
 
     // For not within the Screen, skip rendering
+//    val isVisible = rememberUpdatedState(objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider()))
+//    if (!isVisible.value) return
+
     if (!objectSizeAndViewManager.IsObjectInScreen(gameObject.getCollider())) {
         return
     }
@@ -127,8 +131,8 @@ fun ObjectCompose(
     val xScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldX)
     val yScreenPos by rememberUpdatedState(objectSizeAndViewManager.screenWorldY)
 
-    val density = LocalDensity.current
-    val boxSize = with(density) { objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp() }
+//    val density = LocalDensity.current
+//    val boxSize = with(density) { objectSizeAndViewManager.GET_OBJECT_SIZE().toFloat().toDp() }
 
     var lastColor by remember { mutableStateOf(Color.DarkGray) }
     var filterOpacity by remember { mutableStateOf(0f) }
@@ -171,11 +175,12 @@ fun ObjectCompose(
     // Debug log (if needed)
     // Log.i("Object", "Type ${gameObject.getObjType()}  id : ${gameObject.getID()} x : ${gameObject.getXPos()}  y : ${gameObject.getYPos()}")
 
-    Box(Modifier.fillMaxSize()) {
+    //Box(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .size(boxSize)
-                .align(Alignment.TopStart)
+                //.align(Alignment.TopStart)
+
                 // don't use graphicLayer since its transformation would auto scaling and translate
                 // may cause edge residue issue for the rendering
                 // .graphicsLayer {
@@ -328,5 +333,5 @@ fun ObjectCompose(
                 }
             }
         }
-    }
+    //}
 }
